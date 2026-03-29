@@ -28,7 +28,7 @@ function Header() {
 
       </header>
 
-      {/* linha colorida */}
+      {/* achei daora */}
       <div className="h-1 bg-gradient-to-r from-red-500 via-yellow-400 to-purple-600"></div>
     </>
   )
