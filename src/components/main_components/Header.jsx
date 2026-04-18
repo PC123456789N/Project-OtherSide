@@ -2,8 +2,7 @@ import { useState } from "react"
 
 import HeaderBtn from "../subcomponents/HeaderBtn"
 
-export default function Header() {
-  const [selected, setSelected] = useState(1)
+export default function Header( {selectedId, setSelectedId} ) {
 
   return (
     <>
@@ -28,10 +27,10 @@ export default function Header() {
         </div>
 
         <div className="grid grid-cols-2 gap-2 md:flex md:justify-center">
-          <HeaderBtn type={'inicial'} selectedId={selected} setSelectedId={setSelected}/>
-          <HeaderBtn type={'combat'} selectedId={selected} setSelectedId={setSelected}/>
-          <HeaderBtn type={'script'} selectedId={selected} setSelectedId={setSelected}/>
-          <HeaderBtn type={'music'} selectedId={selected} setSelectedId={setSelected}/>
+          <HeaderBtn type={'inicial'} selectedId={selectedId} setSelectedId={setSelectedId}/>
+          <HeaderBtn type={'combat'} selectedId={selectedId} setSelectedId={setSelectedId}/>
+          <HeaderBtn type={'script'} selectedId={selectedId} setSelectedId={setSelectedId}/>
+          <HeaderBtn type={'music'} selectedId={selectedId} setSelectedId={setSelectedId}/>
         </div>
 
         <div className="md:flex justify-center hidden md:justify-end">
