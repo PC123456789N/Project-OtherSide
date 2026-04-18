@@ -1,13 +1,14 @@
+import { useEditor, EditorContent } from "@tiptap/react"
+
 import TextAlign from "@tiptap/extension-text-align"
 import { TextStyle } from "@tiptap/extension-text-style"
 import FontSize from "@tiptap/extension-text-style/font-size"
-import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 
 export default function Script() {
   const editor = useEditor({
-    extensions: [StarterKit,TextStyle, FontSize ,TextAlign.configure({types: ['heading', 'paragraph'],}),],
-    content: "<p>cole aq</p>",
+    extensions: [StarterKit, TextStyle, FontSize, TextAlign.configure({types: ['heading','paragraph'],}),],
+    content: "<p>Cole Seu Roteiro Aqui :)</p>",
     
     editorProps: {
       attributes: {
@@ -16,13 +17,20 @@ export default function Script() {
     }
   })
 
+  if (!editor) return null
+
   return(
     <div className="h-full w-full bg-slate-900 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-hidden p-3">
         <div className="max-w-5xl mx-auto min-h-0 bg-slate-800 text-white p-4 rounded-xl h-full flex flex-col shadow-lg">
 
-          <div className="flex gap-2 border-b border-slate-600 pb-2">
+          <input
+            type="text"
+            placeholder="Título..."
+            className="bg-transparent text-xl font-semibold outline-none placeholder:text-gray-400 pb-3"
+          />
 
+          <div className="flex gap-2 border-b border-slate-600 pb-2">
             <select
               onChange={(e) => editor.chain().focus().setFontSize(e.target.value).run()}
               className="bg-slate-700 text-white rounded px-2"
@@ -58,22 +66,17 @@ export default function Script() {
               className="bg-slate-700 text-white rounded px-2"
             >
               <option value="left">Esquerda</option>
-              <option value="center">Direita</option>
-              <option value="right">Centralizado</option>
-              <option value="justify">Justificado</option>
+              <option value="center">Centralizar</option>
+              <option value="right">Direita</option>
+              <option value="justify">Justificar</option>
             </select>
           </div>
 
-          <input
-            type="text"
-            placeholder="Título..."
-            className="bg-transparent text-2xl font-bold outline-none placeholder:text-gray-400 pb-2"
-          />
           <div className="flex-1 overflow-hidden min-h-0">
           <div className="h-full overflow-auto min-h-0">
             <EditorContent 
-              editor={editor} 
-              className="prose prose-invert max-w-none"
+              editor={editor}
+              className="prose prose-invert max-w-none" 
             />
           </div>
         </div>
