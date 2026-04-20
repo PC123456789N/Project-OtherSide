@@ -14,19 +14,19 @@ export default function HeaderBtn({ type }) {
   let selfId = selectedId;
 
   switch(type){
-    case "inicial":
+    case "i":
       text = "Iniciativas";
       selfId = 1;
       break
-    case "combat":
+    case "c":
       text = "Combate"
       selfId = 2;
       break
-    case "script":
+    case "s":
       text = "Roteiro"
       selfId = 3;
       break
-    case "music":
+    case "m":
       text = "Música"
       selfId = 4;
       break
