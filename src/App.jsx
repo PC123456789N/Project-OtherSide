@@ -1,22 +1,21 @@
 import { useState } from 'react'
+import { HashRouter, Routes, Route } from "react-router-dom";
+import LandingPage from './components/main_components/LandingPage';
+import Login from './components/main_components/Login';
+import MainLayout from './components/main_components/MainLayout';
 
-import Header from './components/main_components/Header.jsx'
-import MainPage from './components/main_components/MainPage.jsx'
+
 
 
 function App() {
-
-  const [selectedId, setSelectedId] = useState(1)
-  return (
-    <div className="h-screen w-full grid grid-rows-[auto_1fr] grid-flow-col">
-      <div>
-        <Header selectedId={selectedId} setSelectedId={setSelectedId} />
-      </div>
-
-      <div className='bg-gray-800 flex flex-col h-full overflow-hidden'>
-        <MainPage selectedId={selectedId} />
-      </div>
-    </div>
+  return(
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={ <LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/mainpage" element={<MainLayout />} />
+      </Routes>
+    </HashRouter>
   )
 }
 
