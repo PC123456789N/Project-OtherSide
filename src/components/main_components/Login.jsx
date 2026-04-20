@@ -4,6 +4,8 @@ import { Navigate, Link, useNavigate } from "react-router-dom";
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from "../../firebase/auth";
 import { useAuth } from "../../context/authContext";
 
+import { FcGoogle } from "react-icons/fc";
+
 const Login = () => {
   const { userLoggedIn } = useAuth();
   const navigate = useNavigate();
@@ -47,16 +49,16 @@ const Login = () => {
         <div className="bg-gray-900 p-8 md:p-4 rounded-2xl shadow-lg w-full max-w-sm border-4 border-double border-purple-800">
 
           {errorMessage && (
-            <p className="text-red-400 text-sm mb-4 text-center">
+            <p className="text-red-800 text-sm mb-4 text-center">
               {errorMessage}
             </p>
           )}
 
-          <h2 className="text-xl font-bold text-purple-600 mb-6 text-center">
+          <h2 className="text-xl font-bold text-white mb-6 text-center">
             Fazer Login
           </h2>
 
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={onSubmit} className="space-y-6">
 
             <input
               type="email"
@@ -78,27 +80,29 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700 transition p-3 rounded-lg text-white font-semibold"
+              className="w-full bg-purple-700 hover:bg-purple-600 transition p-3 rounded-lg text-white font-semibold"
             >
               Entrar
             </button>
 
             <button
-              className="w-full bg-slate-800  transition p-3 rounded-lg text-purple-600 hover:bg-purple-900 hover:text-white font-semibold"
-              onClick={() => { navigate("/registry", { replace: true }) }}
-            >
-              Registrar Conta
-            </button>
+            onClick={onGoogleSignIn}
+            className="w-full flex justify-center items-center bg-gray-800 border border-purple-700 hover:bg-gray-700 transition p-3 rounded-lg text-white font-semibold"
+          >
+            <span>Entrar com Google</span>
+            <FcGoogle className="ms-4 size-6" />
+          </button>
+
+            
           </form>
 
           <div className="my-4 text-center text-gray-400"> --- ou --- </div>
-
           <button
-            onClick={onGoogleSignIn}
-            className="w-full bg-red-800 hover:bg-red-700 transition p-3 rounded-lg text-white font-semibold"
-          >
-            Entrar com Google
-          </button>
+              className="w-full bg-slate-800  transition p-3 rounded-lg border text-purple-600 border-purple-700 hover:bg-purple-900 hover:text-white font-semibold"
+              onClick={() => { navigate("/registry", { replace: true }) }}
+            >
+              Não Tem Uma Conta? Registrar
+            </button>
 
         </div>
       </div>
