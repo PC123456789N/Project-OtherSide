@@ -6,12 +6,12 @@ import MainPage from './MainPage.jsx'
 export default function MainLayout() {
 
   return (
-    <div className="h-screen w-full grid grid-rows-[auto_1fr] grid-flow-col">
+    <div className="h-screen w-full grid grid-rows-[auto_1fr]">
       <div>
           <Header/>
       </div>
     
-      <div className='bg-gray-800 flex flex-col h-full overflow-hidden'>
+      <div className='bg-gray-800 flex flex-col h-full overflow-auto'>
           <MainPage/>
       </div>
     </div>        
