@@ -43,8 +43,8 @@ const Login = () => {
     <>
       {userLoggedIn && ( <Navigate to={'/'} replace={true} />) }
 
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="bg-gray-800 p-8 rounded-2xl shadow-lg w-full max-w-sm">
+      <div className="min-h-screen flex items-center justify-center bg-center bg-no-repeat bg-cover sm:bg-contain bg-black bg-[url(./././assets/tenebrislogin.jpg)]">
+        <div className="bg-gray-900 p-8 md:p-4 rounded-2xl shadow-lg w-full max-w-sm border-4 border-double border-purple-800">
 
           {errorMessage && (
             <p className="text-red-400 text-sm mb-4 text-center">
@@ -52,8 +52,8 @@ const Login = () => {
             </p>
           )}
 
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">
-            Login
+          <h2 className="text-xl font-bold text-purple-600 mb-6 text-center">
+            Fazer Login
           </h2>
 
           <form onSubmit={onSubmit} className="space-y-4">
@@ -78,17 +78,24 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 transition p-3 rounded-lg text-white font-semibold"
+              className="w-full bg-purple-600 hover:bg-purple-700 transition p-3 rounded-lg text-white font-semibold"
             >
               Entrar
             </button>
+
+            <button
+              className="w-full bg-slate-800  transition p-3 rounded-lg text-purple-600 hover:bg-purple-900 hover:text-white font-semibold"
+              onClick={() => { navigate("/registry", { replace: true }) }}
+            >
+              Registrar Conta
+            </button>
           </form>
 
-          <div className="my-4 text-center text-gray-400">ou</div>
+          <div className="my-4 text-center text-gray-400"> --- ou --- </div>
 
           <button
             onClick={onGoogleSignIn}
-            className="w-full bg-red-500 hover:bg-red-600 transition p-3 rounded-lg text-white font-semibold"
+            className="w-full bg-red-800 hover:bg-red-700 transition p-3 rounded-lg text-white font-semibold"
           >
             Entrar com Google
           </button>
