@@ -44,10 +44,10 @@ export default function Header() {
         </div>
 
         <div className="grid grid-cols-2 gap-2 md:flex md:justify-center">
-          <HeaderBtn type={'inicial'}/>
-          <HeaderBtn type={'combat'}/>
-          <HeaderBtn type={'script'}/>
-          <HeaderBtn type={'music'}/>
+          <HeaderBtn type={'i'}/>
+          <HeaderBtn type={'c'}/>
+          <HeaderBtn type={'s'}/>
+          <HeaderBtn type={'m'}/>
         </div>
 
         {!userLoggedIn  && (
