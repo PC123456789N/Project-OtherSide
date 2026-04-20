@@ -23,4 +23,5 @@ const analytics = getAnalytics(app);
 const auth = getAuth(app);
 auth.useDeviceLanguage();
 
+
 export {app, auth};
