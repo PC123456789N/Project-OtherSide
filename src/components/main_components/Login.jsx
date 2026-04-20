@@ -41,7 +41,7 @@ const Login = () => {
 
   return (
     <>
-      {userLoggedIn && ( <Navigate to={'/mainpage'} replace={true} />) }
+      {userLoggedIn && ( <Navigate to={'/'} replace={true} />) }
 
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="bg-gray-800 p-8 rounded-2xl shadow-lg w-full max-w-sm">
@@ -79,7 +79,6 @@ const Login = () => {
             <button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 transition p-3 rounded-lg text-white font-semibold"
-              onClick={onSubmit}
             >
               Entrar
             </button>
@@ -88,7 +87,7 @@ const Login = () => {
           <div className="my-4 text-center text-gray-400">ou</div>
 
           <button
-            onClick={() => console.log("Google login")}
+            onClick={onGoogleSignIn}
             className="w-full bg-red-500 hover:bg-red-600 transition p-3 rounded-lg text-white font-semibold"
           >
             Entrar com Google

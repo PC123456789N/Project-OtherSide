@@ -1,8 +1,15 @@
 import { useState } from "react"
+import { Link, Navigate, replace, useNavigate } from "react-router-dom"
+
+import { useAuth } from "../../context/authContext";
+import { useSelected } from "../../context/selectedContext/SelectedContext";
 
 import HeaderBtn from "../subcomponents/HeaderBtn"
 
-export default function Header( {selectedId, setSelectedId} ) {
+export default function Header() {
+  const navigate = useNavigate();
+  const { userLoggedIn } = useAuth();
+  const {selectedId, setSelectedId} = useSelected();
 
   return (
     <>
@@ -27,19 +34,26 @@ export default function Header( {selectedId, setSelectedId} ) {
         </div>
 
         <div className="grid grid-cols-2 gap-2 md:flex md:justify-center">
-          <HeaderBtn type={'inicial'} selectedId={selectedId} setSelectedId={setSelectedId}/>
-          <HeaderBtn type={'combat'} selectedId={selectedId} setSelectedId={setSelectedId}/>
-          <HeaderBtn type={'script'} selectedId={selectedId} setSelectedId={setSelectedId}/>
-          <HeaderBtn type={'music'} selectedId={selectedId} setSelectedId={setSelectedId}/>
+          <HeaderBtn type={'inicial'}/>
+          <HeaderBtn type={'combat'}/>
+          <HeaderBtn type={'script'}/>
+          <HeaderBtn type={'music'}/>
         </div>
 
-        <div className="md:flex justify-center hidden md:justify-end">
-          <button className="bg-purple-600 px-4 py-2 rounded">
-            <img src="https://cdn-icons-png.flaticon.com/512/446/446044.png" alt=""
-            className="size-6"
-            />
-          </button>
-        </div>
+        {!userLoggedIn  && (
+          <div className="md:flex justify-center hidden md:justify-end">
+            <button className="bg-purple-600 px-4 py-2 rounded cursor-pointer hover:bg-purple-700"
+            onClick={() => { navigate("/login", { replace: true }) }}
+            >
+              Login
+            </button>
+          </div>
+        )}
+        {userLoggedIn &&(
+          <div className="md:flex justify-center hidden md:justify-end">
+            <p>Bem vindo a Tenebris</p>
+          </div>
+        )}
       </header>
 
       <div className="h-1 w-100% bg-linear-to-r from-red-500 via-yellow-400 to-purple-600"></div>
