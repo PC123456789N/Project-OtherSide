@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link, Navigate, replace, useNavigate } from "react-router-dom"
 
 import { useAuth } from "../../context/authContext";
-import { useSelected } from "../../context/selectedContext/SelectedContext";
+import { useSavedState } from "../../context/selectedContext/SavedStateContext";
 import { doSignOut } from "../../firebase/auth";
 
 import HeaderBtn from "../subcomponents/HeaderBtn"
@@ -10,7 +10,7 @@ import HeaderBtn from "../subcomponents/HeaderBtn"
 export default function Header() {
   const navigate = useNavigate();
   const { userLoggedIn } = useAuth();
-  const {selectedId, setSelectedId} = useSelected();
+  const {selectedId, setSelectedId} = useSavedState();
 
   return (
     <>

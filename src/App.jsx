@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { SelectedProvider } from './context/selectedContext/SelectedContext';
+import { SavedStateProvider } from './context/selectedContext/SavedStateContext';
 
 import LandingPage from './components/main_components/LandingPage';
 import Login from './components/main_components/Login';
@@ -12,7 +12,7 @@ import Registry from './components/main_components/Registry';
 
 function App() {
   return (
-    <SelectedProvider>
+    <SavedStateProvider>
       <HashRouter>
         <Routes>
           <Route path="/" element={<MainLayout />} />
@@ -20,7 +20,7 @@ function App() {
           <Route path="/registry" element={<Registry/>} />
         </Routes>
       </HashRouter>
-    </SelectedProvider>
+    </SavedStateProvider>
   )
 }
 

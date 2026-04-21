@@ -1,4 +1,6 @@
-import { useSelected } from "../../context/selectedContext/SelectedContext";
+import { useSavedState } from "../../context/selectedContext/SavedStateContext";
+import { useAuth } from "../../context/authContext";
+import { useEffect } from "react";
 
 import Inicial from "../subcomponents/Inicial";
 import Combat from "../subcomponents/combat";
@@ -8,7 +10,15 @@ import LandingPage from "./LandingPage";
 
 
 export default function MainPage(){
-  const {selectedId, setSelectedId} = useSelected();
+  const {selectedId, setSelectedId} = useSavedState();
+  const {userLoggedIn} = useAuth();
+
+  useEffect(() => {
+  if (userLoggedIn) {
+    setSelectedId(1);
+  }
+}, [])
+  
   return (
     <div className="w-full h-full">
       {selectedId == 0 && (<LandingPage />)}

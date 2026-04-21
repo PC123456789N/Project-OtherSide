@@ -1,4 +1,7 @@
+import { useSavedState } from "../../context/selectedContext/SavedStateContext"
+
 import { useEditor, EditorContent } from "@tiptap/react"
+import { useEffect, useState } from "react"
 
 import TextAlign from "@tiptap/extension-text-align"
 import { TextStyle } from "@tiptap/extension-text-style"
@@ -6,6 +9,10 @@ import FontSize from "@tiptap/extension-text-style/font-size"
 import StarterKit from "@tiptap/starter-kit"
 
 export default function Script() {
+
+  const {scriptBody, setScriptBody} = useSavedState();
+  const {scriptTitle, setScriptTitle} = useSavedState(); 
+
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, FontSize, TextAlign.configure({types: ['heading','paragraph'],}),],
     content: "<p>Cole Seu Roteiro Aqui :)</p>",
@@ -14,10 +21,25 @@ export default function Script() {
       attributes: {
         class: "focus:outline-none"
       }
+    },
+
+    onUpdate: ({ editor }) => {
+      setScriptBody(editor.getHTML())
     }
   })
 
   if (!editor) return null
+
+  useEffect(() => {
+    if (editor && scriptBody) {
+      editor.commands.setContent(scriptBody)
+    }
+  }, [editor])
+
+  useEffect(() => {
+    setScriptTitle(scriptTitle)
+  }, [scriptTitle])
+
 
   return(
     <div className="h-full w-full bg-slate-900 flex flex-col overflow-hidden">
@@ -27,6 +49,8 @@ export default function Script() {
           <input
             type="text"
             placeholder="Título..."
+            onChange={(e) => setScriptTitle(e.target.value)}
+            value={scriptTitle}
             className="bg-transparent text-xl font-semibold outline-none placeholder:text-gray-400 pb-3"
           />
 

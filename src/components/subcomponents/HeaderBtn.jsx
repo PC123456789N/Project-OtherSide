@@ -2,13 +2,13 @@ import { useState } from "react"
 import { useNavigate, replace } from "react-router-dom";
 
 import { useAuth } from "../../context/authContext";
-import { useSelected } from "../../context/selectedContext/SelectedContext";
+import { useSavedState } from "../../context/selectedContext/SavedStateContext";
 
 export default function HeaderBtn({ type }) {
   const [selected] = useState(true)
   const {userLoggedIn} = useAuth();
   const navigate = useNavigate();
-  const {selectedId, setSelectedId} = useSelected();
+  const {selectedId, setSelectedId} = useSavedState();
 
   let text = "";
   let selfId = selectedId;
