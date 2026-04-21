@@ -51,7 +51,7 @@ export default function Inicial() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-full bg-black text-white p-6">
 
       <h1 className="text-4xl text-center mb-8 text-purple-500 font-bold">
         Iniciativas

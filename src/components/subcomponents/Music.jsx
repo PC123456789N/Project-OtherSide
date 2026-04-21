@@ -38,7 +38,7 @@ export default function Music() {
   }
 
   return (
-    <div className="bg-black text-white min-h-screen p-6">
+    <div className="bg-black text-white min-h-full p-6">
 
       <h1 className="text-3xl text-purple-500 mb-6 text-center">
         Playlist 🎵

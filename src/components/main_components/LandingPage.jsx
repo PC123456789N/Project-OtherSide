@@ -4,10 +4,10 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex justify-center items-center h-screen bg-purple-900">
-      
-      <div className="bg-gray-900 p-10 rounded-2xl shadow-2xl text-center w-[350px]">
-        
+    <div className="flex justify-center items-center min-h-full bg-purple-900">
+
+      <div className="bg-gray-900 rounded-2xl shadow-2xl text-center w-87.5">
+
         <h1 className="text-3xl text-white font-bold mb-6">
           Bem Vindo ao Projeto Otherside
         </h1>
