@@ -37,6 +37,9 @@ const Login = () => {
       setIsSigningIn(true)
       doSignInWithGoogle().catch(err => {
         setIsSigningIn(false)
+        console.error("Erro Google:", err);
+        console.log("auth:", auth);
+        console.log("provider:", provider);
       })
     }
   };
