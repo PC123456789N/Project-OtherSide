@@ -71,7 +71,7 @@ export default function Header() {
         )}
       </header>
 
-      <div className="h-1 w-100% bg-linear-to-r from-red-500 via-yellow-400 to-purple-600"></div>
+      <div className="h-1 w-full bg-linear-to-r from-red-500 via-yellow-400 to-purple-600"></div>
     </>
   )
 }
