@@ -20,7 +20,7 @@ export default function Header() {
           <img
             src="https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br"
             alt="Logo"
-            className="size-12"
+            className="size-10 sm:size-12"
           />
 
           <h1 className="text-xl font-bold text-red-500">
@@ -28,7 +28,7 @@ export default function Header() {
           </h1>
 
           {!userLoggedIn && (
-            <button className="bg-purple-600 px-4 py-2 rounded md:hidden"
+            <button className="bg-purple-600 px-3 sm:px-4 py-2 rounded md:hidden"
             onClick={() => { navigate("/login", { replace: true }) }}
             >
               Login
