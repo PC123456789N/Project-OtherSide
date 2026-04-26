@@ -1,5 +1,7 @@
 import {auth} from "../../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase/firebase";
 
 import React, { useContext, useEffect, useState} from "react";
 
@@ -14,7 +16,7 @@ export function AuthProvider({ children }){
     const [currentUser, setCurrentUser] = useState(null);
     const [userLoggedIn, setUserLoggedIn] = useState(false);
     const [loading, setLoading] = useState(true);
-    
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, initializeUser);
         return unsubscribe;
@@ -34,7 +36,8 @@ export function AuthProvider({ children }){
     const value = {
         currentUser,
         userLoggedIn,
-        loading
+        loading,
+        userId: currentUser?.uid
     };
 
     return(
