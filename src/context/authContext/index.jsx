@@ -1,6 +1,9 @@
 import {auth} from "../../firebase/firebase";
+import { db } from "../../firebase/firebase";
+
 import { onAuthStateChanged } from "firebase/auth";
 
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 import React, { useContext, useEffect, useState} from "react";
 
@@ -32,11 +35,37 @@ export function AuthProvider({ children }){
         setLoading(false)
     };
 
+    useEffect(() => {
+        if (!currentUser) return;
+
+        const checkUser = async () => {
+            const userRef = doc(db, "Users", currentUser?.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists()) {
+                // 🟢 cria usuário
+                await setDoc(userRef, {
+                    CreatedAt: serverTimestamp(),
+                    Name: currentUser?.displayName  || currentUser?.email.split("@")[0],
+                    Email: currentUser?.email  || "",
+                    UserId: currentUser?.uid,
+                });
+
+            console.log("Usuário criado");
+            } else {
+            console.log("Usuário já existe");
+            }
+        };
+
+        checkUser();
+    }, [currentUser]);
+
     const value = {
         currentUser,
         userLoggedIn,
         loading,
-        userId: currentUser?.uid
+        userId: currentUser?.uid,
+        userName: currentUser?.displayName  || currentUser?.email.split("@")[0]
     };
 
     return(
