@@ -1,13 +1,19 @@
 import { useState } from "react";
 
+import { useSavedState } from "../../context/selectedContext/SavedStateContext";
+
 export default function Inicial() {
   const [nome, setNome] = useState("");
   const [iniciativa, setIniciativa] = useState(0);
-  const [lista, setLista] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editNome, setEditNome] = useState("");
   const [editIniciativa, setEditIniciativa] = useState(0);
 
+  const { initiativeList, setInitiativeList } = useSavedState();
+
+  const lista = initiativeList || [];
+  const setLista = setInitiativeList;
+  
   function adicionar() {
     if (!nome) return;
 
@@ -15,6 +21,8 @@ export default function Inicial() {
       ...lista,
       { nome, iniciativa: Number(iniciativa) }
     ];
+
+    console.log(novaLista)
 
     novaLista.sort((a, b) => b.iniciativa - a.iniciativa);
 

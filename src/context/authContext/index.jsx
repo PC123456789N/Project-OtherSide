@@ -43,7 +43,7 @@ export function AuthProvider({ children }){
             const userSnap = await getDoc(userRef);
 
             if (!userSnap.exists()) {
-                // 🟢 cria usuário
+                // cria usuário, caso seu id não esteja no banco
                 await setDoc(userRef, {
                     CreatedAt: serverTimestamp(),
                     Name: currentUser?.displayName  || currentUser?.email.split("@")[0],
@@ -51,9 +51,9 @@ export function AuthProvider({ children }){
                     UserId: currentUser?.uid,
                 });
 
-            console.log("Usuário criado");
+            console.log("Usuário criado"); //remove post production
             } else {
-            console.log("Usuário já existe");
+            console.log("Usuário já existe");  //remove post production
             }
         };
 
