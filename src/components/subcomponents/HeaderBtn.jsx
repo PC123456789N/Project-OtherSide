@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate, replace } from "react-router-dom";
 
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/authContext/auth.jsx";
 import { useSavedState } from "../../context/selectedContext/SavedStateContext";
 
 export default function HeaderBtn({ type }) {

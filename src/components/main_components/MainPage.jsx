@@ -1,5 +1,5 @@
 import { useSavedState } from "../../context/selectedContext/SavedStateContext";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/authContext/auth.jsx";
 import { useEffect } from "react";
 
 import Inicial from "../subcomponents/Inicial";

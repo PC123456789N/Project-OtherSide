@@ -1,7 +1,7 @@
 import { useNavigate, Navigate } from "react-router-dom";
 import { useState } from "react";
 
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/authContext/auth.jsx";
 import { doCreateUserWithEmailAndPassword } from "../../firebase/auth";
 
 export const Registry = () => {

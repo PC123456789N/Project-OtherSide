@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navigate, Link, useNavigate } from "react-router-dom";
 
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from "../../firebase/auth";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/authContext/auth.jsx";
 
 import { FcGoogle } from "react-icons/fc";
 

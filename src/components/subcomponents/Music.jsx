@@ -82,19 +82,19 @@ export default function MusicRPG() {
     <div className="bg-[#030303] text-white min-h-screen font-sans flex flex-col">
 
       {/* HEADER: Fixado no fluxo normal (Some ao rolar no mobile) */}
-      <header className="p-4 md:p-8 bg-gradient-to-b from-white/5 to-transparent">
+      <header className="p-4 md:p-8 bg-linear-to-b from-white/5 to-transparent">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-2 bg-[#121212] p-1.5 md:p-2 rounded-xl md:rounded-2xl border border-white/10 shadow-2xl">
           <input
             value={link}
             onChange={e => setLink(e.target.value)}
             placeholder="Link do YouTube..."
-            className="bg-transparent flex-grow px-3 py-2 outline-none text-sm md:text-lg placeholder:text-gray-700"
+            className="bg-transparent grow px-3 py-2 outline-none text-sm md:text-lg placeholder:text-gray-700"
           />
           <div className="flex gap-2">
             <select
               value={categoria}
               onChange={e => setCategoria(e.target.value)}
-              className="bg-gray-900 rounded-lg px-2 md:px-4 text-purple-400 outline-none border border-white/5 font-bold text-xs md:text-sm flex-grow md:flex-none"
+              className="bg-gray-900 rounded-lg px-2 md:px-4 text-purple-400 outline-none border border-white/5 font-bold text-xs md:text-sm grow md:flex-none"
             >
               {categorias.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -109,7 +109,7 @@ export default function MusicRPG() {
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto p-4 md:p-8 flex-grow w-full space-y-12 md:space-y-20">
+      <main className="max-w-400 mx-auto p-4 md:p-8 grow w-full space-y-12 md:space-y-20">
         {categorias.map(cat => {
           const filtered = playlist.filter(t => t.categoria === cat);
           if (!filtered.length) return null;
@@ -138,13 +138,13 @@ export default function MusicRPG() {
 
       {videoId && (
         <div className="sticky bottom-0 w-full bg-[#0a0a0a] border-t border-purple-500/20 p-4 md:p-6 z-50">
-          <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-10">
+          <div className="max-w-400 mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-10">
             {/* Iframe menor no mobile para não ocupar tela */}
             <div className="w-full md:w-64 aspect-video rounded-lg overflow-hidden border border-white/10 shadow-2xl">
               <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1`} allow="autoplay" />
             </div>
 
-            <div className="flex-grow text-center md:text-left">
+            <div className="grow text-center md:text-left">
               <h3 className="text-sm md:text-xl font-bold text-white truncate px-4 md:px-0">
                 {playlist.find(t => t.id === videoId)?.nome}
               </h3>

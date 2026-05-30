@@ -1,4 +1,4 @@
-import { useAuth } from "../authContext";
+import { useAuth } from "../authContext/auth.jsx";
 
 import { db } from "../../firebase/firebase";
 import { onSnapshot, collection, query, where } from "firebase/firestore";

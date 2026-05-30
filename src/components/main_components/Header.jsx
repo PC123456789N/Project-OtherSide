@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/authContext/auth.jsx";
 import { doSignOut } from "../../firebase/auth";
 import HeaderBtn from "../subcomponents/HeaderBtn"
 
@@ -14,17 +14,17 @@ export default function Header() {
             
             <header className={`
                 relative mx-auto transition-all duration-500 ease-out
-                bg-[radial-gradient(circle_at_top,_#1a0000,_#0d0d0d,_#050505)]
+                bg-[radial-gradient(circle_at_top,#1a0000,#0d0d0d,#050505)]
                 border-x border-b border-white/10
                 shadow-[0_10px_40px_rgba(0,0,0,0.9),0_0_30px_rgba(220,38,38,0.2)]
                 ${isMinimized 
                     ? 'max-h-0 py-0 opacity-0 overflow-hidden' 
-                    : 'max-h-[200px] md:max-h-[500px] py-2 md:py-5 opacity-100'}
+                    : 'max-h-50 md:max-h-125 py-2 md:py-5 opacity-100'}
                 w-full md:max-w-full
             `}>
 
                 {/* Energia */}
-                <div className="absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,_rgba(220,38,38,0.3)_0%,transparent_70%)]"></div>
+                <div className="absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,rgba(220,38,38,0.3)_0%,transparent_70%)]"></div>
 
                 <div className="relative flex flex-col gap-2 md:grid md:grid-cols-3 md:items-center px-3 md:px-8">
                     
@@ -61,7 +61,7 @@ export default function Header() {
                         </div>
                     </div>
 
-                    <div className="h-[1px] w-full bg-white/5 md:hidden"></div>
+                    <div className="h-px w-full bg-white/5 md:hidden"></div>
 
                     {/* Navegação */}
                     <div className="flex justify-center">
@@ -140,7 +140,7 @@ export default function Header() {
 
             {/* Linha HUD */}
             <div className="relative flex justify-end pr-3 md:pr-10">
-                <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-red-700 via-red-500 to-purple-900 blur-[1px] animate-pulse"></div>
+                <div className="absolute top-0 left-0 h-0.5 w-full bg-linear-to-r from-red-700 via-red-500 to-purple-900 blur-[1px] animate-pulse"></div>
 
                 <button
                     onClick={(e) => {

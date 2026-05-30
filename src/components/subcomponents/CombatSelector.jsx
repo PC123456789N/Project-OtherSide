@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/authContext/auth.jsx";
 
 import CombatItem from "./CombatItem";
 
@@ -105,12 +105,12 @@ export default function CombatSelector() {
           shadow-[0_-10px_40px_rgba(0,0,0,0.9)]
           backdrop-blur-md
           p-3 md:p-4
-          h-[200px] md:h-[240px]
+          h-50 md:h-60
           flex flex-col gap-3
         ">
 
           {/* GLOW */}
-          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-red-700 via-red-500 to-purple-900 animate-pulse" />
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-red-700 via-red-500 to-purple-900 animate-pulse" />
 
           {/* BOTÃO MINIMIZAR PAINEL */}
           <button
@@ -118,7 +118,7 @@ export default function CombatSelector() {
             className="
               absolute
               left-2 md:left-auto md:right-6
-              top-1/2 md:top-[-16px]
+              top-1/2 md:-top-4
               -translate-y-1/2 md:translate-y-0
               bg-[#111]
               border border-white/10
@@ -134,7 +134,7 @@ export default function CombatSelector() {
           {/* 🎲 PAINEL DE DADO */}
           <div className={`
             relative transition-all duration-500
-            ${diceCollapsed ? "w-[50px]" : "w-full md:w-[260px]"}
+            ${diceCollapsed ? "w-12.5" : "w-full md:w-65"}
           `}>
 
             <div className="
