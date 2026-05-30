@@ -1,77 +1,167 @@
 import { useState } from "react"
-import { Link, Navigate, replace, useNavigate } from "react-router-dom"
-
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../context/authContext";
-import { useSavedState } from "../../context/selectedContext/SavedStateContext";
 import { doSignOut } from "../../firebase/auth";
-
 import HeaderBtn from "../subcomponents/HeaderBtn"
 
 export default function Header() {
-  const navigate = useNavigate();
-  const { userLoggedIn } = useAuth();
-  const {selectedId, setSelectedId} = useSavedState();
+    const navigate = useNavigate();
+    const { userLoggedIn } = useAuth();
+    const [isMinimized, setIsMinimized] = useState(false);
 
-  return (
-    <>
-      <header className="flex flex-col gap-3 px-4 py-3 bg-black text-white md:grid md:grid-cols-3 md:items-center">
-        
-        <div className="flex items-center gap-3 justify-between md:justify-start">
-          <img
-            src="https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br"
-            alt="Logo"
-            className="size-10 sm:size-12"
-          />
+    return (
+        <div className="sticky top-0 z-50 w-full bg-[#050505] overflow-x-hidden"> 
+            
+            <header className={`
+                relative mx-auto transition-all duration-500 ease-out
+                bg-[radial-gradient(circle_at_top,_#1a0000,_#0d0d0d,_#050505)]
+                border-x border-b border-white/10
+                shadow-[0_10px_40px_rgba(0,0,0,0.9),0_0_30px_rgba(220,38,38,0.2)]
+                ${isMinimized 
+                    ? 'max-h-0 py-0 opacity-0 overflow-hidden' 
+                    : 'max-h-[200px] md:max-h-[500px] py-2 md:py-5 opacity-100'}
+                w-full md:max-w-full
+            `}>
 
-          <h1 className="text-xl font-bold text-red-500">
-            OtherSide
-          </h1>
+                {/* Energia */}
+                <div className="absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,_rgba(220,38,38,0.3)_0%,transparent_70%)]"></div>
 
-          {!userLoggedIn && (
-            <button className="bg-purple-600 px-3 sm:px-4 py-2 rounded md:hidden"
-            onClick={() => { navigate("/login", { replace: true }) }}
-            >
-              Login
-            </button>
-          )}
-          {userLoggedIn && (
-            <button className="bg-purple-600 px-4 py-2 rounded md:hidden cursor-pointer hover:bg-purple-700"
-            onClick={ () => doSignOut() }
-            >
-              SignOut
-            </button>
-          )}
+                <div className="relative flex flex-col gap-2 md:grid md:grid-cols-3 md:items-center px-3 md:px-8">
+                    
+                    {/* Logo */}
+                    <div className="flex items-center justify-between md:justify-start">
+                        <div className="flex items-center gap-2 md:gap-4 transition-transform duration-300 hover:scale-105">
+                            <img
+                                src="https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br"
+                                alt="Logo"
+                                className="size-7 md:size-12 drop-shadow-[0_0_10px_rgba(220,38,38,0.9)] animate-pulse"
+                            />
+                            <h1 className="text-base md:text-2xl font-black text-zinc-200 uppercase tracking-tighter">
+                                Other<span className="text-red-600 drop-shadow-[0_0_12px_rgba(220,38,38,0.9)]">Side</span>
+                            </h1>
+                        </div>
+
+                        {/* Botão mobile */}
+                        <div className="md:hidden">
+                            {userLoggedIn ? (
+                                <button 
+                                    onClick={() => doSignOut()}
+                                    className="text-[10px] px-3 py-1 rounded-full border border-red-600 text-red-500 active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.6)]"
+                                >
+                                    Sair
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={() => navigate("/login")}
+                                    className="text-[10px] px-3 py-1 rounded-full bg-white text-black active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.4)]"
+                                >
+                                    Login
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="h-[1px] w-full bg-white/5 md:hidden"></div>
+
+                    {/* Navegação */}
+                    <div className="flex justify-center">
+                        <nav className="
+                            grid grid-cols-2 gap-2
+                            md:flex md:flex-nowrap md:gap-2
+                            items-center
+                            bg-black/50 px-2 md:px-5 py-2 rounded-xl
+                            border border-white/10 backdrop-blur-md shadow-inner
+                            w-full md:w-auto
+                        ">
+                            {['i', 'c', 's', 'm'].map((t) => (
+                                <div 
+                                    key={t}
+                                    className="
+                                        relative overflow-hidden
+                                        flex flex-col items-center justify-center
+                                        py-2 md:py-0
+                                        rounded-xl
+                                        bg-black/40 md:bg-transparent
+                                        border border-white/5 md:border-none
+
+                                        text-zinc-400 hover:text-red-400
+
+                                        transition-all duration-300
+                                        active:scale-90
+                                        cursor-pointer
+                                        group
+                                    "
+                                >
+                                    {/* 🩸 efeito sangue */}
+                                    <span className="
+                                        absolute inset-0
+                                        bg-[linear-gradient(180deg,transparent,rgba(220,38,38,0.3),rgba(120,0,0,0.9))]
+                                        translate-y-full
+                                        group-hover:translate-y-0
+                                        transition-transform duration-500 ease-out
+                                    "></span>
+
+                                    {/* conteúdo */}
+                                    <div className="relative z-10">
+                                        <HeaderBtn type={t} />
+                                    </div>
+                                </div>
+                            ))}
+                        </nav>
+                    </div>
+
+                    {/* Desktop auth */}
+                    <div className="hidden md:flex justify-end items-center gap-5">
+                        {userLoggedIn ? (
+                            <div className="flex items-center gap-4">
+                                <div className="text-right leading-none">
+                                    <p className="text-[9px] text-red-500 uppercase font-bold tracking-[0.2em]">
+                                        Bem vindo a Tenebris
+                                    </p>
+                                </div>
+                                <button 
+                                    className="bg-red-600/10 border border-red-600/50 text-red-500 px-5 py-1.5 rounded-full text-[11px] font-bold hover:bg-red-600 hover:text-white transition-all duration-300 active:scale-95 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)]"
+                                    onClick={() => doSignOut()}
+                                >
+                                    Sign Out
+                                </button>
+                            </div>
+                        ) : (
+                            <button 
+                                className="bg-white text-black px-7 py-2 rounded-full text-xs font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+                                onClick={() => navigate("/login")}
+                            >
+                                Login
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </header>
+
+            {/* Linha HUD */}
+            <div className="relative flex justify-end pr-3 md:pr-10">
+                <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-red-700 via-red-500 to-purple-900 blur-[1px] animate-pulse"></div>
+
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        setIsMinimized(!isMinimized);
+                    }}
+                    className="z-10 relative px-3 py-1 rounded-b-xl bg-[#0d0d0d] border-x border-b border-white/10 hover:bg-red-600 transition-all active:scale-90 hover:shadow-[0_0_12px_rgba(220,38,38,0.6)]"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={4}
+                        stroke="white"
+                        className={`size-4 transition-transform duration-500 
+                        ${isMinimized ? 'rotate-180' : ''}`}
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                    </svg>
+                </button>
+            </div>
         </div>
-
-        <div className="grid grid-cols-2 gap-2 md:flex md:justify-center">
-          <HeaderBtn type={'i'}/>
-          <HeaderBtn type={'c'}/>
-          <HeaderBtn type={'s'}/>
-          <HeaderBtn type={'m'}/>
-        </div>
-
-        {!userLoggedIn  && (
-          <div className="md:flex justify-center hidden md:justify-end">
-            <button className="bg-purple-600 px-4 py-2 rounded cursor-pointer hover:bg-purple-700"
-            onClick={() => { navigate("/login", { replace: true }) }}
-            >
-              Login
-            </button>
-          </div>
-        )}
-        {userLoggedIn &&(
-          <div className="md:flex justify-center hidden items-center md:justify-end">
-            <p className="me-2 hidden lg:inline">Bem vindo a Tenebris</p>
-            <button className="bg-purple-600 px-2 py-2 rounded cursor-pointer hover:bg-purple-700"
-            onClick={ () => doSignOut() }
-            >
-              Sign Out
-            </button>
-          </div>
-        )}
-      </header>
-
-      <div className="h-1 w-full bg-linear-to-r from-red-500 via-yellow-400 to-purple-600"></div>
-    </>
-  )
+    )
 }
