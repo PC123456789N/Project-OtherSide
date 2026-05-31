@@ -163,7 +163,7 @@ export default function Header() {
                         e.preventDefault();
                         setIsMinimized(!isMinimized);
                     }}
-                    className="fixed px-4 py-2 right-0 mt-0.5 rounded-b-xl border-x border-b border-white/10 hover:bg-red-600 transition-all active:scale-90 hover:shadow-[0_0_12px_rgba(220,38,38,0.6)]"
+                    className="fixed px-4 py-2 right-3 mt-0.5 rounded-b-xl border-x border-b border-white/10 hover:bg-red-600 transition-all active:scale-90 hover:shadow-[0_0_12px_rgba(220,38,38,0.6)]"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
