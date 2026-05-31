@@ -19,6 +19,9 @@ export function SavedStateProvider({ children }) {
   const [scriptTitle, setScriptTitle] = useState("");
   const [scriptBody, setScriptBody] = useState("");
 
+  const [playlist, setPlaylist] = useState([]);
+  const [videoId, setVideoId] = useState(null);
+
 
   
   useEffect(() => {  //remove snapshot later, major security issue (exposes all users)
@@ -33,7 +36,9 @@ export function SavedStateProvider({ children }) {
       selectedId, setSelectedId, 
       scriptTitle, setScriptTitle,
       scriptBody, setScriptBody,
-      initiativeList, setInitiativeList
+      initiativeList, setInitiativeList,
+      playlist, setPlaylist,
+      videoId, setVideoId
     }}>
       {children};
     </SavedState.Provider>

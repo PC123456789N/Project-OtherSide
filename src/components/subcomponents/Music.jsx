@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useSavedState } from "../../context/selectedContext/SavedStateContext"
+import { useAudioPlayer } from "../../context/audioPlayerContext/AudioPlayerContext.jsx";
 
 const getYoutubeId = (url) => {
   try {
@@ -51,8 +53,8 @@ const MusicCard = ({ track, onPlay, onRemove, onRename }) => (
 export default function MusicRPG() {
   const [link, setLink] = useState("");
   const [categoria, setCategoria] = useState("Exploração");
-  const [playlist, setPlaylist] = useState([]);
-  const [videoId, setVideoId] = useState(null);
+  const {playlist, setPlaylist} = useSavedState();
+  const {play} = useAudioPlayer();
   const [loading, setLoading] = useState(false);
 
   const categorias = ["Chefes", "Combates", "Suspences", "Exploração"];
@@ -111,8 +113,8 @@ export default function MusicRPG() {
 
       <main className="max-w-400 mx-auto p-4 md:p-8 grow w-full space-y-12 md:space-y-20">
         {categorias.map(cat => {
-          const filtered = playlist.filter(t => t.categoria === cat);
-          if (!filtered.length) return null;
+          const filtered = playlist?.filter(t => t.categoria === cat);
+          if (!filtered?.length) return null;
           return (
             <section key={cat}>
               <div className="flex items-end gap-3 mb-6 border-b border-white/5 pb-2">
@@ -125,7 +127,7 @@ export default function MusicRPG() {
                   <MusicCard
                     key={track.id + Math.random()}
                     track={track}
-                    onPlay={() => setVideoId(track.id)}
+                    onPlay={() => play(track.id)}
                     onRemove={() => handleAction('remove', track)}
                     onRename={() => handleAction('rename', track)}
                   />
@@ -136,29 +138,6 @@ export default function MusicRPG() {
         })}
       </main>
 
-      {videoId && (
-        <div className="sticky bottom-0 w-full bg-[#0a0a0a] border-t border-purple-500/20 p-4 md:p-6 z-50">
-          <div className="max-w-400 mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-10">
-            {/* Iframe menor no mobile para não ocupar tela */}
-            <div className="w-full md:w-64 aspect-video rounded-lg overflow-hidden border border-white/10 shadow-2xl">
-              <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1`} allow="autoplay" />
-            </div>
-
-            <div className="grow text-center md:text-left">
-              <h3 className="text-sm md:text-xl font-bold text-white truncate px-4 md:px-0">
-                {playlist.find(t => t.id === videoId)?.nome}
-              </h3>
-            </div>
-
-            <button
-              onClick={() => setVideoId(null)}
-              className="w-full md:w-auto bg-red-600/10 hover:bg-red-600/20 text-red-500 px-8 py-3 rounded-lg text-[10px] font-black uppercase border border-red-500/20"
-            >
-              Fechar Player
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
