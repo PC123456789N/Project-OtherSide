@@ -10,31 +10,31 @@ export default function Header() {
     const [isMinimized, setIsMinimized] = useState(false);
 
     return (
-        <div className="sticky top-0 z-50 w-full bg-[#050505] overflow-x-hidden"> 
-            
+        <div className="sticky top-0 z-50 w-full bg-[#050505] overflow-x-hidden">
+
             <header className={`
                 relative mx-auto transition-all duration-500 ease-out
-                bg-[radial-gradient(circle_at_top,#1a0000,#0d0d0d,#050505)]
+                bg-[radial-gradient(circle_at_top,_#1a0000,_#0d0d0d,_#050505)]
                 border-x border-b border-white/10
                 shadow-[0_10px_40px_rgba(0,0,0,0.9),0_0_30px_rgba(220,38,38,0.2)]
-                ${isMinimized 
-                    ? 'max-h-0 py-0 opacity-0 overflow-hidden' 
-                    : 'max-h-50 md:max-h-125 py-2 md:py-5 opacity-100'}
+                ${isMinimized
+                    ? 'max-h-0 py-0 opacity-0 overflow-hidden'
+                    : 'max-h-[200px] md:max-h-[500px] py-2 md:py-5 opacity-100'}
                 w-full md:max-w-full
             `}>
 
                 {/* Energia */}
-                <div className="absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,rgba(220,38,38,0.3)_0%,transparent_70%)]"></div>
+                <div className="absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,_rgba(220,38,38,0.3)_0%,transparent_70%)]"></div>
 
                 <div className="relative flex flex-col gap-2 md:grid md:grid-cols-3 md:items-center px-3 md:px-8">
-                    
+
                     {/* Logo */}
                     <div className="flex items-center justify-between md:justify-start">
-                        <div className="flex items-center gap-2 md:gap-4 transition-transform duration-300 hover:scale-105">
+                        <div className="flex items-center gap-2 md:gap-4 transition-transform duration-300">
                             <img
                                 src="https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br"
                                 alt="Logo"
-                                className="size-7 md:size-12 drop-shadow-[0_0_10px_rgba(220,38,38,0.9)] animate-pulse"
+                                className="size-7 md:size-12 drop-shadow-[0_0_10px_rgba(220,38,38,0.9)]"
                             />
                             <h1 className="text-base md:text-2xl font-black text-zinc-200 uppercase tracking-tighter">
                                 Other<span className="text-red-600 drop-shadow-[0_0_12px_rgba(220,38,38,0.9)]">Side</span>
@@ -44,14 +44,14 @@ export default function Header() {
                         {/* Botão mobile */}
                         <div className="md:hidden">
                             {userLoggedIn ? (
-                                <button 
+                                <button
                                     onClick={() => doSignOut()}
                                     className="text-[10px] px-3 py-1 rounded-full border border-red-600 text-red-500 active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.6)]"
                                 >
                                     Sair
                                 </button>
                             ) : (
-                                <button 
+                                <button
                                     onClick={() => navigate("/login")}
                                     className="text-[10px] px-3 py-1 rounded-full bg-white text-black active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.4)]"
                                 >
@@ -61,7 +61,7 @@ export default function Header() {
                         </div>
                     </div>
 
-                    <div className="h-px w-full bg-white/5 md:hidden"></div>
+                    <div className="h-[1px] w-full bg-white/5 md:hidden"></div>
 
                     {/* Navegação */}
                     <div className="flex justify-center">
@@ -74,7 +74,7 @@ export default function Header() {
                             w-full md:w-auto
                         ">
                             {['i', 'c', 's', 'm'].map((t) => (
-                                <div 
+                                <div
                                     key={t}
                                     className="
                                         relative overflow-hidden
@@ -111,25 +111,40 @@ export default function Header() {
                     </div>
 
                     {/* Desktop auth */}
-                    <div className="hidden md:flex justify-end items-center gap-5">
+                    <div className="hidden md:flex justify-end items-center gap-2">
                         {userLoggedIn ? (
-                            <div className="flex items-center gap-4">
-                                <div className="text-right leading-none">
-                                    <p className="text-[9px] text-red-500 uppercase font-bold tracking-[0.2em]">
-                                        Bem vindo a Tenebris
-                                    </p>
-                                </div>
-                                <button 
-                                    className="bg-red-600/10 border border-red-600/50 text-red-500 px-5 py-1.5 rounded-full text-[11px] font-bold hover:bg-red-600 hover:text-white transition-all duration-300 active:scale-95 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)]"
-                                    onClick={() => doSignOut()}
-                                >
-                                    Sign Out
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => doSignOut()}
+                                className="
+                                mt-1
+                                px-4 py-2
+                                rounded-xl
+                                bg-black/40
+                                border border-white/10
+                                text-zinc-400
+                                hover:text-red-400
+                                transition-all duration-300
+                                hover:border-red-500/40
+                                hover:bg-red-600/10
+                                active:scale-95"
+                            >
+                                Sign Out
+                            </button>
                         ) : (
-                            <button 
-                                className="bg-white text-black px-7 py-2 rounded-full text-xs font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_15px_rgba(255,255,255,0.5)]"
-                                onClick={() => navigate("/login")}
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="
+                                mt-1
+                                px-4 py-2
+                                rounded-xl
+                                bg-black/40
+                                border border-white/10
+                                text-zinc-400
+                                hover:text-red-400
+                                transition-all duration-300
+                                hover:border-red-500/40
+                                hover:bg-red-600/10
+                                active:scale-95"
                             >
                                 Login
                             </button>
@@ -139,15 +154,16 @@ export default function Header() {
             </header>
 
             {/* Linha HUD */}
-            <div className="relative flex justify-end pr-3 md:pr-10">
-                <div className="absolute top-0 left-0 h-0.5 w-full bg-linear-to-r from-red-700 via-red-500 to-purple-900 blur-[1px] animate-pulse"></div>
-
+            <div className="relative flex flex-col items-end gap-0">
+                <div
+                    className="h-[2px] w-full bg-gradient-to-r from-red-700 via-red-500 to-purple-900 blur-[1px] animate-pulse"
+                />
                 <button
                     onClick={(e) => {
                         e.preventDefault();
                         setIsMinimized(!isMinimized);
                     }}
-                    className="z-10 relative px-3 py-1 rounded-b-xl bg-[#0d0d0d] border-x border-b border-white/10 hover:bg-red-600 transition-all active:scale-90 hover:shadow-[0_0_12px_rgba(220,38,38,0.6)]"
+                    className="fixed px-4 py-2 right-0 mt-0.5 rounded-b-xl border-x border-b border-white/10 hover:bg-red-600 transition-all active:scale-90 hover:shadow-[0_0_12px_rgba(220,38,38,0.6)]"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -155,10 +171,14 @@ export default function Header() {
                         viewBox="0 0 24 24"
                         strokeWidth={4}
                         stroke="white"
-                        className={`size-4 transition-transform duration-500 
-                        ${isMinimized ? 'rotate-180' : ''}`}
+                        className={`size-4 transition-transform duration-300 ${isMinimized ? "rotate-180" : ""
+                            }`}
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m4.5 15.75 7.5-7.5 7.5 7.5"
+                        />
                     </svg>
                 </button>
             </div>
