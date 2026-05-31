@@ -11,7 +11,8 @@ import StarterKit from "@tiptap/starter-kit"
 export default function Script() {
 
   const {scriptBody, setScriptBody} = useSavedState();
-  const {scriptTitle, setScriptTitle} = useSavedState(); 
+  const {scriptTitle, setScriptTitle} = useSavedState();
+  const {unsavedChanges, setUnsavedChanges} = useSavedState();
 
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, FontSize, TextAlign.configure({types: ['heading','paragraph'],}),],
@@ -25,6 +26,7 @@ export default function Script() {
 
     onUpdate: ({ editor }) => {
       setScriptBody(editor.getHTML())
+      setUnsavedChanges(true)
     }
   })
 
@@ -38,6 +40,7 @@ export default function Script() {
 
   useEffect(() => {
     setScriptTitle(scriptTitle)
+    setUnsavedChanges(true)
   }, [scriptTitle])
 
 

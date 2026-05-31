@@ -14,7 +14,7 @@ export default function MainPage(){
   const {userLoggedIn} = useAuth();
 
   useEffect(() => {
-  if (userLoggedIn) {
+  if (userLoggedIn && selectedId === 0) {
     setSelectedId(1);
   }
 }, [])
