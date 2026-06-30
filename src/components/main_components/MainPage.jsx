@@ -1,4 +1,4 @@
-import { useSavedState } from "../../context/selectedContext/SavedStateContext";
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
 import { useAuth } from "../../context/authContext/auth.jsx";
 import { useEffect } from "react";
 
@@ -10,22 +10,22 @@ import LandingPage from "./LandingPage";
 
 
 export default function MainPage(){
-  const {selectedId, setSelectedId} = useSavedState();
+  const {selectedPageId, setSelectedPageId} = useDataHandler();
   const {userLoggedIn} = useAuth();
 
   useEffect(() => {
-  if (userLoggedIn && selectedId === 0) {
-    setSelectedId(1);
+  if (userLoggedIn && selectedPageId === 0) {
+    setSelectedPageId(1);
   }
 }, [])
   
   return (
     <div className="w-full h-full">
-      {selectedId == 0 && (<LandingPage />)}
-      {selectedId == 1 && (<Inicial />)}
-      {selectedId == 2 && (<CombatSelector />)}
-      {selectedId == 3 && (<Script />)}
-      {selectedId == 4 && (<Music />)}
+      {selectedPageId == 0 && (<LandingPage />)}
+      {selectedPageId == 1 && (<Inicial />)}
+      {selectedPageId == 2 && (<CombatSelector />)}
+      {selectedPageId == 3 && (<Script />)}
+      {selectedPageId == 4 && (<Music />)}
     </div>
   );
 }

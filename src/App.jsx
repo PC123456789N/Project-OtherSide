@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { SavedStateProvider } from './context/selectedContext/SavedStateContext';
+import { DataHandlerProvider } from './context/dataHandlerContext/DataHandlerContext.jsx';
 import { AudioPlayerProvider } from './context/audioPlayerContext/AudioPlayerContext.jsx';
 
 import LandingPage from './components/main_components/LandingPage';
@@ -14,7 +14,7 @@ import GlobalPlayer from './components/main_components/GlobalAudioPlayer';
 
 function App() {
   return (
-    <SavedStateProvider>
+    <DataHandlerProvider>
       <AudioPlayerProvider>
         <GlobalPlayer />
         <HashRouter>
@@ -25,7 +25,7 @@ function App() {
           </Routes>
         </HashRouter>
       </AudioPlayerProvider>
-    </SavedStateProvider>
+    </DataHandlerProvider>
   )
 }
 

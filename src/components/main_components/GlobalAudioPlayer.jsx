@@ -1,16 +1,16 @@
 import { useAudioPlayer } from "../../context/audioPlayerContext/AudioPlayerContext.jsx";
-import { useSavedState } from "../../context/selectedContext/SavedStateContext.jsx";
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
 
 import { IoMdClose } from "react-icons/io";
 
 export default function GlobalPlayer() {
   const { videoId, stop } = useAudioPlayer();
-  const { selectedId } = useSavedState();
+  const { selectedPageId } = useDataHandler();
 
   if (!videoId) return null;
 
   return (
-    <div className={`fixed bottom-1 right-4 bg-linear-to-b from-black to-white/2 p-3 rounded-2xl border-2 shadow-2xl border-gray-800 ${selectedId == 4 ? `visible` : `invisible`}`}>
+    <div className={`fixed bottom-1 right-4 bg-linear-to-b from-black to-white/2 p-3 rounded-2xl border-2 shadow-2xl border-gray-800 ${selectedPageId == 4 ? `visible` : `invisible`}`}>
       <div className="max-w-5xl flex mx-auto gap-1 items-center">
 
         <div className="w-64 aspect-video">
