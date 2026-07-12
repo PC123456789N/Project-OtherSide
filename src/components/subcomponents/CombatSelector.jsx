@@ -1,294 +1,238 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { db } from "../../firebase/firebase";
-import { collection, getDocs } from "firebase/firestore";
-
-import { useAuth } from "../../context/authContext/auth.jsx";
-
+import { useState } from "react";
 import CombatItem from "./CombatItem";
+import CreateCombatModal from "./CreateCombatModal";
 
+const TYPES = [
+    "Todos",
+    "Criatura",
+    "Boss",
+    "Monstro"
+];
 export default function CombatSelector() {
-  const { userId } = useAuth();
-  const [combatsList, setCombatsList] = useState([]);
+    const [combats, setCombats] = useState([]);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedCombat, setSelectedCombat] = useState(null);
+    const [search, setSearch] = useState("");
+    const [filterType, setFilterType] = useState("Todos");
+    
+    function openCreateModal() {
+        setSelectedCombat(null);
+        setModalOpen(true);
+    }
 
-  const navigate = useNavigate();
+    function openEditModal(combat) {
+        setSelectedCombat(combat);
+        setModalOpen(true);
+    }
 
-  // 🔴 INICIATIVA
-  const [list, setList] = useState([]);
-  const [name, setName] = useState("");
-  const [init, setInit] = useState("");
-  const [collapsed, setCollapsed] = useState(false);
+    function closeModal() {
+        setModalOpen(false);
+        setSelectedCombat(null);
+    }
 
-  // 🎲 DADO
-  const [diceCollapsed, setDiceCollapsed] = useState(false);
-  const [diceValue, setDiceValue] = useState("");
-  const [diceResult, setDiceResult] = useState(null);
+    function saveCombat(data) {
+        if (selectedCombat) {
+            setCombats(prev =>
+                prev.map(item =>
+                    item.id === selectedCombat.id
+                        ? { ...item, ...data }
+                        : item
+                )
+            );
+        }
+        else {
+            setCombats(prev => [
+                ...prev,
+                {
+                    id: crypto.randomUUID(),
+                    ...data
+                }
+            ]);
+        }
 
-  const profiles = [
-    { id: 1, name: "Combate 1" },
-    { id: 2, name: "Combate 2" },
-    { id: 3, name: "Combate 3" },
-    { id: 4, name: "Combate 4" },
-    { id: 5, name: "Combate 5" },
-    { id: 6, name: "Combate 6" },
-    { id: 7, name: "Combate 7" },
-  ];
+        closeModal();
+    }
 
-  function handleOpenCombat(id) {
-    navigate(`/combat/${id}`);
-  }
+    function deleteCombat(id) {
+        if (!window.confirm("Deseja remover este combate?"))
+            return;
+        setCombats(prev =>
+            prev.filter(item => item.id !== id)
+        );
+    }
 
-  function handleAdd() {
-    if (!name || !init) return;
+    function openCombat(combat) {
+        console.log(combat);
+        // Depois você troca por navigate()
+    }
 
-    const newItem = {
-      id: Date.now(),
-      name,
-      init: Number(init)
-    };
+    const filteredCombats = combats.filter(combat => {
+        const searchText = search.toLowerCase();
+        const matchName =
+        combat.name.toLowerCase().includes(searchText) ||
+        combat.location?.toLowerCase().includes(searchText);
 
-    const updated = [...list, newItem].sort((a, b) => b.init - a.init);
-
-    setList(updated);
-    setName("");
-    setInit("");
-  }
-
-  function handleRemove(id) {
-    setList(list.filter(item => item.id !== id));
-  }
-
-  function rollDice() {
-    const sides = Number(diceValue);
-    if (!sides || sides <= 0) return;
-
-    const result = Math.floor(Math.random() * sides) + 1;
-    setDiceResult(result);
-  }
-
-  return (
-    <div className="flex py-10 justify-center h-fit">
-
-      {/* GRID */}
-      <div className="
-        grid gap-4
-        grid-cols-2 
-        sm:grid-cols-3 
-        md:grid-cols-4 
-        lg:grid-cols-5
-      ">
-        {profiles.map((profile) => (
-          <div
-            key={profile.id}
-            onClick={() => handleOpenCombat(profile.id)}
-            className="cursor-pointer active:scale-95 transition"
-          >
-            <CombatItem name={profile.name} />
-          </div>
-        ))}
-      </div>
-
-      {/* 🔥 PAINEL */}
-      <div className={`
-        fixed bottom-0 left-0 w-full z-40
-        transition-all duration-500
-        ${collapsed
-          ? "translate-y-full md:translate-y-full -translate-x-full md:translate-x-0"
-          : "translate-y-0 translate-x-0"}
-      `}>
-
-        <div className="
-          relative
-          bg-[#0b0b0f]
-          border-t border-white/10
-          shadow-[0_-10px_40px_rgba(0,0,0,0.9)]
-          backdrop-blur-md
-          p-3 md:p-4
-          h-50 md:h-60
-          flex flex-col gap-3
-        ">
-
-          {/* GLOW */}
-          <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-red-700 via-red-500 to-purple-900 animate-pulse" />
-
-          {/* BOTÃO MINIMIZAR PAINEL */}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
+        const matchType =
+            filterType === "Todos"
+                ||
+            combat.type === filterType;
+        return matchName && matchType;
+    });
+    return (
+        <main
             className="
-              absolute
-              left-2 md:left-auto md:right-6
-              top-1/2 md:-top-4
-              -translate-y-1/2 md:translate-y-0
-              bg-[#111]
-              border border-white/10
-              px-3 py-1 rounded-md
-              hover:bg-red-600
-              transition-all
-              active:scale-90
-            "
-          >
-            {collapsed ? ">" : "<"}
-          </button>
+            min-h-screen
+            bg-zinc-950
+            px-6
+            py-8"
+        >
 
-          {/* 🎲 PAINEL DE DADO */}
-          <div className={`
-            relative transition-all duration-500
-            ${diceCollapsed ? "w-12.5" : "w-full md:w-65"}
-          `}>
-
-            <div className="
-              flex items-center gap-2
-              bg-[#111827]
-              border border-white/10
-              rounded-xl
-              px-2 py-2
-              shadow-inner
-            ">
-
-              {/* BOTÃO LATERAL */}
-              <button
-                onClick={() => setDiceCollapsed(!diceCollapsed)}
+            {/* Cabeçalho */}
+            <div
                 className="
-                  absolute -left-3 top-1/2 -translate-y-1/2
-                  bg-[#0d0d0d]
-                  border border-white/10
-                  px-2 py-1
-                  rounded-md
-                  hover:bg-red-600
-                  transition
-                  active:scale-90
-                "
-              >
-                {diceCollapsed ? ">" : "<"}
-              </button>
-
-              {!diceCollapsed && (
-                <>
-                  <input
-                    value={diceValue}
-                    onChange={(e) => setDiceValue(e.target.value)}
-                    placeholder="d20"
-                    className="
-                      flex-1 bg-transparent px-3 py-2
-                      text-sm text-white placeholder:text-white/40
-                      focus:outline-none
-                    "
-                  />
-
-                  <button
-                    onClick={rollDice}
-                    className="
-                      bg-purple-600 hover:bg-purple-500
-                      text-white font-bold
-                      w-10 h-10 flex items-center justify-center
-                      rounded-lg transition-all active:scale-90
-                    "
-                  >
-                    🎲
-                  </button>
-                </>
-              )}
-            </div>
-
-            {!diceCollapsed && diceResult && (
-              <div className="
-                mt-1 text-center text-sm font-bold
-                text-purple-400 animate-pulse
-              ">
-                {diceResult}
-              </div>
-            )}
-          </div>
-
-          {/* 🔥 INPUT INICIATIVA */}
-          <div className="
-            flex items-center gap-2
-            bg-[#111827] 
-            border border-white/10
-            rounded-xl
-            px-2 py-2
-            shadow-inner
-          ">
-
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nome"
-              className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none"
-            />
-
-            <input
-              value={init}
-              onChange={(e) => setInit(e.target.value)}
-              type="number"
-              placeholder="0"
-              className="w-16 bg-[#1f2937] px-3 py-2 rounded-lg text-sm text-white text-center focus:outline-none"
-            />
-
-            <button
-              onClick={handleAdd}
-              className="
-                bg-green-500 hover:bg-green-400 text-white font-bold
-                w-10 h-10 flex items-center justify-center
-                rounded-lg transition-all active:scale-90
-              "
+                mb-8
+                flex
+                flex-col
+                gap-6
+                lg:flex-row
+                lg:items-end
+                lg:justify-between"
             >
-              +
-            </button>
-          </div>
+                <div>
+                    <h1
+                        className="
+                        font-cinzel
+                        text-5xl
+                        text-white"
+                    >
+                        Combates
+                    </h1>
+                    <p
+                        className="
+                        mt-2
+                        text-zinc-400"
+                    >
+                        Explore todos os combates ocorridos em sua jornada.
+                    </p>
+                </div>
 
-          {/* LISTA */}
-          <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-            {list.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-2 bg-[#111827] border border-white/10 rounded-xl px-2 py-2 shadow-inner"
-              >
-
-                <input
-                  value={item.name}
-                  onChange={(e) => {
-                    const updated = list.map(i =>
-                      i.id === item.id ? { ...i, name: e.target.value } : i
-                    );
-                    setList(updated);
-                  }}
-                  className="flex-1 bg-transparent px-3 py-2 text-sm text-white focus:outline-none"
-                />
-
-                <input
-                  type="number"
-                  value={item.init}
-                  onChange={(e) => {
-                    const updated = list.map(i =>
-                      i.id === item.id ? { ...i, init: Number(e.target.value) || 0 } : i
-                    ).sort((a, b) => b.init - a.init);
-
-                    setList(updated);
-                  }}
-                  className="w-16 bg-[#1f2937] px-3 py-2 rounded-lg text-sm text-white text-center focus:outline-none"
-                />
-
-                <button
-                  onClick={() => handleRemove(item.id)}
-                  className="
-                    w-10 h-10 flex items-center justify-center
-                    rounded-lg bg-red-600/20 text-red-400
-                    hover:bg-red-600 hover:text-white
-                    transition-all active:scale-90
-                  "
+                <div
+                    className="
+                    flex
+                    flex-col
+                    gap-3
+                    md:flex-row"
                 >
-                  ✕
-                </button>
+                    <input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Buscar por nome ou local..."
+                        className="
+                        h-12
+                        w-full
+                        rounded-xl
+                        border
+                        border-zinc-800
+                        bg-zinc-900
+                        px-5
+                        text-white
+                        outline-none
+                        transition
+                        focus:border-violet-500
+                        md:w-80"
+                    />
+                    <select
+                        value={filterType}
+                        onChange={(e) =>
+                            setFilterType(e.target.value)
+                        }
+                        className="
+                        h-12
+                        rounded-xl
+                        border
+                        border-zinc-800
+                        bg-zinc-900
+                        px-4
+                        text-white
+                        outline-none"
+                    >
+                        {
+                            TYPES.map(type => (
+                                <option
+                                    key={type}
+                                    value={type}
+                                >
+                                    {type}
+                                </option>
+                            ))
+                        }
+                    </select>
+                    <button
+                        onClick={openCreateModal}
+                        className="
+                        rounded-xl
+                        bg-violet-600
+                        px-7
+                        text-sm
+                        font-semibold
+                        text-white
+                        transition
+                        hover:bg-violet-700"
+                    >
+                        + Novo Combate
+                    </button>
+                </div>
+            </div>
+            {
+                filteredCombats.length === 0?
+                    (
+                        <div
+                            className="
+                            flex
+                            h-72
+                            items-center
+                            justify-center
+                            rounded-2xl
+                            border-2
+                            border-dashed
+                            border-zinc-800
+                            "
+                        >
+                            <p
+                                className="
+                                font-cinzel
+                                text-zinc-500
+                                "
+                            >
+                                Nenhum combate encontrado.
+                            </p>
+                        </div>
+                    ):
+                    (
+                        <section
+                            className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]"
+                        >
+                            {
+                                filteredCombats.map(combat => (
+                                    <CombatItem
+                                        key={combat.id}
+                                        combat={combat}
+                                        onOpen={openCombat}
+                                        onEdit={openEditModal}
+                                        onDelete={deleteCombat}
+                                    />
+                                ))
+                            }
+                        </section>
+                    )
+            }
 
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  );
+            <CreateCombatModal
+                open={modalOpen}
+                onClose={closeModal}
+                onSave={saveCombat}
+                combat={selectedCombat}
+            />
+        </main>
+    );
 }
