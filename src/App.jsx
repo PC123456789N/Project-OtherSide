@@ -8,13 +8,15 @@ import Login from './components/main_components/Login';
 import MainLayout from './components/main_components/MainLayout';
 import Registry from './components/main_components/Registry';
 import GlobalPlayer from './components/main_components/GlobalAudioPlayer';
-
+import CombatPage from "./pages/CombatPage";
+import { CombatProvider } from "./context/CombatContext";
 
 
 
 function App() {
   return (
     <SavedStateProvider>
+      <CombatProvider>
       <AudioPlayerProvider>
         <GlobalPlayer />
         <HashRouter>
@@ -22,9 +24,11 @@ function App() {
             <Route path="/" element={<MainLayout />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registry" element={<Registry />} />
+            <Route path="/combat" element={<CombatPage />} />
           </Routes>
         </HashRouter>
       </AudioPlayerProvider>
+      </CombatProvider>
     </SavedStateProvider>
   )
 }

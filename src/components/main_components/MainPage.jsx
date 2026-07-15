@@ -7,6 +7,7 @@ import CombatSelector from "../subcomponents/CombatSelector";
 import Script from "../subcomponents/Script";
 import Music from "../subcomponents/Music";
 import LandingPage from "./LandingPage";
+import CombatSheet from "../subcomponents/CombatSheet.jsx";
 
 
 export default function MainPage(){
@@ -26,6 +27,7 @@ export default function MainPage(){
       {selectedId == 2 && (<CombatSelector />)}
       {selectedId == 3 && (<Script />)}
       {selectedId == 4 && (<Music />)}
+      {selectedId == 5 && (<CombatSheet/>)}
     </div>
   );
 }
