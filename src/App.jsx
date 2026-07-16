@@ -24,7 +24,6 @@ function App() {
             <Route path="/" element={<MainLayout />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registry" element={<Registry />} />
-            <Route path="/combat" element={<CombatPage />} />
           </Routes>
         </HashRouter>
       </AudioPlayerProvider>

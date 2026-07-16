@@ -200,18 +200,6 @@ export default function CreateCombatModal({
                             className={input}
                         />
                     </div>
-                    {/* Local */}
-                    <div>
-                        <label className={label}>
-                            Local
-                        </label>
-                        <input
-                            value={location}
-                            onChange={(e)=>setLocation(e.target.value)}
-                            placeholder="Ex.: Castelo de Raven"
-                            className={input}
-                        />
-                    </div>
                     {/* Tipo */}
                     <div>
                         <label className={label}>
@@ -241,32 +229,6 @@ export default function CreateCombatModal({
                                     </button>
                                 ))
                             }
-                        </div>
-                    </div>
-                    
-                    {/* Data */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label className={label}>
-                                Data
-                            </label>
-                            <input
-                            type="date"
-                            value={date}
-                            onChange={(e)=>setDate(e.target.value)}
-                            className={input}
-                            />
-                        </div>
-                        <div>
-                            <label className={label}>
-                                Hora
-                            </label>
-                            <input
-                                type="time"
-                                value={time}
-                                onChange={(e)=>setTime(e.target.value)}
-                                className={input}
-                            />
                         </div>
                     </div>
 

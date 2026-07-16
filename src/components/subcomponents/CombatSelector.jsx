@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CombatItem from "./CombatItem";
 import CreateCombatModal from "./CreateCombatModal";
-import CombatSheet from "./CombatSheet";
+import CombatSheet from "../Combats/CombatSheet";
 import { useCombat } from "../../context/CombatContext";
+import { useSavedState } from "../../context/selectedContext/SavedStateContext";
 
 const TYPES = [
   "Todos",
@@ -12,7 +13,16 @@ const TYPES = [
   "Monstro"
 ];
 export default function CombatSelector() {
+
+  const { selectedId, setSelectedId } = useSavedState();
+
   const [combats, setCombats] = useState([]);
+
+  useEffect(() => {
+    console.log("Lista de combates:");
+    console.log(combats);
+  }, [combats]);
+
   const { setCombatId } = useCombat();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCombat, setSelectedCombat] = useState(null);
@@ -72,7 +82,7 @@ export default function CombatSelector() {
 
   function openCombat(combat) {
     setCombatId(combat.id);
-    navigate("/combat");
+    setSelectedId(5);
   }
 
   const filteredCombats = combats.filter(combat => {
@@ -241,10 +251,6 @@ export default function CombatSelector() {
         onClose={closeModal}
         onSave={saveCombat}
         combat={selectedCombat}
-      />
-
-      <CombatSheet
-        combat={openedCombat}
       />
       
     </main>

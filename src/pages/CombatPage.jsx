@@ -1,5 +1,6 @@
 import Header from "../components/main_components/Header";
 import { useCombat } from "../context/CombatContext";
+import CombatSheet from "../components/combats/CombatSheet";
 
 export default function CombatPage() {
 
@@ -7,25 +8,19 @@ export default function CombatPage() {
     console.log(combatId);
 
     return (
-        <div className="h-screen w-full grid grid-rows-[auto_1fr]">
+    <div className="flex h-full">
 
-            {/* Header */}
-            <Header />
+    {/* Sidebar (futura) */}
+    <aside className="w-72 hidden">
+    </aside>
 
-            {/* Conteúdo da página */}
-            <main className="bg-gray-800 overflow-auto">
+    {/* Conteúdo */}
+    <section className="flex-1 overflow-auto">
 
-                <h1 className="p-10 text-5xl text-white">
-                    Página do Combate
-                </h1>
-                
-                <h2 className="text-white px-10">
-                    ID do combate: {combatId}
-                </h2>
+        <CombatSheet />
 
-            </main>
+    </section>
 
-        </div>
+    </div>
     );
-
 }
