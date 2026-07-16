@@ -30,6 +30,9 @@ export function DataHandlerProvider({ children }) {
 
   const [initiativeList, setInitiativeList] = useState([]);
 
+  const [combats, setCombats] = useState([]);
+  const [combatId, setCombatId] = useState(null);
+
   const [scriptTitle, setScriptTitle] = useState("");
   const [scriptBody, setScriptBody] = useState("");
 
@@ -222,9 +225,11 @@ export function DataHandlerProvider({ children }) {
     <DataHandler.Provider value={{
       unsavedChanges, setUnsavedChanges, 
       selectedPageId, setSelectedPageId,
+      initiativeList, setInitiativeList,
+      combats, setCombats,
+      combatId, setCombatId,
       scriptTitle, setScriptTitle,
       scriptBody, setScriptBody,
-      initiativeList, setInitiativeList,
       playlist, setPlaylist,
       videoId, setVideoId
     }}>

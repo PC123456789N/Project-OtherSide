@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import CombatItem from "./CombatItem";
 import CreateCombatModal from "./CreateCombatModal";
 import CombatSheet from "../Combats/CombatSheet";
-import { useCombat } from "../../context/CombatContext";
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
 const TYPES = [
@@ -16,14 +15,14 @@ export default function CombatSelector() {
 
   const { selectedPageId, setSelectedPageId } = useDataHandler();
 
-  const [combats, setCombats] = useState([]);
+  const {combats, setCombats} = useDataHandler();
+  const { setCombatId } = useDataHandler();
 
   useEffect(() => {
     console.log("Lista de combates:");
     console.log(combats);
   }, [combats]);
 
-  const { setCombatId } = useCombat();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCombat, setSelectedCombat] = useState(null);
   const [openedCombat, setOpenedCombat] = useState(null);

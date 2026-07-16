@@ -1,9 +1,9 @@
 import Header from "../components/main_components/Header";
-import { useCombat } from "../context/CombatContext";
+import { useDataHandler } from "../context/dataHandlerContext/DataHandlerContext";
 
 export default function CombatPage() {
 
-    const { combatId } = useCombat();
+    const { combatId } = useDataHandler();
     console.log(combatId);
 
     return (
