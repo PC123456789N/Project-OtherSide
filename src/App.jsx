@@ -8,7 +8,8 @@ import Login from './components/main_components/Login';
 import MainLayout from './components/main_components/MainLayout';
 import Registry from './components/main_components/Registry';
 import GlobalPlayer from './components/main_components/GlobalAudioPlayer';
-
+import CombatPage from "./pages/CombatPage";
+import { CombatProvider } from "./context/CombatContext";
 
 
 

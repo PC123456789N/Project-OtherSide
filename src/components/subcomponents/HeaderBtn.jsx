@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, replace } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { useAuth } from "../../context/authContext/auth.jsx";
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
@@ -39,7 +39,7 @@ export default function HeaderBtn({ type }) {
         setSelectedPageId(selfId);
         navigate("/login");
         return;
-      }
+    }
 
       if (selectedPageId !== selfId) {
         setSelectedPageId(selfId);
