@@ -52,6 +52,7 @@ export async function loadFromCache(){
   //pull data from cache and returns them in a list
   return {
     initiatives: await cache.get("initiatives", "cachedInitiativeList"),
+    combat: await cache.get("combats", "cachedUserCombats"),
     script: await cache.get("scripts", "cachedScript"),
     music: await cache.get("musics", "cachedPlaylist")
   };
@@ -59,6 +60,7 @@ export async function loadFromCache(){
 
 export async function saveToCache(
   initiativeList,
+  combats,
   scriptTitle ,scriptBody,
   playlist, videoId
 ){
@@ -76,6 +78,13 @@ export async function saveToCache(
     initiativeList,
     "cachedInitiativeList"
   );
+
+  await cache.put(
+    "combats",
+    combats,
+    "cachedUserCombats"
+  );
+
   await cache.put(
     "scripts",
     {

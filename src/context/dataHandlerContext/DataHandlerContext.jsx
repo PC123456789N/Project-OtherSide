@@ -54,33 +54,11 @@ export function DataHandlerProvider({ children }) {
     verifyUser(userId);
   }, [userId]);
 
-  // useEffect(() => {
-  //   async function loadData() {
-  //     const data = await loadFromCache();
-
-  //     if (data.initiatives) {
-  //       setInitiativeList(data.initiatives);
-  //     }
-
-  //     if (data.script) {
-  //       setScriptTitle(data.script.title || "");
-  //       setScriptBody(data.script.body || "");
-  //     }
-
-  //     if (data.music) {
-  //       setPlaylist(data.music.playlist || []);
-  //       setVideoId(data.music.videoId || null);
-  //     }
-  //   }
-
-  //   loadData();
-  // },[])
-
   useEffect(() => {
     //if (!unsavedChanges) return;
 
     const timeout = setTimeout(() => {
-      saveToCache( initiativeList, scriptTitle, scriptBody, playlist, videoId);
+      saveToCache( initiativeList, combats , scriptTitle, scriptBody, playlist, videoId);
       
       saveAllToDB(userId, initiativeList, playlist)
       
@@ -91,24 +69,13 @@ export function DataHandlerProvider({ children }) {
 
   }, [
     unsavedChanges,
+    initiativeList,
+    combats,
     scriptBody,
     scriptTitle,
-    initiativeList,
     playlist,
     videoId
   ]);
-
-  // useEffect(() => {
-  //   //if (!unsavedChanges) return;
-
-  //   const timeout = setTimeout(async () => {
-  //     await saveInitiativesToDB(userId, initiativeList);
-  //     setUnsavedChanges(false);
-  //   }, 3000);
-
-  //   return () => clearTimeout(timeout);
-
-  // }, [unsavedChanges, userId, initiativeList]);
 
   async function syncData(userId) {
     try {
@@ -174,12 +141,16 @@ export function DataHandlerProvider({ children }) {
 
       if (cacheTime > firestoreTime) {
         console.log("Cache mais recente");
-
+        
         const cachedData = await loadFromCache();
+        console.log(cachedData.combat)
 
         setInitiativeList(
           cachedData.initiatives
         );
+        setCombats(
+          cachedData.combat
+        )
         setScriptTitle(
           cachedData.script.title
         )
