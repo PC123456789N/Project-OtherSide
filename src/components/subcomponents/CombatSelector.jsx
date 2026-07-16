@@ -4,7 +4,7 @@ import CombatItem from "./CombatItem";
 import CreateCombatModal from "./CreateCombatModal";
 import CombatSheet from "../Combats/CombatSheet";
 import { useCombat } from "../../context/CombatContext";
-import { useSavedState } from "../../context/selectedContext/SavedStateContext";
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
 const TYPES = [
   "Todos",
@@ -14,7 +14,7 @@ const TYPES = [
 ];
 export default function CombatSelector() {
 
-  const { selectedId, setSelectedId } = useSavedState();
+  const { selectedPageId, setSelectedPageId } = useDataHandler();
 
   const [combats, setCombats] = useState([]);
 

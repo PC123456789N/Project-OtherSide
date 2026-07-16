@@ -39,7 +39,7 @@ export default function HeaderBtn({ type }) {
         setSelectedPageId(selfId);
         navigate("/login");
         return;
-    }
+      }
 
       if (selectedPageId !== selfId) {
         setSelectedPageId(selfId);

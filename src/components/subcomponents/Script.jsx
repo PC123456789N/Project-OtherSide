@@ -1,4 +1,4 @@
-import { useSavedState } from "../../context/selectedContext/SavedStateContext"
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext"
 
 import { useEditor, EditorContent } from "@tiptap/react"
 import { useEffect, useState } from "react"
@@ -10,9 +10,9 @@ import StarterKit from "@tiptap/starter-kit"
 
 export default function Script() {
 
-  const {scriptBody, setScriptBody} = useSavedState();
-  const {scriptTitle, setScriptTitle} = useSavedState();
-  const {unsavedChanges, setUnsavedChanges} = useSavedState();
+  const {scriptBody, setScriptBody} = useDataHandler();
+  const {scriptTitle, setScriptTitle} = useDataHandler();
+  const {unsavedChanges, setUnsavedChanges} = useDataHandler();
 
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, FontSize, TextAlign.configure({types: ['heading','paragraph'],}),],

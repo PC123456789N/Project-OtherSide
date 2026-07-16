@@ -17,14 +17,16 @@ function App() {
   return (
     <DataHandlerProvider>
       <AudioPlayerProvider>
-        <GlobalPlayer />
-        <HashRouter>
-          <Routes>
-            <Route path="/" element={<MainLayout />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/registry" element={<Registry />} />
-          </Routes>
-        </HashRouter>
+        <CombatProvider>
+          <GlobalPlayer />
+          <HashRouter>
+            <Routes>
+              <Route path="/" element={<MainLayout />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registry" element={<Registry />} />
+            </Routes>
+          </HashRouter>
+        </CombatProvider>
       </AudioPlayerProvider>
     </DataHandlerProvider>
   )

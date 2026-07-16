@@ -1,6 +1,5 @@
 import Header from "../components/main_components/Header";
 import { useCombat } from "../context/CombatContext";
-import CombatSheet from "../components/combats/CombatSheet";
 
 export default function CombatPage() {
 
@@ -17,7 +16,7 @@ export default function CombatPage() {
     {/* Conteúdo */}
     <section className="flex-1 overflow-auto">
 
-        <CombatSheet />
+        {/* <CombatSheet /> */}
 
     </section>
 

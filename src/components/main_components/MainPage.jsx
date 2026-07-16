@@ -23,12 +23,12 @@ export default function MainPage(){
   
   return (
     <div className="w-full h-full">
-      {selectedId == 0 && (<LandingPage />)}
-      {selectedId == 1 && (<Inicial />)}
-      {selectedId == 2 && (<CombatSelector />)}
-      {selectedId == 3 && (<Script />)}
-      {selectedId == 4 && (<Music />)}
-      {selectedId == 5 && (<CombatPage />)}
+      {selectedPageId == 0 && (<LandingPage />)}
+      {selectedPageId == 1 && (<Inicial />)}
+      {selectedPageId == 2 && (<CombatSelector />)}
+      {selectedPageId == 3 && (<Script />)}
+      {selectedPageId == 4 && (<Music />)}
+      {selectedPageId == 5 && (<CombatPage />)}
     </div>
   );
 }

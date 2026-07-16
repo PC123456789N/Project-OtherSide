@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSavedState } from "../../context/selectedContext/SavedStateContext"
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
 import { useAudioPlayer } from "../../context/audioPlayerContext/AudioPlayerContext.jsx";
 
 const getYoutubeId = (url) => {
@@ -53,7 +53,7 @@ const MusicCard = ({ track, onPlay, onRemove, onRename }) => (
 export default function MusicRPG() {
   const [link, setLink] = useState("");
   const [categoria, setCategoria] = useState("Exploração");
-  const {playlist, setPlaylist} = useSavedState();
+  const {playlist, setPlaylist} = useDataHandler();
   const {play} = useAudioPlayer();
   const [loading, setLoading] = useState(false);
 

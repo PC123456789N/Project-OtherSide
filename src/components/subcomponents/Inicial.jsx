@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { useSavedState } from "../../context/selectedContext/SavedStateContext";
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
 export default function Inicial() {
   const [nome, setNome] = useState("");
@@ -9,7 +9,7 @@ export default function Inicial() {
   const [editNome, setEditNome] = useState("");
   const [editIniciativa, setEditIniciativa] = useState(0);
 
-  const { initiativeList, setInitiativeList } = useSavedState();
+  const { initiativeList, setInitiativeList } = useDataHandler();
 
   const lista = initiativeList || [];
   const setLista = setInitiativeList;
