@@ -1,4 +1,4 @@
-import { useSavedState } from "../../context/selectedContext/SavedStateContext";
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
 import { useAuth } from "../../context/authContext/auth.jsx";
 import { useEffect } from "react";
 
@@ -12,12 +12,12 @@ import CombatPage from "../../pages/CombatPage.jsx";
 
 
 export default function MainPage(){
-  const {selectedId, setSelectedId} = useSavedState();
+  const {selectedPageId, setSelectedPageId} = useDataHandler();
   const {userLoggedIn} = useAuth();
 
   useEffect(() => {
-  if (userLoggedIn && selectedId === 0) {
-    setSelectedId(1);
+  if (userLoggedIn && selectedPageId === 0) {
+    setSelectedPageId(1);
   }
 }, [])
   

@@ -49,6 +49,7 @@ export function AuthProvider({ children }){
                     Name: currentUser?.displayName  || currentUser?.email.split("@")[0],
                     Email: currentUser?.email  || "",
                     UserId: currentUser?.uid,
+                    LastSave: serverTimestamp(),
                 });
 
             console.log("Usuário criado"); //remove post production
