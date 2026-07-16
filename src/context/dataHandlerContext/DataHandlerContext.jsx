@@ -180,6 +180,12 @@ export function DataHandlerProvider({ children }) {
         setInitiativeList(
           cachedData.initiatives
         );
+        setScriptTitle(
+          cachedData.script.title
+        )
+        setScriptBody(
+          cachedData.script.body
+        )
         setPlaylist(
           cachedData.music.playlist
         )

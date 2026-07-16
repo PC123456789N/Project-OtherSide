@@ -47,6 +47,7 @@ export async function getCachedLastSave(){
 export async function loadFromCache(){
   console.log("loaded from idb")
   const cache = await dbPromise;
+  
 
   //pull data from cache and returns them in a list
   return {

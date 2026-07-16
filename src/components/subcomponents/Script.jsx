@@ -36,7 +36,7 @@ export default function Script() {
     if (editor && scriptBody) {
       editor.commands.setContent(scriptBody)
     }
-  }, [editor])
+  }, [editor, scriptBody])
 
   useEffect(() => {
     setScriptTitle(scriptTitle)

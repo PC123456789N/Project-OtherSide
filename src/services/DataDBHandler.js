@@ -85,9 +85,9 @@ export async function loadInitiativesFromDB(userId) {
 export async function saveMusicsToDB(userId, playlist) {
   //console.log("userId:", userId);
   //console.log("initiativeList:", initiativeList);
-  console.log("SALVANDO PLAYLIST:", playlist);
-  console.log("PLAYLIST DEBUG:", playlist);
-  console.log(JSON.stringify(playlist, null, 2));
+  // console.log("SALVANDO PLAYLIST:", playlist);
+  // console.log("PLAYLIST DEBUG:", playlist);
+  // console.log(JSON.stringify(playlist, null, 2));
   try{
     const q = query(
     collection(db, "Musics"),
