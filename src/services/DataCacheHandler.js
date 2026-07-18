@@ -54,6 +54,7 @@ export async function loadFromCache(){
     initiatives: await cache.get("initiatives", "cachedInitiativeList"),
     combat: await cache.get("combats", "cachedUserCombats"),
     script: await cache.get("scripts", "cachedScript"),
+    notes: await cache.get("scripts", "cachedNotesList"),
     music: await cache.get("musics", "cachedPlaylist")
   };
 }
@@ -61,8 +62,8 @@ export async function loadFromCache(){
 export async function saveToCache(
   initiativeList,
   combats,
-  scriptTitle ,scriptBody,
-  playlist, videoId
+  scripts, notesList,
+  playlist
 ){
   console.log("data sent to idb")
   const cache = await dbPromise;
@@ -87,11 +88,13 @@ export async function saveToCache(
 
   await cache.put(
     "scripts",
-    {
-      title: scriptTitle,
-      body: scriptBody
-    },
+    scripts,
     "cachedScript"
+  );
+  await cache.put(
+    "scripts",
+    notesList,
+    "cachedNotesList"
   );
 
   await cache.put(

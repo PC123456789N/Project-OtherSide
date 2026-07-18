@@ -10,14 +10,16 @@ import StarterKit from "@tiptap/starter-kit"
 
 export default function Script() {
 
-  const {scriptBody, setScriptBody} = useDataHandler();
-  const {scriptTitle, setScriptTitle} = useDataHandler();
+  const {scripts, setScripts} = useDataHandler();
+  const {notesList, setNotesList} = useDataHandler();
+  
   const {unsavedChanges, setUnsavedChanges} = useDataHandler();
+
+  const [loadedScript, setLoadedScript] = useState(false);
 
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, FontSize, TextAlign.configure({types: ['heading','paragraph'],}),],
     content: "<p>Cole Seu Roteiro Aqui :)</p>",
-    
     editorProps: {
       attributes: {
         class: "focus:outline-none"
@@ -25,7 +27,10 @@ export default function Script() {
     },
 
     onUpdate: ({ editor }) => {
-      setScriptBody(editor.getHTML())
+      setScripts(prev => ({
+        ...prev,
+        body: editor.getHTML()
+      }))
       setUnsavedChanges(true)
     }
   })
@@ -33,15 +38,19 @@ export default function Script() {
   if (!editor) return null
 
   useEffect(() => {
-    if (editor && scriptBody) {
-      editor.commands.setContent(scriptBody)
-    }
-  }, [editor, scriptBody])
+    if (!editor || loadedScript || !scripts.body) return;
+
+    editor.commands.setContent(scripts.body);
+    setLoadedScript(true);
+  }, [editor, scripts.body, loadedScript]);
 
   useEffect(() => {
-    setScriptTitle(scriptTitle)
+    setScripts(prev => ({
+      ...prev,
+      title: scripts.title
+    }))
     setUnsavedChanges(true)
-  }, [scriptTitle])
+  }, [scripts.title])
 
 
   return(
@@ -52,8 +61,12 @@ export default function Script() {
           <input
             type="text"
             placeholder="Título..."
-            onChange={(e) => setScriptTitle(e.target.value)}
-            value={scriptTitle}
+            onChange={(e) => setScripts(prev => ({
+                ...prev,
+                title: (e.target.value)
+              }))
+            }
+            value={scripts.title}
             className="bg-transparent text-xl font-semibold outline-none placeholder:text-gray-400 pb-3"
           />
 

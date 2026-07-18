@@ -33,8 +33,8 @@ export function DataHandlerProvider({ children }) {
   const [combats, setCombats] = useState([]);
   const [combatId, setCombatId] = useState(null);
 
-  const [scriptTitle, setScriptTitle] = useState("");
-  const [scriptBody, setScriptBody] = useState("");
+  const [scripts, setScripts] = useState({title: "", body: ""});
+  const [notesList, setNotesList] = useState([])
 
   const [playlist, setPlaylist] = useState([]);
   const [videoId, setVideoId] = useState(null);
@@ -58,7 +58,7 @@ export function DataHandlerProvider({ children }) {
     //if (!unsavedChanges) return;
 
     const timeout = setTimeout(() => {
-      saveToCache( initiativeList, combats , scriptTitle, scriptBody, playlist, videoId);
+      saveToCache( initiativeList, combats , scripts, notesList , playlist);
       
       saveAllToDB(userId, initiativeList, playlist)
       
@@ -71,8 +71,8 @@ export function DataHandlerProvider({ children }) {
     unsavedChanges,
     initiativeList,
     combats,
-    scriptBody,
-    scriptTitle,
+    scripts,
+    notesList,
     playlist,
     videoId
   ]);
@@ -148,15 +148,19 @@ export function DataHandlerProvider({ children }) {
         setInitiativeList(
           cachedData.initiatives
         );
+
         setCombats(
           cachedData.combat
         )
-        setScriptTitle(
-          cachedData.script.title
+
+        setScripts({
+          title: cachedData.script.title,
+          body: cachedData.script.body,
+        })
+        setNotesList(
+          cachedData.notes
         )
-        setScriptBody(
-          cachedData.script.body
-        )
+
         setPlaylist(
           cachedData.music.playlist
         )
@@ -170,19 +174,19 @@ export function DataHandlerProvider({ children }) {
         return;
       }
 
-      // Iguais
-      console.log("Dados sincronizados");
+      // Iguais WIP
+      // console.log("Dados sincronizados");
 
-      const cachedData = await loadFromCache();
+      // const cachedData = await loadFromCache();
 
-      setInitiativeList(
-        cachedData.initiatives
-      );
-      setPlaylist(
-        {
-          nome: "wablua1"
-        }
-      )
+      // setInitiativeList(
+      //   cachedData.initiatives
+      // );
+      // setPlaylist(
+      //   {
+      //     nome: "wablua1"
+      //   }
+      // )
 
     } catch (error) {
       console.error(
@@ -205,8 +209,8 @@ export function DataHandlerProvider({ children }) {
       initiativeList, setInitiativeList,
       combats, setCombats,
       combatId, setCombatId,
-      scriptTitle, setScriptTitle,
-      scriptBody, setScriptBody,
+      scripts, setScripts,
+      notesList, setNotesList,
       playlist, setPlaylist,
       videoId, setVideoId
     }}>

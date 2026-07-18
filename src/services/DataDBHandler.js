@@ -81,6 +81,10 @@ export async function loadInitiativesFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
+export async function saveScriptsToDB(userId, scripts){
+//wip
+}
+
 
 export async function saveMusicsToDB(userId, playlist) {
   //console.log("userId:", userId);
