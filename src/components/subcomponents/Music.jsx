@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
 import { useAudioPlayer } from "../../context/audioPlayerContext/AudioPlayerContext.jsx";
 
+import MusicLibrary from "./MusicLibrary.jsx";
+
 const getYoutubeId = (url) => {
   try {
     const u = new URL(url);
@@ -53,6 +55,7 @@ const MusicCard = ({ track, onPlay, onRemove, onRename }) => (
 export default function MusicRPG() {
   const [link, setLink] = useState("");
   const [categoria, setCategoria] = useState("Exploração");
+  const [isOpenLib, setIsOpenLib] = useState(false);
   const {playlist, setPlaylist} = useDataHandler();
   const {play} = useAudioPlayer();
   const [loading, setLoading] = useState(false);
@@ -82,9 +85,16 @@ export default function MusicRPG() {
 
   return (
     <div className="bg-[#030303] text-white min-h-screen font-sans flex flex-col">
-
+      {isOpenLib && (<MusicLibrary setIsOpenLib={setIsOpenLib}/>)}
       {/* HEADER: Fixado no fluxo normal (Some ao rolar no mobile) */}
-      <header className="p-4 md:p-8 bg-linear-to-b from-white/5 to-transparent">
+      <header className="p-4 md:p-6 bg-linear-to-b from-white/5 to-transparent flex">
+        <button
+          onClick={() => setIsOpenLib(!isOpenLib)}
+          disabled={loading}
+          className="bg-purple-600 px-4 md:px-8 py-2 md:py-3 rounded-lg md:rounded-xl font-bold text-xs md:text-sm active:scale-95 disabled:opacity-50"
+        >
+          {loading ? "..." : "Biblioteca"}
+        </button>
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-2 bg-[#121212] p-1.5 md:p-2 rounded-xl md:rounded-2xl border border-white/10 shadow-2xl">
           <input
             value={link}

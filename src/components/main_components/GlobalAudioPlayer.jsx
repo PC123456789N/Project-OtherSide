@@ -10,7 +10,7 @@ export default function GlobalPlayer() {
   if (!videoId) return null;
 
   return (
-    <div className={`fixed bottom-1 right-4 bg-linear-to-b from-black to-white/2 p-3 rounded-2xl border-2 shadow-2xl border-gray-800 ${selectedPageId == 4 ? `visible` : `invisible`}`}>
+    <div className={`fixed z-100 bottom-1 right-4 bg-linear-to-b from-black to-white/2 p-3 rounded-2xl border-2 shadow-2xl border-gray-800 ${selectedPageId == 4 ? `visible` : `invisible`}`}>
       <div className="max-w-5xl flex mx-auto gap-1 items-center">
 
         <div className="w-64 aspect-video">
