@@ -56,7 +56,7 @@ export async function saveInitiativesToDB(userId, initiativeList) {
         PlayerArray: initiativeList,
       }
     );
-    console.log("doc firestore atualizado")
+    console.log("doc firestore/initiatives atualizado")
     return;
   } 
   
@@ -81,15 +81,69 @@ export async function loadInitiativesFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveScriptsToDB(userId, scripts){
-//wip
+export async function saveScriptsToDB(userId, scripts, notesList){
+  try{
+    const q = query(
+    collection(db, "Scripts"),
+    where("UserId", "==", userId)
+  );
+  
+  const snapshot = await getDocs(q);
+  
+    if (snapshot.empty) { //nn havia docs la
+      await setDoc(
+        doc(collection(db, "Scripts")), 
+        {
+          lastSave: serverTimestamp(),
+          UserId: userId,
+          NotesList: notesList || [{title: "Exemplo de nota", content: "1Esta é uma nota de exemplo. Você pode adicionar, editar e excluir notas conforme necessário."}],
+          ScriptDoc: {Title: scripts?.title || "", Body: scripts?.body || ""},
+        }
+      );
+      console.log("doc firestore Criado")
+      return;
+    }
+
+    await setDoc( //ja havia um docs la
+      doc(db, "Scripts", snapshot.docs[0].id), //primeiro docs
+      {
+        lastSave: serverTimestamp(),
+        UserId: userId,
+        NotesList: notesList || [{title: "Exemplo de nota", content: "2Esta é uma nota de exemplo. Você pode adicionar, editar e excluir notas conforme necessário."}],
+        ScriptDoc: {Title: scripts?.title || "fuck me", Body: scripts?.body || "fuck me 2"},
+      }
+    );
+    console.log("doc firestore/scripts atualizado")
+    return;
+  } 
+  
+  catch(error){
+    console.error("Erro ao salvar:", error);
+  }
+}
+
+export async function loadScriptsFromDB(userId){
+  console.log("loaded initiatives from firestore")
+  const q = query(
+    collection(db, "Scripts"),
+    where("UserId", "==", userId)
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  return snapshot.docs[0].data();
 }
 
 
 export async function saveMusicsToDB(userId, playlist) {
+  //console.trace("saveMusicsToDB chamado com:", playlist);
   //console.log("userId:", userId);
   //console.log("initiativeList:", initiativeList);
-  // console.log("SALVANDO PLAYLIST:", playlist);
+  //console.log("SALVANDO PLAYLIST:", playlist);
   // console.log("PLAYLIST DEBUG:", playlist);
   // console.log(JSON.stringify(playlist, null, 2));
   try{
@@ -140,7 +194,7 @@ export async function loadMusicsFromDB(userId) {
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
-    console.log("wablua", snapshot.docs[0].data())
+    console.log("nenhum documento de músicas encontrado para esse usuário");
     return null;
   }
 
@@ -148,9 +202,10 @@ export async function loadMusicsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveAllToDB(userId, initiativeList, playlist,) {
+export async function saveAllToDB(userId, initiativeList, scripts, notesList, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);
+  await saveScriptsToDB(userId, scripts, notesList);
   await saveMusicsToDB(userId, playlist);
 
 }
@@ -158,9 +213,12 @@ export async function saveAllToDB(userId, initiativeList, playlist,) {
 export async function loadAllFromDB(userId) {
   const initiativesData = await loadInitiativesFromDB(userId);
   const musicsData = await loadMusicsFromDB(userId);
+  const scriptsData = await loadScriptsFromDB(userId);
 
   return {
     initiatives: initiativesData?.PlayerArray ?? [],
-    music: musicsData?.Playlist ?? [],
+    music: musicsData.Playlist ?? [],
+    scripts: scriptsData?.ScriptDoc ?? {Title: "", Body: ""},
+    notes: scriptsData?.NotesList ?? []
   };
 }

@@ -33,7 +33,6 @@ export async function verifyUser( userId ) {
     await cache.clear("musics");
     await cache.clear("metadata");
     await cache.put("metadata", userId, "cachedUserId");
-    await cache.put("metadata", Date.now(), "cachedLastSave")
   } else {
     //console.log("web-userId and idb-userId match. pass!") //rm on postproduction
   }
@@ -66,6 +65,8 @@ export async function saveToCache(
   playlist
 ){
   console.log("data sent to idb")
+  console.log("initiativeList:", initiativeList);
+  console.log("combats:", combats);
   const cache = await dbPromise;
   
   await cache.put(
@@ -99,9 +100,7 @@ export async function saveToCache(
 
   await cache.put(
     "musics",
-    {
-      playlist,
-    },
+    playlist,
     "cachedPlaylist"
   );
 }

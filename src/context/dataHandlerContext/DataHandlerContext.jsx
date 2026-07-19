@@ -49,9 +49,18 @@ export function DataHandlerProvider({ children }) {
     //console.log("selectedId mudou para:", selectedPageId);
   }, [selectedPageId]);
 
-  useEffect(() => { //verifica se o usuario tem o id registrado no IDB, se nn limpa o cache
+  useEffect(() => {
     if (!userId) return;
-    verifyUser(userId);
+
+    let cancelled = false;
+
+    (async () => {
+      await verifyUser(userId);
+      if (cancelled) return; // evita rodar syncData se o efeito foi desmontado/re-executado
+      await syncData(userId);
+    })();
+
+    return () => { cancelled = true; };
   }, [userId]);
 
   useEffect(() => {
@@ -60,7 +69,7 @@ export function DataHandlerProvider({ children }) {
     const timeout = setTimeout(() => {
       saveToCache( initiativeList, combats , scripts, notesList , playlist);
       
-      saveAllToDB(userId, initiativeList, playlist)
+      saveAllToDB(userId, initiativeList, scripts, notesList, playlist)
       
       setUnsavedChanges(false);
     }, 1000);
@@ -97,6 +106,8 @@ export function DataHandlerProvider({ children }) {
         await saveAllToDB(
           userId,
           cachedData.initiatives,
+          cachedData.script,
+          cachedData.notes,
           cachedData.music
         );
 
@@ -112,11 +123,19 @@ export function DataHandlerProvider({ children }) {
         setInitiativeList(
           firestoreData.initiatives
         );
+        setScripts({
+          title: firestoreData.scripts?.Title || "",
+          body: firestoreData.scripts?.Body || "",
+        })
+        setNotesList(
+          firestoreData.notes
+        );
         setPlaylist(
           firestoreData.music
-        )
+        );
 
-        await saveToCache(firestoreData);
+        //place firestoreData.combats instead of null
+        await saveToCache( firestoreData.initiatives, null, firestoreData.scripts, firestoreData.notes , firestoreData.music);
 
         return;
       }
@@ -125,14 +144,21 @@ export function DataHandlerProvider({ children }) {
       if (firestoreTime > cacheTime) {
         console.log("Firestore mais recente");
 
-        const firestoreData = await loadAllFromDB(userId, initiativeList, playlist);
+        const firestoreData = await loadAllFromDB(userId);
 
         setInitiativeList(
           firestoreData.initiatives
         );
+        setScripts({
+          title: firestoreData.scripts?.Title || "",
+          body: firestoreData.scripts?.Body || "",
+        })
+        setNotesList(
+          firestoreData.notes
+        );
         setPlaylist(
           firestoreData.music
-        )
+        );
 
         await saveToCache(firestoreData);
 
@@ -143,7 +169,7 @@ export function DataHandlerProvider({ children }) {
         console.log("Cache mais recente");
         
         const cachedData = await loadFromCache();
-        console.log(cachedData.combat)
+        // console.log(cachedData.combat)
 
         setInitiativeList(
           cachedData.initiatives
@@ -162,13 +188,15 @@ export function DataHandlerProvider({ children }) {
         )
 
         setPlaylist(
-          cachedData.music.playlist
+          cachedData.music
         )
 
         await saveAllToDB(
           userId,
           cachedData.initiatives,
-          cachedData.music
+          cachedData.script,
+          cachedData.notes,
+          cachedData.music,
         );
 
         return;
@@ -195,12 +223,6 @@ export function DataHandlerProvider({ children }) {
       );
     }
   }
-
-  useEffect(() => {
-    if(userId){
-      syncData(userId);
-    }
-  }, [])
 
   return (
     <DataHandler.Provider value={{

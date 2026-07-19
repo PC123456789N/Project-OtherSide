@@ -123,6 +123,7 @@ export default function MusicRPG() {
 
       <main className="max-w-400 mx-auto p-4 md:px-8 grow w-full space-y-12 md:space-y-15">
         {categorias.map(cat => {
+          console.log(playlist)
           const filtered = playlist?.filter(t => t.categoria === cat);
           if (!filtered?.length) return null;
           return (
