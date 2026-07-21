@@ -42,42 +42,12 @@ export default function CombatPage() {
       },
 
       skills: [
-        {
-          id: "skill-fortitude",
-          name: "Fortitude",
-          value: 3,
-          bonus: 5,
-          lastResult: null,
-        },
-        {
-          id: "skill-luta",
-          name: "Luta",
-          value: 3,
-          bonus: 6,
-          lastResult: null,
-        },
-        {
-          id: "skill-iniciativa",
-          name: "Iniciativa",
-          value: 2,
-          bonus: 3,
-          lastResult: null,
-        },
-        {
-          id: "skill-pontaria",
-          name: "Pontaria",
-          value: 1,
-          bonus: 0,
-          lastResult: null,
-        },
-        {
-          id: "skill-vontade",
-          name: "Vontade",
-          value: 2,
-          bonus: 2,
-          lastResult: null,
-        },
-      ],
+    { id: "skill-fortitude", name: "Fortitude", attribute: "vigor", bonus: 5, lastResult: null },
+    { id: "skill-luta", name: "Luta", attribute: "strength", bonus: 6, lastResult: null },
+    { id: "skill-iniciativa", name: "Iniciativa", attribute: "agility", bonus: 3, lastResult: null },
+    { id: "skill-pontaria", name: "Pontaria", attribute: "agility", bonus: 0, lastResult: null },
+    { id: "skill-vontade", name: "Vontade", attribute: "presence", bonus: 2, lastResult: null },
+    ],
 
       attacks: [
         {
@@ -142,17 +112,17 @@ export default function CombatPage() {
 
   function handleSkillAdd() {
     updateEntity((prev) => ({
-      ...prev,
-      skills: [
-        ...prev.skills,
-        {
-          id: crypto.randomUUID(),
-          name: "Nova Perícia",
-          value: 1,
-          bonus: 0,
-          lastResult: null,
-        },
-      ],
+        ...prev,
+        skills: [
+            ...prev.skills,
+            {
+                id: crypto.randomUUID(),
+                name: "Nova Perícia",
+                attribute: "agility",
+                bonus: 0,
+                lastResult: null,
+            },
+        ],
     }));
   }
 

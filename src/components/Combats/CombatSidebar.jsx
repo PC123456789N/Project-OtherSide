@@ -22,8 +22,13 @@ export default function CombatSidebar({
   selectedEntity,
   setSelectedEntity,
 }) {
-  const { initiativeList, setInitiativeList, rollHistory, setRollHistory } =
-    useDataHandler();
+    const {
+    initiativeList,
+    setInitiativeList,
+    rollHistory,
+    setRollHistory,
+    setSelectedPageId,
+  } = useDataHandler();
 
   const lista = initiativeList || [];
 
@@ -79,14 +84,10 @@ export default function CombatSidebar({
   }
 
   function handleEndCombat() {
-    if (
-      !window.confirm(
-        "Deseja encerrar o combate? Isso vai limpar a lista de iniciativas."
-      )
-    )
+    if (!window.confirm("Deseja encerrar o combate e sair para a página inicial?"))
       return;
 
-    setInitiativeList([]);
+    setSelectedPageId("2");
   }
 
   function handleDiceTypeChange(type) {
