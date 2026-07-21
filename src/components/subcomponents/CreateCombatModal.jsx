@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
 const TYPES = [
     "Criatura",
@@ -17,7 +18,7 @@ export default function CreateCombatModal({
     open,
     onClose,
     onSave,
-    combat
+    combat,
 }) {
 
     const [name, setName] = useState("");
@@ -25,6 +26,8 @@ export default function CreateCombatModal({
     const [image, setImage] = useState("");
     const [type, setType] = useState("Criatura");
     const [element, setElement] = useState("Sangue");
+    const [monsterId, setMonsterId] = useState("");
+    const { monstersList ,setMonstersList} = useDataHandler();
 
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
@@ -36,6 +39,7 @@ export default function CreateCombatModal({
             setImage(combat.image || "");
             setType(combat.type || "Criatura");
             setElement(combat.element || "Sangue");
+            setMonsterId(combat.monsterId || "");
 
             setDate(combat.date || "");
             setTime(combat.time || "");
@@ -47,6 +51,7 @@ export default function CreateCombatModal({
             setImage("");
             setType("Criatura");
             setElement("Sangue");
+            setMonsterId("");
 
             setDate("");
             setTime("");
@@ -81,12 +86,54 @@ export default function CreateCombatModal({
     function handleSave() {
         if (!name.trim())
             return;
+
+        let finalMonsterId = monsterId;
+
+        if (!combat) {
+            const newMonster = {
+                id: crypto.randomUUID(),
+                name: name, // pode usar o nome do combate como base, ajustável depois no MonsterPanel
+                image: image,
+                element: element,
+                type: type,
+                size: "Medium",
+
+                hp: { current: 10, max: 10 },
+                combat: {
+                    defense: 10,
+                    movement: 6,
+                    sanityDamage: { value: 0, damage: "1d6" },
+                },
+                attributes: {
+                    agility: 0,
+                    strength: 0,
+                    intellect: 0,
+                    presence: 0,
+                    vigor: 0,
+                },
+
+                skills: [],
+                attacks: [],
+                abilities: [],
+                resistances: [],
+                vulnerabilities: [],
+                immunities: [],
+
+                fearEnigma: "",
+                description: "",
+            };
+
+            setMonstersList((prev) => [...prev, newMonster]);
+            finalMonsterId = newMonster.id;
+        }
+
         onSave({
         name,
         location,
         image,
         type,
         element,
+        monsterId: finalMonsterId,
         date,
         time
         });

@@ -12,6 +12,9 @@ export const dbPromise = openDB("app_web", 1, {
     if (!db.objectStoreNames.contains("combats")) {
       db.createObjectStore("combats");
     }
+    if (!db.objectStoreNames.contains("monsters")) {
+      db.createObjectStore("monsters");
+    }
     if (!db.objectStoreNames.contains("scripts")) {
       db.createObjectStore("scripts");
     }
@@ -29,6 +32,7 @@ export async function verifyUser( userId ) {
     //console.log("web-uid and idb-uid dont match. creating new Table!")//rm on postproduction
     await cache.clear("initiatives");
     await cache.clear("combats");
+    await cache.clear("monsters");
     await cache.clear("scripts");
     await cache.clear("musics");
     await cache.clear("metadata");
@@ -52,15 +56,17 @@ export async function loadFromCache(){
   return {
     initiatives: await cache.get("initiatives", "cachedInitiativeList"),
     combat: await cache.get("combats", "cachedUserCombats"),
+    monsters: await cache.get("monsters", "cachedMonstersList"),
     script: await cache.get("scripts", "cachedScript"),
     notes: await cache.get("scripts", "cachedNotesList"),
-    music: await cache.get("musics", "cachedPlaylist")
+    music: await cache.get("musics", "cachedPlaylist"),
   };
 }
 
 export async function saveToCache(
   initiativeList,
   combats,
+  monstersList,
   scripts, notesList,
   playlist
 ){
@@ -85,6 +91,11 @@ export async function saveToCache(
     "combats",
     combats,
     "cachedUserCombats"
+  );
+  await cache.put(
+    "monsters",
+    monstersList,
+    "cachedMonstersList"
   );
 
   await cache.put(

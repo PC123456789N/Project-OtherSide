@@ -8,127 +8,142 @@ import { useDataHandler } from "../context/dataHandlerContext/DataHandlerContext
 
 export default function CombatPage() {
   const { combatId, combats } = useDataHandler();
+  const { monstersList, setMonstersList } = useDataHandler();
 
   const [selectedTab, setSelectedTab] = useState("combat");
 
-  const monsters = [
-    {
-      id: "blood_zombie",
-      name: "Blood Zombie",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZPj2MX7yEFpT3bqJR0ImNDrt9z61_lSBRvst4pdi7PA&s=10",
-      element: "Blood",
-      type: "Boss",
-      size: "Medium",
+	const [selectedEntity, setSelectedEntity] = useState(null);
 
-      hp: {
-        current: 60,
-        max: 60,
-      },
-      combat: {
-        defense: 15,
-        movement: 9,
+	useEffect(() => {
+		if (!combatId) return;
 
-        sanityDamage: {
-          value: 15,
-          damage: "2d10",
-        },
-      },
-      attributes: {
-        agility: 1,
-        strength: 3,
-        intellect: 0,
-        presence: 0,
-        vigor: 3,
-      },
+		const matchedCombat = (combats || []).find(
+			(item) => item.id === combatId
+		);
 
-      skills: [
-        {
-          id: "skill-fortitude",
-          name: "Fortitude",
-          value: 3,
-          bonus: 5,
-          lastResult: null,
-        },
-        {
-          id: "skill-luta",
-          name: "Luta",
-          value: 3,
-          bonus: 6,
-          lastResult: null,
-        },
-        {
-          id: "skill-iniciativa",
-          name: "Iniciativa",
-          value: 2,
-          bonus: 3,
-          lastResult: null,
-        },
-        {
-          id: "skill-pontaria",
-          name: "Pontaria",
-          value: 1,
-          bonus: 0,
-          lastResult: null,
-        },
-        {
-          id: "skill-vontade",
-          name: "Vontade",
-          value: 2,
-          bonus: 2,
-          lastResult: null,
-        },
-      ],
+		if (!matchedCombat) return;
 
-      attacks: [
-        {
-          id: "attack-claws",
-          name: "Claws",
-          type: "Corpo a Corpo",
-          range: "3m",
-          testBonus: 8,
-          damage: "2d8+5",
-          threatMargin: 20,
-          critMultiplier: 2,
-          lastTestResult: null,
-          lastCritical: false,
-          lastDamageResult: null,
-          lastCritDamageResult: null,
-        },
-      ],
-      abilities: [
-        {
-          id: "ability-fury",
-          name: "Uncontrolled Fury",
-          attributeName: "Fúria Descontrolada",
-          attributeDescription: "When below 50% HP, gains +2 on attack rolls.",
-        },
-      ],
-      resistances: [
-        {
-          id: "resistance-blood",
-          name: "Sangue",
-          description: "Reduz em 10 o dano recebido do elemento Sangue.",
-        },
-      ],
-      vulnerabilities: [{ id: "vuln-death", value: "Death" }],
+		const matchedMonster = (monstersList || []).find(
+			(monster) => monster.id === matchedCombat.monsterId
+		);
 
-      immunities: [
-        { id: "immunity-fear", value: "Fear" },
-        { id: "immunity-bleeding", value: "Bleeding" },
-        { id: "immunity-blindness", value: "Blindness" },
-      ],
-
-      fearEnigma: "",
-
-      description: "A creature twisted by the Blood element, driven only by violence.",
-    },
-  ];
-
-  const [selectedEntity, setSelectedEntity] = useState(monsters[0]);
+		if (matchedMonster && matchedMonster.id !== selectedEntity?.id) {
+			setSelectedEntity(matchedMonster);
+		}
+	}, [combatId, combats, monstersList, selectedEntity]);
 
   function updateEntity(updater) {
-    setSelectedEntity((prev) => updater(prev));
-  }
+		if (!selectedEntity) return;
+
+		const updated = updater(selectedEntity);
+
+		setSelectedEntity(updated);
+
+		setMonstersList((list) =>
+			list.map((monster) =>
+				monster.id === updated.id
+					? updated
+					: monster
+			)
+		);
+	}
+
+	// ================= HEADER/HP/DEFESA/DESLOCAMENTO/ATRIBUTOS =================
+	function handleHpCurrentChange(value) {
+		updateEntity((prev) => ({
+			...prev,
+			hp: {
+				...prev.hp,
+				current: value,
+			},
+		}));
+	}
+	function handleHpMaxChange(value) {
+		updateEntity((prev) => ({
+			...prev,
+			hp: {
+				...prev.hp,
+				max: value,
+			},
+		}));
+	}
+
+	function handleDamage(amount) {
+		updateEntity((prev) => ({
+			...prev,
+			hp: {
+				...prev.hp,
+				current: Math.max(0, prev.hp.current - amount),
+			},
+		}));
+	}
+
+	function handleHeal(amount) {
+		updateEntity((prev) => ({
+			...prev,
+			hp: {
+				...prev.hp,
+				current: Math.min(prev.hp.max, prev.hp.current + amount),
+			},
+		}));
+	}
+
+	function handleDefenseChange(value) {
+		updateEntity((prev) => ({
+			...prev,
+			combat: {
+				...prev.combat,
+				defense: value,
+			},
+		}));
+	}
+
+	function handleMovementChange(value) {
+		updateEntity((prev) => ({
+			...prev,
+			combat: {
+				...prev.combat,
+				movement: value,
+			},
+		}));
+	}
+
+	function handleSanityValueChange(value) {
+		updateEntity((prev) => ({
+			...prev,
+			combat: {
+				...prev.combat,
+				sanityDamage: {
+					...prev.combat.sanityDamage,
+					value: value,
+				},
+			},
+		}));
+	}
+
+	function handleSanityDamageChange(value) {
+		updateEntity((prev) => ({
+			...prev,
+			combat: {
+				...prev.combat,
+				sanityDamage: {
+					...prev.combat.sanityDamage,
+					damage: value,
+				},
+			},
+		}));
+	}
+
+	function handleAttributeChange(attribute, value) {
+		updateEntity((prev) => ({
+			...prev,
+			attributes: {
+				...prev.attributes,
+				[attribute]: value,
+			},
+		}));
+	}
+	// ================= DESCRIÇÃO E ENIGMA DO MEDO =================
 
   function handleDescriptionChange(value) {
     updateEntity((prev) => ({ ...prev, description: value }));
@@ -379,16 +394,36 @@ export default function CombatPage() {
     }));
   }
 
+	if (!selectedEntity) {
+		console.log(selectedEntity)
+		return (
+			<div className="flex h-full items-center justify-center bg-zinc-950 text-zinc-500">
+				Selecione um combate para começar.
+			</div>
+		);
+	}
+
   return (
     <div className="flex h-full overflow-hidden bg-zinc-950">
       <CombatSidebar
-        entities={monsters}
-        selectedEntity={selectedEntity}
-        setSelectedEntity={setSelectedEntity}
-      />
+				entities={monstersList}
+				selectedEntity={selectedEntity}
+				setSelectedEntity={setSelectedEntity}
+			/>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-4">
-        <MonsterHeader monster={selectedEntity} />
+        <MonsterHeader 
+					monster={selectedEntity}
+					onDamage={handleDamage}
+					onHeal={handleHeal} 
+					onAttributeChange={handleAttributeChange}
+					onDefenseChange={handleDefenseChange}
+					onMovementChange={handleMovementChange}
+					onHpCurrentChange={handleHpCurrentChange}
+					onHpMaxChange={handleHpMaxChange}
+					onSanityDamageChange={handleSanityDamageChange}
+					onSanityValueChange={handleSanityValueChange}
+				/>
 
         <MonsterTabs
           selectedTab={selectedTab}

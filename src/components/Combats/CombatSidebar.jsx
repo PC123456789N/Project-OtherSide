@@ -19,8 +19,8 @@ const buttonBase = `
 
 export default function CombatSidebar({
   entities,
-  selectedEntity,
-  setSelectedEntity,
+  selectedEntityId,
+  onSelectEntity,
 }) {
   const { initiativeList, setInitiativeList, rollHistory, setRollHistory } =
     useDataHandler();
@@ -51,7 +51,7 @@ export default function CombatSidebar({
     const match = findMatchingEntity(participant.nome);
 
     if (match) {
-      setSelectedEntity(match);
+      onSelectEntity(match.id);
     }
   }
 

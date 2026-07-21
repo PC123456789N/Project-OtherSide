@@ -15,11 +15,8 @@ function EditableNumber({ value, onChange, className, placeholder = "0" }) {
 
   function handleChange(e) {
     const raw = e.target.value;
-
     if (raw !== "" && !/^-?\d*$/.test(raw)) return;
-
     setText(raw);
-
     onChange(raw === "" ? 0 : Number(raw));
   }
 
