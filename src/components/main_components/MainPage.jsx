@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import Inicial from "../subcomponents/Inicial";
 import CombatSelector from "../subcomponents/CombatSelector";
-import Script from "../subcomponents/Script";
+import Script from "../subcomponents/Script.jsx";
 import Music from "../subcomponents/Music";
 import LandingPage from "./LandingPage";
 import CombatPage from "../../pages/CombatPage.jsx";

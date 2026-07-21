@@ -1,10 +1,11 @@
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 import { useAudioPlayer } from "../../context/audioPlayerContext/AudioPlayerContext";
 
+import { FaPlay } from "react-icons/fa";
+import { TbLibraryPlusFilled } from "react-icons/tb";
+
 const PlayIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 md:w-10 md:h-10 text-white ml-1">
-    <path d="M8 5.14v13.72a1 1 0 001.5.86l10.86-6.86a1 1 0 000-1.72L9.5 4.28a1 1 0 00-1.5.86z" />
-  </svg>
+  <FaPlay size={26}/>
 );
 
 const MusicCard = ({ track, onPlay, onPin }) => (
@@ -12,7 +13,9 @@ const MusicCard = ({ track, onPlay, onPin }) => (
   <div className="group relative bg-white/5 p-2 md:p-3 rounded-xl hover:bg-white/10 transition-all duration-300 border border-white/5">
     {/* Ações: Sempre visíveis no mobile, hover no PC */}
     <div className="absolute top-3 right-3 z-10 flex gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300">
-      <button onClick={(e) => {e.stopPropagation(); onPin();}} className="bg-black/80 p-2 rounded-full hover:bg-purple-600 text-[10px] md:text-xs shadow-lg">📌</button>
+      <button onClick={(e) => {e.stopPropagation(); onPin();}} className="bg-black/80 p-2 rounded-full hover:bg-purple-600 text-[10px] md:text-xs shadow-lg">
+        <TbLibraryPlusFilled size={16}/>
+      </button>
     </div>
     <div onClick={onPlay} className="cursor-pointer">
       <div className="relative aspect-square mb-2 md:mb-3 overflow-hidden rounded-lg shadow-2xl bg-black/40">
@@ -23,7 +26,7 @@ const MusicCard = ({ track, onPlay, onPin }) => (
         />
         {/* Play centralizado */}
         <div className="absolute inset-0 bg-black/10 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-          <div className="w-12 h-12 md:w-16 md:h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-2xl transform scale-90 group-hover:scale-100 transition-transform">
+          <div className="w-12 h-12 md:w-12 md:h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-2xl transform scale-90 group-hover:scale-100 transition-transform">
             <PlayIcon />
           </div>
         </div>
