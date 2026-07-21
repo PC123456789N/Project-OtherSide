@@ -28,6 +28,7 @@ export default function CreateCombatModal({
 
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
+    const [imageMode, setImageMode] = useState("upload"); // "upload" | "url"
 
     useEffect(() => {
         if (combat) {
@@ -39,6 +40,7 @@ export default function CreateCombatModal({
 
             setDate(combat.date || "");
             setTime(combat.time || "");
+            setImageMode("upload");
         }
 
         else {
@@ -50,6 +52,7 @@ export default function CreateCombatModal({
 
             setDate("");
             setTime("");
+            setImageMode("upload");
         }
 
     }, [combat, open]);
@@ -68,29 +71,29 @@ export default function CreateCombatModal({
         return null;
 
     function handleImage(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-        setImage(reader.result);
-    };
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImage(reader.result);
+        };
 
-    reader.readAsDataURL(file);
-}
+        reader.readAsDataURL(file);
+    }
 
     function handleSave() {
         if (!name.trim())
             return;
         onSave({
-        name,
-        location,
-        image,
-        type,
-        element,
-        date,
-        time
+            name,
+            location,
+            image,
+            type,
+            element,
+            date,
+            time
         });
-    onClose();
+        onClose();
     }
 
     const input = `
@@ -206,7 +209,7 @@ export default function CreateCombatModal({
                         </label>
                         <input
                             value={name}
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={(e) => setName(e.target.value)}
                             placeholder="Ex.: Dragão Ancião"
                             className={input}
                         />
@@ -218,23 +221,22 @@ export default function CreateCombatModal({
                         </label>
                         <div className="grid grid-cols-3 gap-3">
                             {
-                                TYPES.map(item=>(
+                                TYPES.map(item => (
                                     <button
                                         key={item}
-                                        onClick={()=>setType(item)}
+                                        onClick={() => setType(item)}
                                         className={`
                                         rounded-xl
                                         border
                                         py-3
                                         font-cinzel
                                         transition
-                                        ${
-                                            type===item
-                                            ?
-                                            "border-violet-500 bg-violet-500/20 text-violet-400"
-                                            :
-                                            "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
-                                        }
+                                        ${type === item
+                                                ?
+                                                "border-violet-500 bg-violet-500/20 text-violet-400"
+                                                :
+                                                "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
+                                            }
                                         `}>
                                         {item}
                                     </button>
@@ -250,23 +252,22 @@ export default function CreateCombatModal({
                         </label>
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                             {
-                                ELEMENTS.map(item=>(
+                                ELEMENTS.map(item => (
                                     <button
                                         key={item}
-                                        onClick={()=>setElement(item)}
+                                        onClick={() => setElement(item)}
                                         className={`
                                         rounded-xl
                                         border
                                         py-3
                                         font-cinzel
                                         transition
-                                        ${
-                                            element===item
-                                            ?
-                                            "border-violet-500 bg-violet-500/20 text-violet-400"
-                                            :
-                                            "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
-                                        }
+                                        ${element === item
+                                                ?
+                                                "border-violet-500 bg-violet-500/20 text-violet-400"
+                                                :
+                                                "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
+                                            }
                                         `}>
                                         {item}
                                     </button>
@@ -280,35 +281,91 @@ export default function CreateCombatModal({
                         <label className={label}>
                             Imagem
                         </label>
-                        <label
-                            className="
-                            flex
-                            cursor-pointer
-                            flex-col
-                            items-center
-                            justify-center
-                            gap-3
-                            rounded-xl
-                            border-2
-                            border-dashed
-                            border-zinc-700
-                            p-8
-                            transition
-                            hover:border-violet-500"
-                        >
-                            <span className="text-4xl">
-                                📷
-                            </span>
-                            <span className="text-zinc-400">
-                                Clique para selecionar uma imagem
-                            </span>
+
+                        {/* Alternador Upload / URL */}
+                        <div className="mb-3 grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setImageMode("upload")}
+                                className={`
+                                rounded-xl
+                                border
+                                py-2
+                                text-sm
+                                font-cinzel
+                                transition
+                                ${imageMode === "upload"
+                                        ?
+                                        "border-violet-500 bg-violet-500/20 text-violet-400"
+                                        :
+                                        "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
+                                    }
+                                    `}
+                            >
+                                Upload
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setImageMode("url")}
+                                className={`
+                                rounded-xl
+                                border
+                                py-2
+                                text-sm
+                                font-cinzel
+                                transition
+                                ${imageMode === "url"
+                                        ?
+                                        "border-violet-500 bg-violet-500/20 text-violet-400"
+                                        :
+                                        "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
+                                    }
+                                `}
+                            >
+                                URL
+                            </button>
+                        </div>
+
+                        {imageMode === "upload" ? (
+                            <label
+                                className="
+                                flex
+                                cursor-pointer
+                                flex-col
+                                items-center
+                                justify-center
+                                gap-3
+                                rounded-xl
+                                border-2
+                                border-dashed
+                                 border-zinc-700
+                                p-8
+                                transition
+                                 hover:border-violet-500"
+                            >
+                                <span className="text-4xl">
+                                    📷
+                                </span>
+                                <span className="text-zinc-400">
+                                    Clique para selecionar uma imagem
+                                </span>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImage}
+                                    className="hidden"
+                                />
+                            </label>
+                        ) : (
                             <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImage}
-                                className="hidden"
+                                value={image}
+                                onChange={(e) => setImage(e.target.value)}
+                                placeholder="https://exemplo.com/imagem.png"
+                                className={input}
                             />
-                        </label>
+                        )}
+
                         {
                             image &&
                             <img
@@ -320,7 +377,7 @@ export default function CreateCombatModal({
                                 w-full
                                 rounded-xl
                                 border
-                                border-zinc-800
+                                 border-zinc-800
                                 object-cover"
                             />
                         }
