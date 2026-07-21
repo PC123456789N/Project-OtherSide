@@ -157,17 +157,17 @@ export default function CombatPage() {
 
   function handleSkillAdd() {
     updateEntity((prev) => ({
-      ...prev,
-      skills: [
-        ...prev.skills,
-        {
-          id: crypto.randomUUID(),
-          name: "Nova Perícia",
-          value: 1,
-          bonus: 0,
-          lastResult: null,
-        },
-      ],
+        ...prev,
+        skills: [
+            ...prev.skills,
+            {
+                id: crypto.randomUUID(),
+                name: "Nova Perícia",
+                attribute: "agility",
+                bonus: 0,
+                lastResult: null,
+            },
+        ],
     }));
   }
 
