@@ -31,6 +31,7 @@ export default function CombatPage() {
         sanityDamage: {
           value: 15,
           damage: "2d10",
+          lastResult: null,
         },
       },
       attributes: {
@@ -349,6 +350,19 @@ export default function CombatPage() {
     }));
   }
 
+  function handleSanityDamageRoll(result) {
+    updateEntity((prev) => ({
+        ...prev,
+        combat: {
+            ...prev.combat,
+            sanityDamage: {
+                ...prev.combat.sanityDamage,
+                lastResult: result.total,
+            },
+        },
+    }));
+}
+
   return (
     <div className="flex h-full overflow-hidden bg-zinc-950">
       <CombatSidebar
@@ -358,7 +372,11 @@ export default function CombatPage() {
       />
 
       <main className="flex-1 overflow-y-auto p-6 space-y-4">
-        <MonsterHeader monster={selectedEntity} />
+        <MonsterHeader
+        monster={selectedEntity}
+        onSanityDamageRoll={handleSanityDamageRoll}
+        />    
+        
 
         <MonsterTabs
           selectedTab={selectedTab}

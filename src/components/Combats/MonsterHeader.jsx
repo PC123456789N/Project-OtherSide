@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { BsShield } from "react-icons/bs";
 import { GiBroadsword } from "react-icons/gi";
-import { FaHeart, FaHeartbeat, FaRunning, FaBrain } from "react-icons/fa";
+import { FaHeart, FaHeartbeat, FaRunning, FaBrain, FaDice } from "react-icons/fa";
+
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
 const ELEMENT_COLORS = {
   Sangue: "text-red-500",
@@ -53,6 +55,40 @@ function EditableText({ value, onChange, className, placeholder }) {
     />
   );
 }
+
+function parseDiceNotation(notation) {
+  const cleaned = (notation || "").replace(/\s/g, "");
+  const match = cleaned.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
+
+  if (!match) return null;
+
+  return {
+    count: Number(match[1]),
+    sides: Number(match[2]),
+    mod: match[3] ? Number(match[3]) : 0,
+  };
+}
+
+function rollDamageNotation(notation, bonus = 0) {
+  const parsed = parseDiceNotation(notation);
+
+  if (!parsed) return null;
+
+  const rolls = Array.from(
+    { length: parsed.count },
+    () => 1 + Math.floor(Math.random() * parsed.sides)
+  );
+
+  const highestIndex = rolls.reduce(
+    (bestIndex, value, index) => (value > rolls[bestIndex] ? index : bestIndex),
+    0
+  );
+
+  const numericBonus = Number(bonus) || 0;
+  const total = rolls[highestIndex] + numericBonus;
+
+  return { rolls, mod: numericBonus, total, highestIndex };
+  }
 
 const numberInput = `
   w-full
@@ -130,11 +166,41 @@ export default function MonsterHeader({
   onMovementChange,
   onSanityDamageChange,
   onSanityValueChange,
+  onSanityDamageRoll,
   onHpCurrentChange,
   onHpMaxChange,
 }) {
   const [amount, setAmount] = useState("");
+  const { setRollHistory } = useDataHandler();
 
+  function handleRollSanityDamage() {
+    const result = rollDamageNotation(
+      monster.combat.sanityDamage.damage,
+      monster.combat.sanityDamage.value
+    );
+
+    if (!result) {
+      window.alert(
+        `Dano de sanidade inválido: "${monster.combat.sanityDamage.damage}". Use o formato ex: 2d10`
+      );
+      return;
+    }
+
+    setRollHistory((prev) => [
+      {
+        id: crypto.randomUUID(),
+        type: "dano-sanidade",
+        label: "Dano de Sanidade",
+        rolls: result.rolls,
+        highestIndex: result.highestIndex,
+        modifier: result.mod,
+        total: result.total,
+      },
+      ...(prev || []),
+    ]);
+
+    onSanityDamageRoll?.(result);
+  }
   const hpMax = monster.hp.max || 0;
 
   const hpPercent =
@@ -244,16 +310,16 @@ export default function MonsterHeader({
 
           <div
             className="
-              grid
-              grid-cols-2
-              divide-x
-              divide-zinc-800
-              overflow-hidden
-              rounded-xl
-              border
-              border-zinc-800
-              bg-zinc-950/40
-            "
+    grid
+    grid-cols-2
+    divide-x
+    divide-zinc-800
+    overflow-hidden
+    rounded-xl
+    border
+    border-zinc-800
+    bg-zinc-950/40
+  "
           >
             <div className="flex flex-col items-center gap-1 px-5 py-3">
               <div className="flex items-center gap-1">
@@ -289,11 +355,30 @@ export default function MonsterHeader({
                   onChange={onSanityValueChange}
                   className="w-8 bg-transparent text-center text-lg font-bold text-violet-400 outline-none"
                 />
-              </div>
 
+                <button
+                  onClick={handleRollSanityDamage}
+                  title="Rolar Dano de Sanidade"
+                  className="
+          flex
+          h-6
+          w-6
+          shrink-0
+          items-center
+          justify-center
+          rounded-md
+          bg-violet-700/80
+          text-white
+          transition
+          hover:bg-violet-600
+        "
+                >
+                  <FaDice size={11} />
+                </button>
+              </div>
               <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
                 <FaBrain />
-                Sanidade
+                Presença Perturbadora
               </span>
             </div>
           </div>
