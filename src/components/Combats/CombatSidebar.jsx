@@ -98,58 +98,66 @@ export default function CombatSidebar({
   }
 
   function rollDice() {
-    const cleaned = notation.replace(/\s/g, "");
+  const cleaned = notation.replace(/\s/g, "");
 
-    // número inteiro puro (ex: "15") -> retorna o próprio número
-    const integerMatch = cleaned.match(/^(\d+)$/);
+  // número inteiro puro (ex: "15") -> retorna o próprio número
+  const integerMatch = cleaned.match(/^(\d+)$/);
 
-    if (integerMatch) {
-      const value = Number(integerMatch[1]);
-
-      setRollHistory((prev) => [
-        {
-          id: crypto.randomUUID(),
-          notation: cleaned,
-          rolls: [value],
-          modifier: 0,
-          total: value,
-        },
-        ...(prev || []),
-      ]);
-
-      return;
-    }
-
-    const match = cleaned.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
-
-    if (!match) {
-      window.alert(
-        "Notação inválida. Use o formato: 2d20+5 ou um número inteiro (ex: 15)"
-      );
-      return;
-    }
-
-    const count = Number(match[1]);
-    const sides = Number(match[2]);
-    const modifier = match[3] ? Number(match[3]) : 0;
-
-    const rolls = Array.from(
-      { length: count },
-      () => Math.floor(Math.random() * sides) + 1
-    );
-
-    const total = rolls.reduce((sum, value) => sum + value, 0) + modifier;
+  if (integerMatch) {
+    const value = Number(integerMatch[1]);
 
     setRollHistory((prev) => [
       {
         id: crypto.randomUUID(),
-        notation,
-        rolls,
-        modifier,
-        total,
+        notation: cleaned,
+        rolls: [value],
+        modifier: 0,
+        total: value,
       },
       ...(prev || []),
     ]);
+
+    return;
+  }
+
+  const match = cleaned.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
+
+  if (!match) {
+    window.alert(
+      "Notação inválida. Use o formato: 2d20+5 ou um número inteiro (ex: 15)"
+    );
+    return;
+  }
+
+  const count = Number(match[1]);
+  const sides = Number(match[2]);
+  const modifier = match[3] ? Number(match[3]) : 0;
+
+  const rolls = Array.from(
+    { length: count },
+    () => Math.floor(Math.random() * sides) + 1
+  );
+
+  // Pega o maior dado tirado (em vez de somar todos) e soma o bônus,
+  // se houver. Sem bônus, o total é só o maior valor.
+  const highestIndex = rolls.reduce(
+    (bestIndex, value, index) => (value > rolls[bestIndex] ? index : bestIndex),
+    0
+  );
+
+  const total = rolls[highestIndex] + modifier;
+
+  setRollHistory((prev) => [
+    {
+      id: crypto.randomUUID(),
+      notation,
+      rolls,
+      modifier,
+      total,
+      highestIndex,
+    },
+    ...(prev || []),
+  ]);
   }
 
   function clearHistory() {
