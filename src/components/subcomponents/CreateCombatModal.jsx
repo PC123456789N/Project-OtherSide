@@ -6,6 +6,13 @@ const TYPES = [
     "Monstro"
 ];
 
+const ELEMENTS = [
+    "Sangue",
+    "Morte",
+    "Conhecimento",
+    "Energia"
+];
+
 export default function CreateCombatModal({
     open,
     onClose,
@@ -17,6 +24,7 @@ export default function CreateCombatModal({
     const [location, setLocation] = useState("");
     const [image, setImage] = useState("");
     const [type, setType] = useState("Criatura");
+    const [element, setElement] = useState("Sangue");
 
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
@@ -27,6 +35,7 @@ export default function CreateCombatModal({
             setLocation(combat.location || "");
             setImage(combat.image || "");
             setType(combat.type || "Criatura");
+            setElement(combat.element || "Sangue");
 
             setDate(combat.date || "");
             setTime(combat.time || "");
@@ -37,6 +46,7 @@ export default function CreateCombatModal({
             setLocation("");
             setImage("");
             setType("Criatura");
+            setElement("Sangue");
 
             setDate("");
             setTime("");
@@ -76,6 +86,7 @@ export default function CreateCombatModal({
         location,
         image,
         type,
+        element,
         date,
         time
         });
@@ -219,6 +230,38 @@ export default function CreateCombatModal({
                                         transition
                                         ${
                                             type===item
+                                            ?
+                                            "border-violet-500 bg-violet-500/20 text-violet-400"
+                                            :
+                                            "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
+                                        }
+                                        `}>
+                                        {item}
+                                    </button>
+                                ))
+                            }
+                        </div>
+                    </div>
+
+                    {/* Elemento */}
+                    <div>
+                        <label className={label}>
+                            Elemento
+                        </label>
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                            {
+                                ELEMENTS.map(item=>(
+                                    <button
+                                        key={item}
+                                        onClick={()=>setElement(item)}
+                                        className={`
+                                        rounded-xl
+                                        border
+                                        py-3
+                                        font-cinzel
+                                        transition
+                                        ${
+                                            element===item
                                             ?
                                             "border-violet-500 bg-violet-500/20 text-violet-400"
                                             :

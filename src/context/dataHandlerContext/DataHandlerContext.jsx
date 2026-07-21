@@ -38,6 +38,12 @@ export function DataHandlerProvider({ children }) {
 
   const [playlist, setPlaylist] = useState([]);
   const [videoId, setVideoId] = useState(null);
+
+  // Histórico de rolagem de dados (compartilhado entre a CombatSidebar e as
+  // abas da ficha, ex: rolagem de perícia). É estado de sessão, não é
+  // salvo em cache/Firebase junto com o resto — some ao recarregar a página,
+  // igual o histórico de rolagem livre já era antes.
+  const [rollHistory, setRollHistory] = useState([]);
   
   //End Standart Data Block
 
@@ -234,7 +240,8 @@ export function DataHandlerProvider({ children }) {
       scripts, setScripts,
       notesList, setNotesList,
       playlist, setPlaylist,
-      videoId, setVideoId
+      videoId, setVideoId,
+      rollHistory, setRollHistory
     }}>
       {children}
     </DataHandler.Provider>

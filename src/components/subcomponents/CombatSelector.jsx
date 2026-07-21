@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CombatItem from "./CombatItem";
 import CreateCombatModal from "./CreateCombatModal";
-import CombatSheet from "../Combats/CombatSheet";
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
 const TYPES = [
@@ -81,9 +80,10 @@ export default function CombatSelector() {
 
   function openCombat(combat) {
     setCombatId(combat.id);
-    setSelectedId(5);
+    setSelectedPageId(5);
   }
 
+  console.log("combats:", combats);
   const filteredCombats = combats.filter(combat => {
     const searchText = search.toLowerCase();
     const matchName =
