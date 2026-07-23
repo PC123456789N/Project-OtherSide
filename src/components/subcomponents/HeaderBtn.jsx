@@ -33,7 +33,7 @@ export default function HeaderBtn({ type }) {
   }
 
   return (
-    <button className={` w-full rounded font-semibold px-4 py-2 cursor-pointer hover:bg-gray-800 ${selectedPageId == selfId?"text-purple-600 bg-gray-900 hover:bg-gray-800":""}`} 
+    <button className={` w-full rounded font-semibold px-2 lg:px-4 py-2 cursor-pointer hover:bg-gray-800 ${selectedPageId == selfId?"text-purple-600 bg-gray-900 hover:bg-gray-800":""}`} 
     onClick={() => {
       if (!userLoggedIn) {
         setSelectedPageId(selfId);
