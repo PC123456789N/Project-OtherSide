@@ -66,7 +66,9 @@ function parseDiceNotation(notation) {
   };
 }
 
-function rollDamageNotation(notation, bonus = 0) {
+// Dano de Sanidade: soma TODOS os dados rolados (não pega o maior, não usa
+// bônus externo — o campo "value" ao lado é só visual, não entra na conta).
+function rollDamageNotation(notation) {
   const parsed = parseDiceNotation(notation);
 
   if (!parsed) return null;
@@ -76,16 +78,10 @@ function rollDamageNotation(notation, bonus = 0) {
     () => 1 + Math.floor(Math.random() * parsed.sides)
   );
 
-  const highestIndex = rolls.reduce(
-    (bestIndex, value, index) => (value > rolls[bestIndex] ? index : bestIndex),
-    0
-  );
+  const total = rolls.reduce((sum, value) => sum + value, 0);
 
-  const numericBonus = Number(bonus) || 0;
-  const total = rolls[highestIndex] + numericBonus;
-
-  return { rolls, mod: numericBonus, total, highestIndex };
-  }
+  return { rolls, total };
+}
 
 const numberInput = `
   w-full
@@ -171,10 +167,7 @@ export default function MonsterHeader({
   const { setRollHistory } = useDataHandler();
 
   function handleRollSanityDamage() {
-    const result = rollDamageNotation(
-      monster.combat.sanityDamage.damage,
-      monster.combat.sanityDamage.value
-    );
+    const result = rollDamageNotation(monster.combat.sanityDamage.damage);
 
     if (!result) {
       window.alert(
@@ -189,8 +182,7 @@ export default function MonsterHeader({
         type: "dano-sanidade",
         label: "Dano de Sanidade",
         rolls: result.rolls,
-        highestIndex: result.highestIndex,
-        modifier: result.mod,
+        modifier: 0,
         total: result.total,
       },
       ...(prev || []),
@@ -198,6 +190,7 @@ export default function MonsterHeader({
 
     onSanityDamageRoll?.(result);
   }
+
   const hpMax = monster.hp.max || 0;
 
   const hpPercent =
@@ -307,16 +300,16 @@ export default function MonsterHeader({
 
           <div
             className="
-    grid
-    grid-cols-2
-    divide-x
-    divide-zinc-800
-    overflow-hidden
-    rounded-xl
-    border
-    border-zinc-800
-    bg-zinc-950/40
-  "
+              grid
+              grid-cols-2
+              divide-x
+              divide-zinc-800
+              overflow-hidden
+              rounded-xl
+              border
+              border-zinc-800
+              bg-zinc-950/40
+            "
           >
             <div className="flex flex-col items-center gap-1 px-5 py-3">
               <div className="flex items-center gap-1">
@@ -357,22 +350,23 @@ export default function MonsterHeader({
                   onClick={handleRollSanityDamage}
                   title="Rolar Dano de Sanidade"
                   className="
-          flex
-          h-6
-          w-6
-          shrink-0
-          items-center
-          justify-center
-          rounded-md
-          bg-violet-700/80
-          text-white
-          transition
-          hover:bg-violet-600
-        "
+                    flex
+                    h-6
+                    w-6
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-md
+                    bg-violet-700/80
+                    text-white
+                    transition
+                    hover:bg-violet-600
+                  "
                 >
                   <FaDice size={11} />
                 </button>
               </div>
+
               <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
                 <FaBrain />
                 Presença Perturbadora
