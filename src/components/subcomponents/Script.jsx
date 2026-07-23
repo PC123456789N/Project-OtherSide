@@ -255,7 +255,7 @@ export default function Script() {
                   : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
               }`}
             >
-              <u class="underline">U</u>
+              <u className="underline">U</u>
             </button>
 
             <button

@@ -55,7 +55,7 @@ export async function loadFromCache(){
   //pull data from cache and returns them in a list
   return {
     initiatives: await cache.get("initiatives", "cachedInitiativeList"),
-    combat: await cache.get("combats", "cachedUserCombats"),
+    combats: await cache.get("combats", "cachedUserCombats"),
     monsters: await cache.get("monsters", "cachedMonstersList"),
     script: await cache.get("scripts", "cachedScript"),
     notes: await cache.get("scripts", "cachedNotesList"),
@@ -67,7 +67,8 @@ export async function saveToCache(
   initiativeList,
   combats,
   monstersList,
-  scripts, notesList,
+  scripts, 
+  notesList,
   playlist
 ){
   console.log("data sent to idb")

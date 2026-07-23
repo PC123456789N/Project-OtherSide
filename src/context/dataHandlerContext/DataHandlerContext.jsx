@@ -195,7 +195,7 @@ export function DataHandlerProvider({ children }) {
     const timeout = setTimeout(() => {
       saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
 
-      saveAllToDB(userId, initiativeList, scripts, notesList, playlist);
+      saveAllToDB(userId, initiativeList, combats, scripts, notesList, playlist);
 
       setUnsavedChanges(false);
     }, 1000);
@@ -232,6 +232,7 @@ export function DataHandlerProvider({ children }) {
         await saveAllToDB(
           userId,
           cachedData.initiatives,
+          cachedData.combats,
           cachedData.script,
           cachedData.notes,
           cachedData.music,
@@ -261,7 +262,7 @@ export function DataHandlerProvider({ children }) {
         //place firestoreData.combats instead of null
         await saveToCache(
           firestoreData.initiatives,
-          null,
+          firestoreData.combat,
           firestoreData.scripts,
           firestoreData.notes,
           firestoreData.music,
@@ -277,6 +278,7 @@ export function DataHandlerProvider({ children }) {
         const firestoreData = await loadAllFromDB(userId);
 
         setInitiativeList(firestoreData.initiatives);
+        setCombats(firestoreData.combat);
         setScripts({
           title: firestoreData.scripts?.Title || "",
           body: firestoreData.scripts?.Body || "",
@@ -297,7 +299,7 @@ export function DataHandlerProvider({ children }) {
 
         setInitiativeList(cachedData.initiatives);
 
-        setCombats(cachedData.combat);
+        setCombats(cachedData.combats);
         setMonstersList(cachedData.monsters);
 
         setScripts({
@@ -311,6 +313,7 @@ export function DataHandlerProvider({ children }) {
         await saveAllToDB(
           userId,
           cachedData.initiatives,
+          cachedData.combats,
           cachedData.script,
           cachedData.notes,
           cachedData.music,

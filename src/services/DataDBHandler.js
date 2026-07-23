@@ -81,6 +81,61 @@ export async function loadInitiativesFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
+export async function saveCombatsToDB(userId, combats) {
+  try{
+    const q = query(
+    collection(db, "Combats"),
+    where("UserId", "==", userId)
+  );
+  
+  const snapshot = await getDocs(q);
+  
+    if (snapshot.empty) { //nn havia docs la
+      await setDoc(
+        doc(collection(db, "Combats")), 
+        {
+          lastSave: serverTimestamp(),
+          UserId: userId,
+          CombatsList: combats,
+        }
+      );
+      console.log("doc firestore/Combats Criado")
+      return;
+    }
+
+    await setDoc( //ja havia um docs la
+      doc(db, "Combats", snapshot.docs[0].id), //primeiro docs
+      {
+        lastSave: serverTimestamp(),
+        UserId: userId,
+        CombatsList: combats,
+      }
+    );
+    console.log("doc firestore/Combats atualizado")
+    return;
+  } 
+  
+  catch(error){
+    console.error("Erro ao salvar:", error);
+  }
+}
+
+export async function loadCombatsFromDB(userId) {
+  console.log("loaded combats from firestore")
+  const q = query(
+    collection(db, "Combats"),
+    where("UserId", "==", userId)
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  return snapshot.docs[0].data();
+}
+
 export async function saveScriptsToDB(userId, scripts, notesList){
   try{
     const q = query(
@@ -100,7 +155,7 @@ export async function saveScriptsToDB(userId, scripts, notesList){
           ScriptDoc: {Title: scripts?.title || "", Body: scripts?.body || ""},
         }
       );
-      console.log("doc firestore Criado")
+      console.log("doc firestore/Scripts Criado")
       return;
     }
 
@@ -113,7 +168,7 @@ export async function saveScriptsToDB(userId, scripts, notesList){
         ScriptDoc: {Title: scripts?.title || "fuck me", Body: scripts?.body || "fuck me 2"},
       }
     );
-    console.log("doc firestore/scripts atualizado")
+    console.log("doc firestore/Scripts atualizado")
     return;
   } 
   
@@ -123,7 +178,7 @@ export async function saveScriptsToDB(userId, scripts, notesList){
 }
 
 export async function loadScriptsFromDB(userId){
-  console.log("loaded initiatives from firestore")
+  console.log("loaded scripts from firestore")
   const q = query(
     collection(db, "Scripts"),
     where("UserId", "==", userId)
@@ -163,10 +218,11 @@ export async function saveMusicsToDB(userId, playlist) {
           Playlist: playlist,
         }
       );
-      console.log("doc firestore/musics Criado")
+      console.log("doc firestore/Musics Criado")
       return;
     }
 
+    console.log(playlist)
     await setDoc( //ja havia um docs la
       doc(db, "Musics", snapshot.docs[0].id), //primeiro docs
       {
@@ -175,7 +231,7 @@ export async function saveMusicsToDB(userId, playlist) {
         Playlist: playlist,
       }
     );
-    console.log("doc firestore/musics atualizado")
+    console.log("doc firestore/Musics atualizado")
     return;
   } 
   
@@ -202,21 +258,23 @@ export async function loadMusicsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveAllToDB(userId, initiativeList, scripts, notesList, playlist) {
+export async function saveAllToDB(userId, initiativeList, combats, scripts, notesList, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);
+  await saveCombatsToDB(userId, combats);
   await saveScriptsToDB(userId, scripts, notesList);
   await saveMusicsToDB(userId, playlist);
-
 }
 
 export async function loadAllFromDB(userId) {
   const initiativesData = await loadInitiativesFromDB(userId);
+  const combatsData = await loadCombatsFromDB(userId);
   const musicsData = await loadMusicsFromDB(userId);
   const scriptsData = await loadScriptsFromDB(userId);
 
   return {
     initiatives: initiativesData?.PlayerArray ?? [],
+    combat: combatsData?.CombatsList ?? [],
     music: musicsData.Playlist ?? [],
     scripts: scriptsData?.ScriptDoc ?? {Title: "", Body: ""},
     notes: scriptsData?.NotesList ?? []
