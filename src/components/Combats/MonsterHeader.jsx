@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BsShield } from "react-icons/bs";
 import { GiBroadsword } from "react-icons/gi";
 import { FaHeart, FaHeartbeat, FaRunning, FaBrain, FaDice } from "react-icons/fa";
@@ -14,6 +14,12 @@ const ELEMENT_COLORS = {
 
 function EditableNumber({ value, onChange, className, placeholder = "0" }) {
   const [text, setText] = useState(value ? String(value) : "");
+
+  // Sincroniza o texto exibido sempre que o valor mudar por fora (ex:
+  // clicando em Dano/Cura), não só quando o usuário digita.
+  useEffect(() => {
+    setText(value || value === 0 ? String(value) : "");
+  }, [value]);
 
   function handleChange(e) {
     const raw = e.target.value;
@@ -165,6 +171,10 @@ export default function MonsterHeader({
 }) {
   const [amount, setAmount] = useState("");
   const { setRollHistory } = useDataHandler();
+
+  // Guard: sem monstro selecionado, não renderiza nada em vez de quebrar
+  // tentando ler monster.hp / monster.combat / monster.attributes.
+  if (!monster) return null;
 
   function handleRollSanityDamage() {
     const result = rollDamageNotation(monster.combat.sanityDamage.damage);
@@ -449,69 +459,94 @@ export default function MonsterHeader({
             />
           </div>
 
-          <div className="mt-2 flex items-center gap-2">
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Quantidade"
-              className="
-                h-8
-                w-24
-                rounded-md
-                border
-                border-zinc-700
-                bg-zinc-950
-                px-2
-                text-sm
-                text-white
-                outline-none
-                focus:border-violet-500
-              "
-            />
-
+          {/* Dano à esquerda, valor centralizado embaixo, cura à direita */}
+          <div className="mt-3 flex items-center justify-between gap-3">
             <button
               onClick={() => applyAmount("damage")}
               title="Aplicar dano"
               className="
+                group
                 flex
-                h-8
+                h-11
+                w-11
+                shrink-0
                 items-center
-                gap-1.5
-                rounded-md
-                bg-red-700/80
-                px-3
-                text-xs
-                font-semibold
-                text-white
+                justify-center
+                rounded-full
+                border
+                border-red-800/70
+                bg-red-950/50
+                text-red-400
+                shadow-[0_0_14px_rgba(220,38,38,0.3)]
                 transition
-                hover:bg-red-700
+                hover:scale-105
+                hover:border-red-600
+                hover:bg-red-900/70
+                hover:text-red-300
+                hover:shadow-[0_0_18px_rgba(220,38,38,0.55)]
+                active:scale-95
               "
             >
-              <GiBroadsword size={13} />
-              Dano
+              <GiBroadsword size={17} className="transition group-hover:-rotate-12" />
             </button>
+
+            <div className="flex flex-1 flex-col items-center gap-1">
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0"
+                className="
+                w-16
+                rounded-lg
+                border
+               border-zinc-700
+               bg-zinc-950
+                py-1.5
+                text-center
+                text-base
+                font-bold
+               text-white
+                outline-none
+                transition
+              [appearance:textfield]
+              [&::-webkit-outer-spin-button]:appearance-none
+              [&::-webkit-inner-spin-button]:appearance-none
+             focus:border-violet-500
+              focus:shadow-[0_0_0_3px_rgba(139,92,246,0.25)]"
+              />
+              <span className="text-[9px] font-semibold uppercase tracking-widest text-zinc-500">
+                Valor
+              </span>
+            </div>
 
             <button
               onClick={() => applyAmount("heal")}
               title="Curar"
               className="
+                group
                 flex
-                h-8
+                h-11
+                w-11
+                shrink-0
                 items-center
-                gap-1.5
-                rounded-md
-                bg-emerald-700/80
-                px-3
-                text-xs
-                font-semibold
-                text-white
+                justify-center
+                rounded-full
+                border
+                border-emerald-800/70
+                bg-emerald-950/50
+                text-emerald-400
+                shadow-[0_0_14px_rgba(16,185,129,0.3)]
                 transition
-                hover:bg-emerald-700
+                hover:scale-105
+                hover:border-emerald-500
+                hover:bg-emerald-900/70
+                hover:text-emerald-300
+                hover:shadow-[0_0_18px_rgba(16,185,129,0.55)]
+                active:scale-95
               "
             >
-              <FaHeart size={12} />
-              Cura
+              <FaHeart size={16} className="transition group-hover:scale-110" />
             </button>
           </div>
         </div>

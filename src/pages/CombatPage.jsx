@@ -12,138 +12,164 @@ export default function CombatPage() {
 
   const [selectedTab, setSelectedTab] = useState("combat");
 
-	const [selectedEntity, setSelectedEntity] = useState(null);
+  const [selectedEntity, setSelectedEntity] = useState(null);
 
-	useEffect(() => {
-		if (!combatId) return;
+  useEffect(() => {
+    if (!combatId) return;
 
-		const matchedCombat = (combats || []).find(
-			(item) => item.id === combatId
-		);
+    const matchedCombat = (combats || []).find(
+      (item) => item.id === combatId
+    );
 
-		if (!matchedCombat) return;
+    if (!matchedCombat) return;
 
-		const matchedMonster = (monstersList || []).find(
-			(monster) => monster.id === matchedCombat.monsterId
-		);
+    const matchedMonster = (monstersList || []).find(
+      (monster) => monster.id === matchedCombat.monsterId
+    );
 
-		if (matchedMonster && matchedMonster.id !== selectedEntity?.id) {
-			setSelectedEntity(matchedMonster);
-		}
-	}, [combatId, combats, monstersList, selectedEntity]);
+    if (matchedMonster && matchedMonster.id !== selectedEntity?.id) {
+      setSelectedEntity(matchedMonster);
+    }
+  }, [combatId, combats, monstersList, selectedEntity]);
 
   function updateEntity(updater) {
-		if (!selectedEntity) return;
+    if (!selectedEntity) return;
 
-		const updated = updater(selectedEntity);
+    const updated = updater(selectedEntity);
 
-		setSelectedEntity(updated);
+    setSelectedEntity(updated);
 
-		setMonstersList((list) =>
-			list.map((monster) =>
-				monster.id === updated.id
-					? updated
-					: monster
-			)
-		);
-	}
+    setMonstersList((list) =>
+      list.map((monster) =>
+        monster.id === updated.id ? updated : monster
+      )
+    );
+  }
 
-	// ================= HEADER/HP/DEFESA/DESLOCAMENTO/ATRIBUTOS =================
-	function handleHpCurrentChange(value) {
-		updateEntity((prev) => ({
-			...prev,
-			hp: {
-				...prev.hp,
-				current: value,
-			},
-		}));
-	}
-	function handleHpMaxChange(value) {
-		updateEntity((prev) => ({
-			...prev,
-			hp: {
-				...prev.hp,
-				max: value,
-			},
-		}));
-	}
+  // ================= HEADER/HP/DEFESA/DESLOCAMENTO/ATRIBUTOS =================
 
-	function handleDamage(amount) {
-		updateEntity((prev) => ({
-			...prev,
-			hp: {
-				...prev.hp,
-				current: Math.max(0, prev.hp.current - amount),
-			},
-		}));
-	}
+  // HP atual editado manualmente na ficha: trava entre 0 e o HP máximo
+  // atual, pra nunca ficar negativo nem passar do teto.
+  function handleHpCurrentChange(value) {
+    updateEntity((prev) => ({
+      ...prev,
+      hp: {
+        ...prev.hp,
+        current: Math.max(0, Math.min(prev.hp.max, value)),
+      },
+    }));
+  }
 
-	function handleHeal(amount) {
-		updateEntity((prev) => ({
-			...prev,
-			hp: {
-				...prev.hp,
-				current: Math.min(prev.hp.max, prev.hp.current + amount),
-			},
-		}));
-	}
+  // HP máximo editado manualmente: nunca fica negativo. Se o novo máximo
+  // for menor que o HP atual (ex: máximo caiu de 100 pra 50 com o atual
+  // em 80), o atual desce junto pra não ficar incoerente com a barra.
+  function handleHpMaxChange(value) {
+    updateEntity((prev) => {
+      const newMax = Math.max(0, value);
 
-	function handleDefenseChange(value) {
-		updateEntity((prev) => ({
-			...prev,
-			combat: {
-				...prev.combat,
-				defense: value,
-			},
-		}));
-	}
+      return {
+        ...prev,
+        hp: {
+          ...prev.hp,
+          max: newMax,
+          current: Math.min(prev.hp.current, newMax),
+        },
+      };
+    });
+  }
 
-	function handleMovementChange(value) {
-		updateEntity((prev) => ({
-			...prev,
-			combat: {
-				...prev.combat,
-				movement: value,
-			},
-		}));
-	}
+  // Botão "Dano": nunca deixa o HP atual passar de 0 pra baixo.
+  function handleDamage(amount) {
+    updateEntity((prev) => ({
+      ...prev,
+      hp: {
+        ...prev.hp,
+        current: Math.max(0, prev.hp.current - amount),
+      },
+    }));
+  }
 
-	function handleSanityValueChange(value) {
-		updateEntity((prev) => ({
-			...prev,
-			combat: {
-				...prev.combat,
-				sanityDamage: {
-					...prev.combat.sanityDamage,
-					value: value,
-				},
-			},
-		}));
-	}
+  // Botão "Cura": nunca deixa o HP atual passar do máximo.
+  function handleHeal(amount) {
+    updateEntity((prev) => ({
+      ...prev,
+      hp: {
+        ...prev.hp,
+        current: Math.min(prev.hp.max, prev.hp.current + amount),
+      },
+    }));
+  }
 
-	function handleSanityDamageChange(value) {
-		updateEntity((prev) => ({
-			...prev,
-			combat: {
-				...prev.combat,
-				sanityDamage: {
-					...prev.combat.sanityDamage,
-					damage: value,
-				},
-			},
-		}));
-	}
+  function handleDefenseChange(value) {
+    updateEntity((prev) => ({
+      ...prev,
+      combat: {
+        ...prev.combat,
+        defense: value,
+      },
+    }));
+  }
 
-	function handleAttributeChange(attribute, value) {
-		updateEntity((prev) => ({
-			...prev,
-			attributes: {
-				...prev.attributes,
-				[attribute]: value,
-			},
-		}));
-	}
-	// ================= DESCRIÇÃO E ENIGMA DO MEDO =================
+  function handleMovementChange(value) {
+    updateEntity((prev) => ({
+      ...prev,
+      combat: {
+        ...prev.combat,
+        movement: value,
+      },
+    }));
+  }
+
+  function handleSanityValueChange(value) {
+    updateEntity((prev) => ({
+      ...prev,
+      combat: {
+        ...prev.combat,
+        sanityDamage: {
+          ...prev.combat.sanityDamage,
+          value: value,
+        },
+      },
+    }));
+  }
+
+  function handleSanityDamageChange(value) {
+    updateEntity((prev) => ({
+      ...prev,
+      combat: {
+        ...prev.combat,
+        sanityDamage: {
+          ...prev.combat.sanityDamage,
+          damage: value,
+        },
+      },
+    }));
+  }
+
+  function handleSanityDamageRoll(result) {
+    updateEntity((prev) => ({
+      ...prev,
+      combat: {
+        ...prev.combat,
+        sanityDamage: {
+          ...prev.combat.sanityDamage,
+          lastResult: result.total,
+        },
+      },
+    }));
+  }
+
+  function handleAttributeChange(attribute, value) {
+    updateEntity((prev) => ({
+      ...prev,
+      attributes: {
+        ...prev.attributes,
+        [attribute]: value,
+      },
+    }));
+  }
+
+  // ================= DESCRIÇÃO E ENIGMA DO MEDO =================
 
   function handleDescriptionChange(value) {
     updateEntity((prev) => ({ ...prev, description: value }));
@@ -157,17 +183,17 @@ export default function CombatPage() {
 
   function handleSkillAdd() {
     updateEntity((prev) => ({
-        ...prev,
-        skills: [
-            ...prev.skills,
-            {
-                id: crypto.randomUUID(),
-                name: "Nova Perícia",
-                attribute: "agility",
-                bonus: 0,
-                lastResult: null,
-            },
-        ],
+      ...prev,
+      skills: [
+        ...prev.skills,
+        {
+          id: crypto.randomUUID(),
+          name: "Nova Perícia",
+          attribute: "agility",
+          bonus: 0,
+          lastResult: null,
+        },
+      ],
     }));
   }
 
@@ -182,7 +208,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       skills: prev.skills.map((skill) =>
-        skill.id === skillId ? { ...skill, [field]: value } : skill,
+        skill.id === skillId ? { ...skill, [field]: value } : skill
       ),
     }));
   }
@@ -191,7 +217,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       skills: prev.skills.map((skill) =>
-        skill.id === skillId ? { ...skill, lastResult: result } : skill,
+        skill.id === skillId ? { ...skill, lastResult: result } : skill
       ),
     }));
   }
@@ -232,7 +258,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       attacks: prev.attacks.map((attack) =>
-        attack.id === attackId ? { ...attack, [field]: value } : attack,
+        attack.id === attackId ? { ...attack, [field]: value } : attack
       ),
     }));
   }
@@ -247,7 +273,7 @@ export default function CombatPage() {
               lastTestResult: result.total,
               lastCritical: result.isCritical,
             }
-          : attack,
+          : attack
       ),
     }));
   }
@@ -258,7 +284,7 @@ export default function CombatPage() {
       attacks: prev.attacks.map((attack) =>
         attack.id === attackId
           ? { ...attack, lastDamageResult: result.total }
-          : attack,
+          : attack
       ),
     }));
   }
@@ -269,7 +295,7 @@ export default function CombatPage() {
       attacks: prev.attacks.map((attack) =>
         attack.id === attackId
           ? { ...attack, lastCritDamageResult: result.total }
-          : attack,
+          : attack
       ),
     }));
   }
@@ -302,7 +328,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       abilities: prev.abilities.map((ability) =>
-        ability.id === abilityId ? { ...ability, [field]: value } : ability,
+        ability.id === abilityId ? { ...ability, [field]: value } : ability
       ),
     }));
   }
@@ -323,7 +349,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       resistances: prev.resistances.filter(
-        (resistance) => resistance.id !== resistanceId,
+        (resistance) => resistance.id !== resistanceId
       ),
     }));
   }
@@ -334,7 +360,7 @@ export default function CombatPage() {
       resistances: prev.resistances.map((resistance) =>
         resistance.id === resistanceId
           ? { ...resistance, [field]: value }
-          : resistance,
+          : resistance
       ),
     }));
   }
@@ -355,7 +381,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       vulnerabilities: prev.vulnerabilities.filter(
-        (item) => item.id !== vulnerabilityId,
+        (item) => item.id !== vulnerabilityId
       ),
     }));
   }
@@ -364,7 +390,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       vulnerabilities: prev.vulnerabilities.map((item) =>
-        item.id === vulnerabilityId ? { ...item, value } : item,
+        item.id === vulnerabilityId ? { ...item, value } : item
       ),
     }));
   }
@@ -389,7 +415,7 @@ export default function CombatPage() {
     updateEntity((prev) => ({
       ...prev,
       immunities: prev.immunities.map((item) =>
-        item.id === immunityId ? { ...item, value } : item,
+        item.id === immunityId ? { ...item, value } : item
       ),
     }));
   }
@@ -406,24 +432,25 @@ export default function CombatPage() {
   return (
     <div className="flex h-full overflow-hidden bg-zinc-950">
       <CombatSidebar
-				entities={monstersList}
-				selectedEntity={selectedEntity}
-				setSelectedEntity={setSelectedEntity}
-			/>
+        entities={monstersList}
+        selectedEntity={selectedEntity}
+        setSelectedEntity={setSelectedEntity}
+      />
 
       <main className="flex-1 overflow-y-auto p-6 space-y-4">
-        <MonsterHeader 
-					monster={selectedEntity}
-					onDamage={handleDamage}
-					onHeal={handleHeal} 
-					onAttributeChange={handleAttributeChange}
-					onDefenseChange={handleDefenseChange}
-					onMovementChange={handleMovementChange}
-					onHpCurrentChange={handleHpCurrentChange}
-					onHpMaxChange={handleHpMaxChange}
-					onSanityDamageChange={handleSanityDamageChange}
-					onSanityValueChange={handleSanityValueChange}
-				/>
+        <MonsterHeader
+          monster={selectedEntity}
+          onDamage={handleDamage}
+          onHeal={handleHeal}
+          onAttributeChange={handleAttributeChange}
+          onDefenseChange={handleDefenseChange}
+          onMovementChange={handleMovementChange}
+          onHpCurrentChange={handleHpCurrentChange}
+          onHpMaxChange={handleHpMaxChange}
+          onSanityDamageChange={handleSanityDamageChange}
+          onSanityValueChange={handleSanityValueChange}
+          onSanityDamageRoll={handleSanityDamageRoll}
+        />
 
         <MonsterTabs
           selectedTab={selectedTab}
