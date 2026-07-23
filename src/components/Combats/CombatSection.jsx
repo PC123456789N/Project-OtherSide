@@ -449,11 +449,11 @@ function AbilityCard({ ability, onChange, onRemove }) {
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-800/60 p-4 space-y-3">
       <div className="flex items-start justify-between gap-3">
-        <input
+        <textarea
           value={ability.name}
           onChange={(e) => onChange(ability.id, "name", e.target.value)}
           placeholder="Nome da habilidade"
-          className="flex-1 bg-transparent text-lg font-bold text-white outline-none focus:text-violet-300"
+          className="flex-1 break-all resize-none bg-transparent text-lg font-bold text-white outline-none focus:text-violet-300"
         />
 
         <button
@@ -477,24 +477,10 @@ function AbilityCard({ ability, onChange, onRemove }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[220px_1fr]">
+      <div className="grid grid-cols-1 gap-3">
         <div>
           <span className="mb-1 block text-[10px] uppercase tracking-wide text-zinc-500">
-            Nome do Atributo
-          </span>
-          <input
-            value={ability.attributeName}
-            onChange={(e) =>
-              onChange(ability.id, "attributeName", e.target.value)
-            }
-            placeholder="Ex: Fúria Descontrolada"
-            className={inputClass}
-          />
-        </div>
-
-        <div>
-          <span className="mb-1 block text-[10px] uppercase tracking-wide text-zinc-500">
-            Descrição do Atributo
+            Descrição da Habilidade
           </span>
           <textarea
             value={ability.attributeDescription}

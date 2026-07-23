@@ -2,7 +2,7 @@ import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerCont
 import { useAuth } from "../../context/authContext/auth.jsx";
 import { useEffect } from "react";
 
-import Inicial from "../subcomponents/Inicial";
+import Inicial from "../subcomponents/Inicial2.jsx";
 import CombatSelector from "../subcomponents/CombatSelector";
 import Script from "../subcomponents/Script.jsx";
 import Music from "../subcomponents/Music";
