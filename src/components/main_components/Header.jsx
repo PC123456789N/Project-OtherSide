@@ -19,17 +19,17 @@ export default function Header() {
                 shadow-[0_10px_40px_rgba(0,0,0,0.9),0_0_30px_rgba(220,38,38,0.2)]
                 ${isMinimized
                     ? 'max-h-0 py-0 opacity-0 overflow-hidden'
-                    : 'max-h-50 md:max-h-125 py-2 md:py-5 opacity-100'}
+                    : 'max-h-50 md:max-h-125 py-2 md:py-3 opacity-100'}
                 w-full md:max-w-full
             `}>
 
                 {/* Energia */}
                 <div className="absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,rgba(220,38,38,0.3)_0%,transparent_70%)]"></div>
 
-                <div className="relative flex flex-col gap-2 md:grid md:grid-cols-3 md:items-center px-3 md:px-8">
+                <div className="relative flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:items-center px-3 lg:px-8">
 
                     {/* Logo */}
-                    <div className="flex items-center justify-between md:justify-start">
+                    <div className="flex items-center justify-between lg:justify-start">
                         <div className="flex items-center gap-2 md:gap-4 transition-transform duration-300">
                             <img
                                 src="https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br"
@@ -42,10 +42,10 @@ export default function Header() {
                         </div>
 
                         {/* Botão mobile */}
-                        <div className="md:hidden">
+                        <div className="lg:hidden">
                             {userLoggedIn ? (
                                 <button
-                                    onClick={() => doSignOut()}
+                                    onClick={() => {doSignOut(); navigate("/login");}}
                                     className="text-[10px] px-3 py-1 rounded-full border border-red-600 text-red-500 active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.6)]"
                                 >
                                     Sair
@@ -66,12 +66,12 @@ export default function Header() {
                     {/* Navegação */}
                     <div className="flex justify-center">
                         <nav className="
-                            grid grid-cols-2 gap-2
-                            md:flex md:flex-nowrap md:gap-2
+                            grid grid-cols-4 gap-2
+                            lg:flex lg:flex-nowrap lg:gap-2
                             items-center
-                            bg-black/50 px-2 md:px-5 py-2 rounded-xl
+                            bg-black/50 px-2 lg:px-5 py-2 rounded-xl
                             border border-white/10 backdrop-blur-md shadow-inner
-                            w-full md:w-auto
+                            w-full lg:w-auto
                         ">
                             {['i', 'c', 's', 'm'].map((t) => (
                                 <div
@@ -111,7 +111,7 @@ export default function Header() {
                     </div>
 
                     {/* Desktop auth */}
-                    <div className="hidden md:flex justify-end items-center gap-2">
+                    <div className="hidden lg:flex justify-end items-center gap-2">
                         {userLoggedIn ? (
                             <button
                                 onClick={() => doSignOut()}
