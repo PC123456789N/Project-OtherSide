@@ -33,15 +33,15 @@ Total Duration: ${c-l}ms`),G.resolve({didRun:!0,sequenceNumbersCollected:r,targe
                 bg-[radial-gradient(circle_at_top,#1a0000,#0d0d0d,#050505)]
                 border-x border-b border-white/10
                 shadow-[0_10px_40px_rgba(0,0,0,0.9),0_0_30px_rgba(220,38,38,0.2)]
-                ${n?`max-h-0 py-0 opacity-0 overflow-hidden`:`max-h-50 md:max-h-125 py-2 md:py-5 opacity-100`}
+                ${n?`max-h-0 py-0 opacity-0 overflow-hidden`:`max-h-50 md:max-h-125 py-2 md:py-3 opacity-100`}
                 w-full md:max-w-full
-            `,children:[(0,q.jsx)(`div`,{className:`absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,rgba(220,38,38,0.3)_0%,transparent_70%)]`}),(0,q.jsxs)(`div`,{className:`relative flex flex-col gap-2 md:grid md:grid-cols-3 md:items-center px-3 md:px-8`,children:[(0,q.jsxs)(`div`,{className:`flex items-center justify-between md:justify-start`,children:[(0,q.jsxs)(`div`,{className:`flex items-center gap-2 md:gap-4 transition-transform duration-300`,children:[(0,q.jsx)(`img`,{src:`https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br`,alt:`Logo`,className:`size-7 md:size-12 drop-shadow-[0_0_10px_rgba(220,38,38,0.9)]`}),(0,q.jsxs)(`h1`,{className:`text-base md:text-2xl font-black text-zinc-200 uppercase tracking-tighter`,children:[`Other`,(0,q.jsx)(`span`,{className:`text-red-600 drop-shadow-[0_0_12px_rgba(220,38,38,0.9)]`,children:`Side`})]})]}),(0,q.jsx)(`div`,{className:`md:hidden`,children:t?(0,q.jsx)(`button`,{onClick:()=>ow(),className:`text-[10px] px-3 py-1 rounded-full border border-red-600 text-red-500 active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.6)]`,children:`Sair`}):(0,q.jsx)(`button`,{onClick:()=>e(`/login`),className:`text-[10px] px-3 py-1 rounded-full bg-white text-black active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.4)]`,children:`Login`})})]}),(0,q.jsx)(`div`,{className:`h-px w-full bg-white/5 md:hidden`}),(0,q.jsx)(`div`,{className:`flex justify-center`,children:(0,q.jsx)(`nav`,{className:`
-                            grid grid-cols-2 gap-2
-                            md:flex md:flex-nowrap md:gap-2
+            `,children:[(0,q.jsx)(`div`,{className:`absolute inset-0 pointer-events-none opacity-20 animate-pulse bg-[radial-gradient(circle,rgba(220,38,38,0.3)_0%,transparent_70%)]`}),(0,q.jsxs)(`div`,{className:`relative flex flex-col gap-2 lg:grid lg:grid-cols-3 lg:items-center px-3 lg:px-8`,children:[(0,q.jsxs)(`div`,{className:`flex items-center justify-between lg:justify-start`,children:[(0,q.jsxs)(`div`,{className:`flex items-center gap-2 md:gap-4 transition-transform duration-300`,children:[(0,q.jsx)(`img`,{src:`https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br`,alt:`Logo`,className:`size-7 md:size-12 drop-shadow-[0_0_10px_rgba(220,38,38,0.9)]`}),(0,q.jsxs)(`h1`,{className:`text-base md:text-2xl font-black text-zinc-200 uppercase tracking-tighter`,children:[`Other`,(0,q.jsx)(`span`,{className:`text-red-600 drop-shadow-[0_0_12px_rgba(220,38,38,0.9)]`,children:`Side`})]})]}),(0,q.jsx)(`div`,{className:`lg:hidden`,children:t?(0,q.jsx)(`button`,{onClick:()=>{ow(),e(`/login`)},className:`text-[10px] px-3 py-1 rounded-full border border-red-600 text-red-500 active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.6)]`,children:`Sair`}):(0,q.jsx)(`button`,{onClick:()=>e(`/login`),className:`text-[10px] px-3 py-1 rounded-full bg-white text-black active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.4)]`,children:`Login`})})]}),(0,q.jsx)(`div`,{className:`h-px w-full bg-white/5 md:hidden`}),(0,q.jsx)(`div`,{className:`flex justify-center`,children:(0,q.jsx)(`nav`,{className:`
+                            grid grid-cols-4 gap-2
+                            lg:flex lg:flex-nowrap lg:gap-2
                             items-center
-                            bg-black/50 px-2 md:px-5 py-2 rounded-xl
+                            bg-black/50 px-2 lg:px-5 py-2 rounded-xl
                             border border-white/10 backdrop-blur-md shadow-inner
-                            w-full md:w-auto
+                            w-full lg:w-auto
                         `,children:[`i`,`c`,`s`,`m`].map(e=>(0,q.jsxs)(`div`,{className:`
                                         relative overflow-hidden
                                         flex flex-col items-center justify-center
@@ -62,7 +62,7 @@ Total Duration: ${c-l}ms`),G.resolve({didRun:!0,sequenceNumbersCollected:r,targe
                                         translate-y-full
                                         group-hover:translate-y-0
                                         transition-transform duration-500 ease-out
-                                    `}),(0,q.jsx)(`div`,{className:`relative z-10`,children:(0,q.jsx)(ww,{type:e})})]},e))})}),(0,q.jsx)(`div`,{className:`hidden md:flex justify-end items-center gap-2`,children:t?(0,q.jsx)(`button`,{onClick:()=>ow(),className:`
+                                    `}),(0,q.jsx)(`div`,{className:`relative z-10`,children:(0,q.jsx)(ww,{type:e})})]},e))})}),(0,q.jsx)(`div`,{className:`hidden lg:flex justify-end items-center gap-2`,children:t?(0,q.jsx)(`button`,{onClick:()=>ow(),className:`
                                 mt-1
                                 px-4 py-2
                                 rounded-xl
