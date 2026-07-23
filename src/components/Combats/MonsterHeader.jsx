@@ -404,7 +404,7 @@ export default function MonsterHeader({
           p-3
         "
       >
-        <div className="min-w-[220px] flex-1">
+        <div className="min-w-55 flex-1">
           <div className="mb-1 flex items-center justify-between text-sm">
             <span className="flex items-center gap-1.5 text-red-300">
               <FaHeartbeat />
