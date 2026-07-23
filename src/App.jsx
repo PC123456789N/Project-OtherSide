@@ -4,9 +4,9 @@ import { DataHandlerProvider } from './context/dataHandlerContext/DataHandlerCon
 import { AudioPlayerProvider } from './context/audioPlayerContext/AudioPlayerContext.jsx';
 
 import LandingPage from './components/main_components/LandingPage';
-import Login from './components/main_components/Login';
+import Login from './components/main_components/Login.jsx';
 import MainLayout from './components/main_components/MainLayout';
-import Registry from './components/main_components/Registry';
+import Registry from './components/main_components/Registry.jsx';
 import GlobalPlayer from './components/main_components/GlobalAudioPlayer';
 import CombatPage from "./pages/CombatPage";
 
