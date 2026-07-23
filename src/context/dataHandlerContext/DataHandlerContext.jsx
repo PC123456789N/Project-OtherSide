@@ -41,117 +41,116 @@ export function DataHandlerProvider({ children }) {
   const [combats, setCombats] = useState([]);
   const [combatId, setCombatId] = useState(null);
 
-  const [monstersList, setMonstersList] = useState([
-    {
-      id: "blood_zombie",
-      name: "Blood Zombie",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZPj2MX7yEFpT3bqJR0ImNDrt9z61_lSBRvst4pdi7PA&s=10",
-      element: "Blood",
-      type: "Boss",
-      size: "Medium",
+  const [monstersList, setMonstersList] = useState([]);
+    // {
+    //   id: "blood_zombie",
+    //   name: "Blood Zombie",
+    //   image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZPj2MX7yEFpT3bqJR0ImNDrt9z61_lSBRvst4pdi7PA&s=10",
+    //   element: "Blood",
+    //   type: "Boss",
+    //   size: "Medium",
 
-      hp: {
-        current: 60,
-        max: 60,
-      },
-      combat: {
-        defense: 15,
-        movement: 9,
-        sanityDamage: {
-          value: 15,
-          damage: "2d10",
-        },
-      },
-      attributes: {
-        agility: 1,
-        strength: 3,
-        intellect: 0,
-        presence: 0,
-        vigor: 3,
-      },
+    //   hp: {
+    //     current: 60,
+    //     max: 60,
+    //   },
+    //   combat: {
+    //     defense: 15,
+    //     movement: 9,
+    //     sanityDamage: {
+    //       value: 15,
+    //       damage: "2d10",
+    //     },
+    //   },
+    //   attributes: {
+    //     agility: 1,
+    //     strength: 3,
+    //     intellect: 0,
+    //     presence: 0,
+    //     vigor: 3,
+    //   },
 
-      skills: [
-        {
-          id: "skill-fortitude",
-          name: "Fortitude",
-          value: 3,
-          bonus: 5,
-          lastResult: null,
-        },
-        {
-          id: "skill-luta",
-          name: "Luta",
-          value: 3,
-          bonus: 6,
-          lastResult: null,
-        },
-        {
-          id: "skill-iniciativa",
-          name: "Iniciativa",
-          value: 2,
-          bonus: 3,
-          lastResult: null,
-        },
-        {
-          id: "skill-pontaria",
-          name: "Pontaria",
-          value: 1,
-          bonus: 0,
-          lastResult: null,
-        },
-        {
-          id: "skill-vontade",
-          name: "Vontade",
-          value: 2,
-          bonus: 2,
-          lastResult: null,
-        },
-      ],
+    //   skills: [
+    //     {
+    //       id: "skill-fortitude",
+    //       name: "Fortitude",
+    //       value: 3,
+    //       bonus: 5,
+    //       lastResult: null,
+    //     },
+    //     {
+    //       id: "skill-luta",
+    //       name: "Luta",
+    //       value: 3,
+    //       bonus: 6,
+    //       lastResult: null,
+    //     },
+    //     {
+    //       id: "skill-iniciativa",
+    //       name: "Iniciativa",
+    //       value: 2,
+    //       bonus: 3,
+    //       lastResult: null,
+    //     },
+    //     {
+    //       id: "skill-pontaria",
+    //       name: "Pontaria",
+    //       value: 1,
+    //       bonus: 0,
+    //       lastResult: null,
+    //     },
+    //     {
+    //       id: "skill-vontade",
+    //       name: "Vontade",
+    //       value: 2,
+    //       bonus: 2,
+    //       lastResult: null,
+    //     },
+    //   ],
 
-      attacks: [
-        {
-          id: "attack-claws",
-          name: "Claws",
-          type: "Corpo a Corpo",
-          range: "3m",
-          testBonus: 8,
-          damage: "2d8+5",
-          threatMargin: 20,
-          critMultiplier: 2,
-          lastTestResult: null,
-          lastCritical: false,
-          lastDamageResult: null,
-          lastCritDamageResult: null,
-        },
-      ],
-      abilities: [
-        {
-          id: "ability-fury",
-          name: "Uncontrolled Fury",
-          attributeName: "Fúria Descontrolada",
-          attributeDescription: "When below 50% HP, gains +2 on attack rolls.",
-        },
-      ],
-      resistances: [
-        {
-          id: "resistance-blood",
-          name: "Sangue",
-          description: "Reduz em 10 o dano recebido do elemento Sangue.",
-        },
-      ],
-      vulnerabilities: [{ id: "vuln-death", value: "Death" }],
+    //   attacks: [
+    //     {
+    //       id: "attack-claws",
+    //       name: "Claws",
+    //       type: "Corpo a Corpo",
+    //       range: "3m",
+    //       testBonus: 8,
+    //       damage: "2d8+5",
+    //       threatMargin: 20,
+    //       critMultiplier: 2,
+    //       lastTestResult: null,
+    //       lastCritical: false,
+    //       lastDamageResult: null,
+    //       lastCritDamageResult: null,
+    //     },
+    //   ],
+    //   abilities: [
+    //     {
+    //       id: "ability-fury",
+    //       name: "Uncontrolled Fury",
+    //       attributeName: "Fúria Descontrolada",
+    //       attributeDescription: "When below 50% HP, gains +2 on attack rolls.",
+    //     },
+    //   ],
+    //   resistances: [
+    //     {
+    //       id: "resistance-blood",
+    //       name: "Sangue",
+    //       description: "Reduz em 10 o dano recebido do elemento Sangue.",
+    //     },
+    //   ],
+    //   vulnerabilities: [{ id: "vuln-death", value: "Death" }],
 
-      immunities: [
-        { id: "immunity-fear", value: "Fear" },
-        { id: "immunity-bleeding", value: "Bleeding" },
-        { id: "immunity-blindness", value: "Blindness" },
-      ],
+    //   immunities: [
+    //     { id: "immunity-fear", value: "Fear" },
+    //     { id: "immunity-bleeding", value: "Bleeding" },
+    //     { id: "immunity-blindness", value: "Blindness" },
+    //   ],
 
-      fearEnigma: "",
+    //   fearEnigma: "",
 
-      description: "A creature twisted by the Blood element, driven only by violence.",
-    },
-  ]);
+    //   description: "A creature twisted by the Blood element, driven only by violence.",
+    // },
 
   const [scripts, setScripts] = useState({ title: "", body: "" });
   const [notesList, setNotesList] = useState([]);
@@ -195,7 +194,7 @@ export function DataHandlerProvider({ children }) {
     const timeout = setTimeout(() => {
       saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
 
-      saveAllToDB(userId, initiativeList, combats, scripts, notesList, playlist);
+      saveAllToDB(userId, initiativeList, combats, monstersList, scripts, notesList, playlist);
 
       setUnsavedChanges(false);
     }, 1000);
@@ -233,6 +232,7 @@ export function DataHandlerProvider({ children }) {
           userId,
           cachedData.initiatives,
           cachedData.combats,
+          cachedData.monsters,
           cachedData.script,
           cachedData.notes,
           cachedData.music,
@@ -252,6 +252,8 @@ export function DataHandlerProvider({ children }) {
         );
 
         setInitiativeList(firestoreData.initiatives);
+        setCombats(firestoreData.combat);
+        setMonstersList(firestoreData.monster);
         setScripts({
           title: firestoreData.scripts?.Title || "",
           body: firestoreData.scripts?.Body || "",
@@ -263,6 +265,7 @@ export function DataHandlerProvider({ children }) {
         await saveToCache(
           firestoreData.initiatives,
           firestoreData.combat,
+          firestoreData.monster,
           firestoreData.scripts,
           firestoreData.notes,
           firestoreData.music,
@@ -279,6 +282,7 @@ export function DataHandlerProvider({ children }) {
 
         setInitiativeList(firestoreData.initiatives);
         setCombats(firestoreData.combat);
+        setMonstersList(firestoreData.monster);
         setScripts({
           title: firestoreData.scripts?.Title || "",
           body: firestoreData.scripts?.Body || "",
@@ -286,7 +290,7 @@ export function DataHandlerProvider({ children }) {
         setNotesList(firestoreData.notes);
         setPlaylist(firestoreData.music);
 
-        await saveToCache(firestoreData);
+        await saveToCache(firestoreData); //remake this shit, will break
 
         return;
       }
@@ -314,6 +318,7 @@ export function DataHandlerProvider({ children }) {
           userId,
           cachedData.initiatives,
           cachedData.combats,
+          cachedData.monsters,
           cachedData.script,
           cachedData.notes,
           cachedData.music,

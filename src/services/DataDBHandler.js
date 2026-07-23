@@ -81,7 +81,7 @@ export async function loadInitiativesFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveCombatsToDB(userId, combats) {
+export async function saveCombatsToDB(userId, combats, monsterList) {
   try{
     const q = query(
     collection(db, "Combats"),
@@ -97,6 +97,7 @@ export async function saveCombatsToDB(userId, combats) {
           lastSave: serverTimestamp(),
           UserId: userId,
           CombatsList: combats,
+          MonsterList: monsterList
         }
       );
       console.log("doc firestore/Combats Criado")
@@ -109,6 +110,7 @@ export async function saveCombatsToDB(userId, combats) {
         lastSave: serverTimestamp(),
         UserId: userId,
         CombatsList: combats,
+        MonsterList: monsterList
       }
     );
     console.log("doc firestore/Combats atualizado")
@@ -258,10 +260,10 @@ export async function loadMusicsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveAllToDB(userId, initiativeList, combats, scripts, notesList, playlist) {
+export async function saveAllToDB(userId, initiativeList, combats, monsterList, scripts, notesList, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);
-  await saveCombatsToDB(userId, combats);
+  await saveCombatsToDB(userId, combats, monsterList);
   await saveScriptsToDB(userId, scripts, notesList);
   await saveMusicsToDB(userId, playlist);
 }
@@ -275,6 +277,7 @@ export async function loadAllFromDB(userId) {
   return {
     initiatives: initiativesData?.PlayerArray ?? [],
     combat: combatsData?.CombatsList ?? [],
+    monster: combatsData?.MonsterList ?? [],
     music: musicsData.Playlist ?? [],
     scripts: scriptsData?.ScriptDoc ?? {Title: "", Body: ""},
     notes: scriptsData?.NotesList ?? []

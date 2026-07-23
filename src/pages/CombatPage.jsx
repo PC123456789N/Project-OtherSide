@@ -395,7 +395,7 @@ export default function CombatPage() {
   }
 
 	if (!selectedEntity) {
-		console.log(selectedEntity)
+		//console.log(selectedEntity)
 		return (
 			<div className="flex h-full items-center justify-center bg-zinc-950 text-zinc-500">
 				Selecione um combate para começar.

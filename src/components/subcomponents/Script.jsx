@@ -266,7 +266,7 @@ export default function Script() {
                   : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
               }`}
             >
-              <s class="line-through">S</s>
+              <s className="line-through">S</s>
             </button>
 
             <ColorPicker
