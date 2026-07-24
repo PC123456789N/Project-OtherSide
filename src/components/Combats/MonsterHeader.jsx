@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BsShield } from "react-icons/bs";
 import { GiBroadsword } from "react-icons/gi";
 import { FaHeart, FaHeartbeat, FaRunning, FaBrain, FaDice } from "react-icons/fa";
@@ -12,14 +12,36 @@ const ELEMENT_COLORS = {
   Energia: "text-yellow-400",
 };
 
+// Nomes completos dos atributos, usados no label da rolagem (histórico da
+// Sidebar) e no title do botão de dado de cada hexágono.
+const ATTRIBUTE_LABELS = {
+  agility: "Agilidade",
+  strength: "Força",
+  intellect: "Intelecto",
+  presence: "Presença",
+  vigor: "Vigor",
+};
+
+// Teste de Atributo: rola "quantity" d20 (quantity = valor do atributo) e
+// usa só o MAIOR resultado — sem bônus, sem soma.
+function rollAttributeTest(quantity) {
+  const qty = Math.max(1, Number(quantity) || 1);
+
+  const rolls = Array.from(
+    { length: qty },
+    () => 1 + Math.floor(Math.random() * 20)
+  );
+
+  const highestIndex = rolls.reduce(
+    (bestIndex, value, index) => (value > rolls[bestIndex] ? index : bestIndex),
+    0
+  );
+
+  return { rolls, highestIndex, total: rolls[highestIndex] };
+}
+
 function EditableNumber({ value, onChange, className, placeholder = "0" }) {
   const [text, setText] = useState(value ? String(value) : "");
-
-  // Sincroniza o texto exibido sempre que o valor mudar por fora (ex:
-  // clicando em Dano/Cura), não só quando o usuário digita.
-  useEffect(() => {
-    setText(value || value === 0 ? String(value) : "");
-  }, [value]);
 
   function handleChange(e) {
     const raw = e.target.value;
@@ -199,6 +221,23 @@ export default function MonsterHeader({
     ]);
 
     onSanityDamageRoll?.(result);
+  }
+
+  function handleRollAttribute(key, value) {
+    const result = rollAttributeTest(value);
+
+    setRollHistory((prev) => [
+      {
+        id: crypto.randomUUID(),
+        type: "atributo",
+        label: `Teste de ${ATTRIBUTE_LABELS[key] || key}`,
+        rolls: result.rolls,
+        highestIndex: result.highestIndex,
+        modifier: 0,
+        total: result.total,
+      },
+      ...(prev || []),
+    ]);
   }
 
   const hpMax = monster.hp.max || 0;
@@ -404,7 +443,7 @@ export default function MonsterHeader({
           p-3
         "
       >
-        <div className="min-w-55 flex-1">
+        <div className="min-w-[220px] flex-1">
           <div className="mb-1 flex items-center justify-between text-sm">
             <span className="flex items-center gap-1.5 text-red-300">
               <FaHeartbeat />
@@ -497,23 +536,21 @@ export default function MonsterHeader({
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
                 className="
-                w-16
-                rounded-lg
-                border
-               border-zinc-700
-               bg-zinc-950
-                py-1.5
-                text-center
-                text-base
-                font-bold
-               text-white
-                outline-none
-                transition
-              [appearance:textfield]
-              [&::-webkit-outer-spin-button]:appearance-none
-              [&::-webkit-inner-spin-button]:appearance-none
-             focus:border-violet-500
-              focus:shadow-[0_0_0_3px_rgba(139,92,246,0.25)]"
+                  w-16
+                  rounded-lg
+                  border
+                  border-zinc-700
+                  bg-zinc-950
+                  py-1.5
+                  text-center
+                  text-base
+                  font-bold
+                  text-white
+                  outline-none
+                  transition
+                  focus:border-violet-500
+                  focus:shadow-[0_0_0_3px_rgba(139,92,246,0.25)]
+                "
               />
               <span className="text-[9px] font-semibold uppercase tracking-widest text-zinc-500">
                 Valor
@@ -562,6 +599,25 @@ export default function MonsterHeader({
               <p className="text-[10px] uppercase text-zinc-500">
                 {key.slice(0, 3)}
               </p>
+
+              <button
+                onClick={() => handleRollAttribute(key, value)}
+                title={`Testar ${ATTRIBUTE_LABELS[key] || key} (${Math.max(1, Number(value) || 1)}d20)`}
+                className="
+                  flex
+                  h-6
+                  w-6
+                  items-center
+                  justify-center
+                  rounded-md
+                  bg-violet-700/80
+                  text-white
+                  transition
+                  hover:bg-violet-600
+                "
+              >
+                <FaDice size={11} />
+              </button>
             </div>
           ))}
         </div>
