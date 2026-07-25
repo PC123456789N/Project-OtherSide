@@ -33,18 +33,18 @@ export default function CombatPage() {
   }, [combatId, combats, monstersList, selectedEntity]);
 
   function updateEntity(updater) {
-    if (!selectedEntity) return;
+  setSelectedEntity((prev) => {
+    if (!prev) return prev;
 
-    const updated = updater(selectedEntity);
-
-    setSelectedEntity(updated);
+    const updated = updater(prev);
 
     setMonstersList((list) =>
-      list.map((monster) =>
-        monster.id === updated.id ? updated : monster
-      )
+      list.map((monster) => (monster.id === updated.id ? updated : monster))
     );
-  }
+
+    return updated;
+  });
+ }
 
   // ================= HEADER/HP/DEFESA/DESLOCAMENTO/ATRIBUTOS =================
 
@@ -232,10 +232,11 @@ export default function CombatPage() {
         {
           id: crypto.randomUUID(),
           name: "Novo Ataque",
-          type: "Corpo a Corpo",
+          type: "Dano",          // era "Corpo a Corpo" — não existe mais na lista nova
           range: "",
-          testBonus: 0,
+          testNotation: "1d20+5",
           damage: "1d6",
+          description: "",
           threatMargin: 20,
           critMultiplier: 2,
           lastTestResult: null,
@@ -272,6 +273,7 @@ export default function CombatPage() {
               ...attack,
               lastTestResult: result.total,
               lastCritical: result.isCritical,
+              lastTestCritical: result.isTestCritical,
             }
           : attack
       ),

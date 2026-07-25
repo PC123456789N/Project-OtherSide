@@ -1,9 +1,25 @@
+import { useState, useEffect, useRef } from "react";
 import { FaPlus, FaTimes, FaDice } from "react-icons/fa";
-import { GiBroadsword, GiCrossedSwords } from "react-icons/gi";
 
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
-const ATTACK_TYPES = ["Corpo a Corpo", "Distância", "Ritual"];
+const ATTACK_TYPES = [
+  "Balístico",
+  "Corte",
+  "Eletricidade",
+  "Fogo",
+  "Frio",
+  "Impacto",
+  "Mental",
+  "Conhecimento",
+  "Energia",
+  "Medo",
+  "Morte",
+  "Sangue",
+  "Perfuração",
+  "Químico",
+  "Dano",
+];
 
 const inputClass = `
   w-full
@@ -19,9 +35,103 @@ const inputClass = `
   focus:border-violet-500
 `;
 
-const fieldRow =
-  "grid grid-cols-2 items-center gap-3 border-b border-zinc-800/60 py-2 last:border-b-0";
-const fieldLabel = "text-xs uppercase tracking-wide text-zinc-500";
+// Layout compacto: campos em grid 2 colunas, rótulo estreito à esquerda
+// do próprio input, sem divisores entre linhas — menos altura, menos
+// espaço em branco.
+const fieldRow = "flex items-center gap-2 py-1";
+const fieldLabel =
+  "text-[11px] uppercase tracking-wide text-zinc-500 w-24 shrink-0";
+
+const fieldInputClass = `
+  w-full
+  rounded-md
+  border
+  border-zinc-700
+  bg-zinc-950
+  px-2
+  py-1
+  text-sm
+  text-white
+  text-left
+  outline-none
+  focus:border-violet-500
+`;
+
+// Destaque de crítico: sublinhado + verde-claro brilhante.
+const critValueClass =
+  "text-green-400 underline decoration-2 decoration-green-400 [text-shadow:0_0_8px_rgba(74,222,128,0.55)]";
+
+// Campo numérico sem as setinhas de incrementar/decrementar do type="number".
+// Mantém um texto local pra permitir digitar "-" no meio da edição sem
+// o campo ser resetado a cada tecla, e não sobrescreve o campo enquanto
+// o usuário está com foco nele (senão o valor volta pra "0" sozinho
+// assim que você apaga o campo pra digitar de novo).
+function NumericField({ value, onChange, className, placeholder = "0" }) {
+  const [text, setText] = useState(
+    value || value === 0 ? String(value) : ""
+  );
+  const isFocused = useRef(false);
+
+  useEffect(() => {
+    if (isFocused.current) return; // não sobrescreve enquanto o usuário está digitando
+    setText(value || value === 0 ? String(value) : "");
+  }, [value]);
+
+  function handleChange(e) {
+    const raw = e.target.value;
+    if (raw !== "" && !/^-?\d*$/.test(raw)) return;
+    setText(raw);
+    if (raw !== "" && raw !== "-") {
+      onChange(Number(raw));
+    }
+  }
+
+  function handleBlur() {
+    isFocused.current = false;
+    if (text === "" || text === "-") {
+      onChange(0);
+      setText("0");
+    }
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={text}
+      onChange={handleChange}
+      onFocus={() => {
+        isFocused.current = true;
+      }}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      className={className}
+    />
+  );
+}
+
+// Textarea de descrição com altura automática (cresce conforme o usuário
+// digita, tipo Notion/Google Docs) — nunca precisa de scroll interno.
+function AutoResizeTextarea({ value, onChange, placeholder }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    ref.current.style.height = "auto";
+    ref.current.style.height = `${ref.current.scrollHeight}px`;
+  }, [value]);
+
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={1}
+      className={`${inputClass} resize-none overflow-hidden leading-relaxed`}
+    />
+  );
+}
 
 // ---------- Regras de dado ----------
 
@@ -70,321 +180,47 @@ function multiplyDamageDice(notation, multiplier) {
   return `${newCount}d${parsed.sides}${modStr}`;
 }
 
-// Teste de ataque: rola 1d20 + bônus digitado à mão pelo usuário (sem
-// puxar nada de Atributo/Perícia). Crítico se o d20 puro bater a Margem
-// de Ameaça.
-function rollAttackTest(testBonus, threatMargin) {
-  const roll = 1 + Math.floor(Math.random() * 20);
-  const bonus = Number(testBonus) || 0;
-  const isCritical = roll >= (Number(threatMargin) || 20);
+// Teste de ataque, baseado numa notação digitada (ex: "1d20+5"). Rola a
+// quantidade de dados indicada e calcula DOIS resultados de crítico
+// independentes:
+//
+// - Teste Crítico: total (maior dado + bônus) >= (Margem de Ameaça + bônus)
+// - Dano Crítico: maior dado BRUTO (sem bônus) >= Margem de Ameaça
+function rollAttackTest(notation, threatMargin) {
+  const parsed = parseDiceNotation(notation);
 
-  return { rolls: [roll], modifier: bonus, total: roll + bonus, isCritical };
-}
+  if (!parsed) return null;
 
-// ---------- Ataques (cards, lista de duas colunas) ----------
-
-function AttackCard({
-  attack,
-
-  onChange,
-  onRemove,
-  onTestResult,
-  onDamageResult,
-  onCritDamageResult,
-}) {
-  const { setRollHistory } = useDataHandler();
-
-  const critDamage = multiplyDamageDice(attack.damage, attack.critMultiplier);
-
-  function handleTest() {
-    const result = rollAttackTest(attack.testBonus, attack.threatMargin);
-
-    setRollHistory((prev) => [
-      {
-        id: crypto.randomUUID(),
-        type: "ataque-teste",
-        label: `${attack.name} (Teste)`,
-        rolls: result.rolls,
-        modifier: result.modifier,
-        total: result.total,
-        isCritical: result.isCritical,
-      },
-      ...(prev || []),
-    ]);
-
-    onTestResult(attack.id, result);
-  }
-
-  function handleDamage() {
-    const result = rollDamageNotation(attack.damage);
-
-    if (!result) {
-      window.alert(
-        `Dano inválido: "${attack.damage}". Use o formato ex: 2d8+5`
-      );
-      return;
-    }
-
-    setRollHistory((prev) => [
-      {
-        id: crypto.randomUUID(),
-        type: "ataque-dano",
-        label: `${attack.name} (Ataque)`,
-        rolls: result.rolls,
-        modifier: result.mod,
-        total: result.total,
-      },
-      ...(prev || []),
-    ]);
-
-    onDamageResult(attack.id, result);
-  }
-
-  function handleCritDamage() {
-    const result = rollDamageNotation(critDamage);
-
-    if (!result) {
-      window.alert(`Dano crítico inválido: "${critDamage}".`);
-      return;
-    }
-
-    setRollHistory((prev) => [
-      {
-        id: crypto.randomUUID(),
-        type: "ataque-dano-critico",
-        label: `${attack.name} (Ataque Crítico)`,
-        rolls: result.rolls,
-        modifier: result.mod,
-        total: result.total,
-        isCritical: true,
-      },
-      ...(prev || []),
-    ]);
-
-    onCritDamageResult(attack.id, result);
-  }
-
-  return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-800/60 p-4 space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <input
-          value={attack.name}
-          onChange={(e) => onChange(attack.id, "name", e.target.value)}
-          placeholder="Nome do ataque"
-          className="flex-1 bg-transparent text-lg font-bold text-white outline-none focus:text-violet-300"
-        />
-
-        <button
-          onClick={() => onRemove(attack.id)}
-          title="Remover Ataque"
-          className="
-            flex
-            h-8
-            w-8
-            shrink-0
-            items-center
-            justify-center
-            rounded-md
-            text-zinc-500
-            transition
-            hover:bg-red-900/30
-            hover:text-red-400
-          "
-        >
-          <FaTimes size={12} />
-        </button>
-      </div>
-
-      {/* Lista simples de duas colunas: rótulo à esquerda, campo à direita */}
-      <div>
-        <div className={fieldRow}>
-          <span className={fieldLabel}>Tipo</span>
-          <select
-            value={attack.type}
-            onChange={(e) => onChange(attack.id, "type", e.target.value)}
-            className={inputClass}
-          >
-            {ATTACK_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={fieldRow}>
-          <span className={fieldLabel}>Alcance</span>
-          <input
-            value={attack.range}
-            onChange={(e) => onChange(attack.id, "range", e.target.value)}
-            placeholder="3m"
-            className={inputClass}
-          />
-        </div>
-
-        <div className={fieldRow}>
-          <span className={fieldLabel}>Bônus de Teste</span>
-          <input
-            type="number"
-            value={attack.testBonus}
-            onChange={(e) =>
-              onChange(attack.id, "testBonus", Number(e.target.value) || 0)
-            }
-            title="Somado ao d20 no botão Teste"
-            className={inputClass}
-          />
-        </div>
-
-        <div className={fieldRow}>
-          <span className={fieldLabel}>Margem de Ameaça</span>
-          <input
-            type="number"
-            min={1}
-            max={20}
-            value={attack.threatMargin}
-            onChange={(e) =>
-              onChange(
-                attack.id,
-                "threatMargin",
-                Number(e.target.value) || 20
-              )
-            }
-            title="A partir de qual número no d20 é crítico"
-            className={inputClass}
-          />
-        </div>
-
-        <div className={fieldRow}>
-          <span className={fieldLabel}>Dano</span>
-          <input
-            value={attack.damage}
-            onChange={(e) => onChange(attack.id, "damage", e.target.value)}
-            placeholder="2d8+5"
-            className={inputClass}
-          />
-        </div>
-
-        <div className={fieldRow}>
-          <span className={fieldLabel}>Multiplicador Crítico</span>
-          <input
-            type="number"
-            min={1}
-            value={attack.critMultiplier}
-            onChange={(e) =>
-              onChange(
-                attack.id,
-                "critMultiplier",
-                Number(e.target.value) || 2
-              )
-            }
-            className={inputClass}
-          />
-        </div>
-
-        <div className={fieldRow}>
-          <span className={fieldLabel}>Dano Crítico (calc.)</span>
-          <span className="text-sm font-semibold text-violet-300">
-            {critDamage}
-          </span>
-        </div>
-      </div>
-
-      {/* Três botões pedidos */}
-      <div className="flex flex-wrap gap-2 pt-1">
-        <button
-          onClick={handleTest}
-          className="
-            flex
-            items-center
-            gap-1.5
-            rounded-md
-            bg-violet-700/80
-            px-3
-            py-1.5
-            text-xs
-            font-semibold
-            text-white
-            transition
-            hover:bg-violet-600
-          "
-        >
-          <FaDice size={12} />
-          Teste
-        </button>
-
-        <button
-          onClick={handleDamage}
-          className="
-            flex
-            items-center
-            gap-1.5
-            rounded-md
-            bg-red-700/80
-            px-3
-            py-1.5
-            text-xs
-            font-semibold
-            text-white
-            transition
-            hover:bg-red-700
-          "
-        >
-          <GiBroadsword size={12} />
-          Ataque
-        </button>
-
-        <button
-          onClick={handleCritDamage}
-          className="
-            flex
-            items-center
-            gap-1.5
-            rounded-md
-            bg-orange-700/80
-            px-3
-            py-1.5
-            text-xs
-            font-semibold
-            text-white
-            transition
-            hover:bg-orange-600
-          "
-        >
-          <GiCrossedSwords size={12} />
-          Ataque Crítico
-        </button>
-      </div>
-
-      {/* Pequenos grids de resultado, embaixo da tabela/cards */}
-      <div className="grid grid-cols-3 gap-2 pt-1">
-        <div className="rounded-md border border-zinc-700 bg-zinc-950/60 p-2 text-center">
-          <p className="text-[10px] uppercase text-zinc-500">Teste</p>
-          <p className="text-lg font-bold text-violet-300">
-            {attack.lastTestResult ?? "—"}
-          </p>
-          {attack.lastCritical && (
-            <span className="rounded bg-red-700/80 px-1 text-[9px] font-bold uppercase text-white">
-              Crít.
-            </span>
-          )}
-        </div>
-
-        <div className="rounded-md border border-zinc-700 bg-zinc-950/60 p-2 text-center">
-          <p className="text-[10px] uppercase text-zinc-500">Ataque</p>
-          <p className="text-lg font-bold text-red-300">
-            {attack.lastDamageResult ?? "—"}
-          </p>
-        </div>
-
-        <div className="rounded-md border border-zinc-700 bg-zinc-950/60 p-2 text-center">
-          <p className="text-[10px] uppercase text-zinc-500">Atq. Crítico</p>
-          <p className="text-lg font-bold text-orange-300">
-            {attack.lastCritDamageResult ?? "—"}
-          </p>
-        </div>
-      </div>
-    </div>
+  const rolls = Array.from(
+    { length: parsed.count },
+    () => 1 + Math.floor(Math.random() * parsed.sides)
   );
+
+  const highestIndex = rolls.reduce(
+    (bestIndex, value, index) => (value > rolls[bestIndex] ? index : bestIndex),
+    0
+  );
+  const highest = rolls[highestIndex];
+
+  const margin = Number(threatMargin) || 20;
+  const mod = parsed.mod;
+  const total = highest + mod;
+
+  const critTestThreshold = margin + mod;
+  const isCriticalTest = total >= critTestThreshold;
+  const isCriticalDamage = highest >= margin;
+
+  return {
+    rolls,
+    highest,
+    highestIndex,
+    mod,
+    total,
+    threatMargin: margin,
+    critTestThreshold,
+    isCriticalTest,
+    isCriticalDamage,
+  };
 }
 
 function AttacksList({
@@ -420,7 +256,7 @@ function AttacksList({
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {attacks.map((attack) => (
           <AttackCard
             key={attack.id}
@@ -443,22 +279,144 @@ function AttacksList({
   );
 }
 
-// ---------- Habilidades ----------
+// ---------- Ataques (card: campos | caixas de resultado | descrição no fim) ----------
 
-function AbilityCard({ ability, onChange, onRemove }) {
+function AttackCard({
+  attack,
+
+  onChange,
+  onRemove,
+  onTestResult,
+  onDamageResult,
+  onCritDamageResult,
+}) {
+  const { setRollHistory } = useDataHandler();
+
+  // Botão único: rola o Teste primeiro (sempre). Calcula Teste Crítico
+  // (margem + bônus) e Dano Crítico (maior dado bruto >= margem) como
+  // resultados independentes. Se o Dano Crítico for verdadeiro, rola e
+  // mostra só o Dano Crítico; senão, rola e mostra só o Dano normal.
+  // Os dois resultados (Teste + Dano/Dano Crítico) ficam salvos no
+  // próprio ataque (pras caixas do card) E vão pro histórico da Sidebar.
+  function handleRoll() {
+    const testResult = rollAttackTest(attack.testNotation, attack.threatMargin);
+
+    if (!testResult) {
+      window.alert(
+        `Teste inválido: "${attack.testNotation}". Use o formato ex: 1d20+5`
+      );
+      return;
+    }
+
+    setRollHistory((prev) => [
+      {
+        id: crypto.randomUUID(),
+        type: "ataque-teste",
+        label: `${attack.name} (Teste)`,
+        rolls: testResult.rolls,
+        highestIndex: testResult.highestIndex,
+        modifier: testResult.mod,
+        total: testResult.total,
+        isCritical: testResult.isCriticalTest,
+        threatMargin: testResult.threatMargin,
+        testBonus: testResult.mod,
+        critTestThreshold: testResult.critTestThreshold,
+      },
+      ...(prev || []),
+    ]);
+
+    onTestResult(attack.id, {
+      total: testResult.total,
+      isCritical: testResult.isCriticalDamage,
+      isTestCritical: testResult.isCriticalTest,
+    });
+
+    if (testResult.isCriticalDamage) {
+      const critDamage = multiplyDamageDice(attack.damage, attack.critMultiplier);
+      const critResult = rollDamageNotation(critDamage);
+
+      if (!critResult) {
+        window.alert(`Dano crítico inválido: "${critDamage}".`);
+        return;
+      }
+
+      setRollHistory((prev) => [
+        {
+          id: crypto.randomUUID(),
+          type: "ataque-dano-critico",
+          label: `${attack.name} (Dano Crítico)`,
+          rolls: critResult.rolls,
+          modifier: critResult.mod,
+          total: critResult.total,
+          isCritical: true,
+        },
+        ...(prev || []),
+      ]);
+
+      onCritDamageResult(attack.id, critResult);
+    } else {
+      const damageResult = rollDamageNotation(attack.damage);
+
+      if (!damageResult) {
+        window.alert(
+          `Dano inválido: "${attack.damage}". Use o formato ex: 2d8+5`
+        );
+        return;
+      }
+
+      setRollHistory((prev) => [
+        {
+          id: crypto.randomUUID(),
+          type: "ataque-dano",
+          label: `${attack.name} (Dano)`,
+          rolls: damageResult.rolls,
+          modifier: damageResult.mod,
+          total: damageResult.total,
+          isCritical: false,
+        },
+        ...(prev || []),
+      ]);
+
+      onDamageResult(attack.id, damageResult);
+    }
+  }
+
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-800/60 p-4 space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <textarea
-          value={ability.name}
-          onChange={(e) => onChange(ability.id, "name", e.target.value)}
-          placeholder="Nome da habilidade"
-          className="flex-1 break-all resize-none bg-transparent text-lg font-bold text-white outline-none focus:text-violet-300"
+    <div className="rounded-lg border border-zinc-800 bg-zinc-800/60 p-3 space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <input
+          value={attack.name}
+          onChange={(e) => onChange(attack.id, "name", e.target.value)}
+          placeholder="Nome do ataque"
+          className="flex-1 bg-transparent text-sm font-bold text-white outline-none focus:text-violet-300"
         />
 
         <button
-          onClick={() => onRemove(ability.id)}
-          title="Remover Habilidade"
+          onClick={handleRoll}
+          title="Rolar Ataque (Teste + Dano)"
+          className="
+            flex
+            h-8
+            w-8
+            shrink-0
+            items-center
+            justify-center
+            rounded-full
+            bg-violet-700/80
+            text-white
+            shadow-[0_0_10px_rgba(139,92,246,0.35)]
+            transition
+            hover:scale-105
+            hover:bg-violet-600
+            active:scale-95
+          "
+        >
+          <FaDice size={14} />
+        </button>
+
+        <button
+          onClick={() => onRemove(attack.id)}
+          title="Remover Ataque"
           className="
             flex
             h-8
@@ -473,26 +431,166 @@ function AbilityCard({ ability, onChange, onRemove }) {
             hover:text-red-400
           "
         >
+          <FaTimes size={11} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+        <div className={fieldRow}>
+          <span className={fieldLabel}>Tipo</span>
+          <select
+            value={attack.type}
+            onChange={(e) => onChange(attack.id, "type", e.target.value)}
+            className={fieldInputClass}
+          >
+            {ATTACK_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={fieldRow}>
+          <span className={fieldLabel}>Alcance</span>
+          <input
+            value={attack.range}
+            onChange={(e) => onChange(attack.id, "range", e.target.value)}
+            placeholder="3m"
+            className={fieldInputClass}
+          />
+        </div>
+
+        <div className={fieldRow}>
+          <span className={fieldLabel}>Teste</span>
+          <input
+            value={attack.testNotation || ""}
+            onChange={(e) =>
+              onChange(attack.id, "testNotation", e.target.value)
+            }
+            placeholder="1d20+5"
+            className={fieldInputClass}
+          />
+        </div>
+
+        <div className={fieldRow}>
+          <span className={fieldLabel}>Margem Ameaça</span>
+          <NumericField
+            value={attack.threatMargin}
+            onChange={(value) =>
+              onChange(attack.id, "threatMargin", value || 20)
+            }
+            className={fieldInputClass}
+          />
+        </div>
+
+        <div className={fieldRow}>
+          <span className={fieldLabel}>Dano</span>
+          <input
+            value={attack.damage}
+            onChange={(e) => onChange(attack.id, "damage", e.target.value)}
+            placeholder="2d8+5"
+            className={fieldInputClass}
+          />
+        </div>
+
+        <div className={fieldRow}>
+          <span className={fieldLabel}>Mult. Crítico</span>
+          <NumericField
+            value={attack.critMultiplier}
+            onChange={(value) =>
+              onChange(attack.id, "critMultiplier", value || 2)
+            }
+            className={fieldInputClass}
+          />
+        </div>
+      </div>
+
+      {/* Caixas de resultado: Teste + Dano/Dano Crítico (nunca os dois de
+          dano juntos — só um aparece, dependendo do último resultado). */}
+      <div className="grid grid-cols-2 gap-3 border-t border-zinc-800/60 pt-2">
+        <div className="rounded-md border border-zinc-700 bg-zinc-950/60 p-2 text-center">
+          <p className="text-[10px] uppercase text-zinc-500">Teste</p>
+          <p
+            className={`text-base font-bold ${
+              attack.lastTestCritical ? critValueClass : "text-violet-300"
+            }`}
+          >
+            {attack.lastTestResult ?? "—"}
+          </p>
+        </div>
+
+        <div className="rounded-md border border-zinc-700 bg-zinc-950/60 p-2 text-center">
+          <p className="text-[10px] uppercase text-zinc-500">
+            {attack.lastCritical ? "Dano Crítico" : "Dano"}
+          </p>
+          <p
+            className={`text-base font-bold ${
+              attack.lastCritical ? critValueClass : "text-red-300"
+            }`}
+          >
+            {(attack.lastCritical
+              ? attack.lastCritDamageResult
+              : attack.lastDamageResult) ?? "—"}
+          </p>
+        </div>
+      </div>
+
+      <div className="border-t border-zinc-800/60 pt-2">
+        <span className="mb-1 block text-[11px] uppercase tracking-wide text-zinc-500">
+          Descrição
+        </span>
+        <AutoResizeTextarea
+          value={attack.description || ""}
+          onChange={(value) => onChange(attack.id, "description", value)}
+          placeholder="Descreva o ataque..."
+        />
+      </div>
+    </div>
+  );
+}
+
+// ---------- Habilidades (nome + descrição) ----------
+
+function AbilityCard({ ability, onChange, onRemove }) {
+  return (
+    <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-800/60 p-3">
+      <div className="flex items-center gap-2">
+        <input
+          value={ability.name}
+          onChange={(e) => onChange(ability.id, "name", e.target.value)}
+          placeholder="Nome da habilidade"
+          className={`${inputClass} flex-1 font-medium`}
+        />
+
+        <button
+          onClick={() => onRemove(ability.id)}
+          title="Remover Habilidade"
+          className="
+            flex
+            h-9
+            w-9
+            shrink-0
+            items-center
+            justify-center
+            rounded-md
+            text-zinc-500
+            transition
+            hover:bg-red-900/30
+            hover:text-red-400
+          "
+        >
           <FaTimes size={12} />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
-        <div>
-          <span className="mb-1 block text-[10px] uppercase tracking-wide text-zinc-500">
-            Descrição da Habilidade
-          </span>
-          <textarea
-            value={ability.attributeDescription}
-            onChange={(e) =>
-              onChange(ability.id, "attributeDescription", e.target.value)
-            }
-            placeholder="Descreva o que esse atributo faz..."
-            rows={2}
-            className={`${inputClass} resize-y leading-relaxed`}
-          />
-        </div>
-      </div>
+      <textarea
+        value={ability.description}
+        onChange={(e) => onChange(ability.id, "description", e.target.value)}
+        placeholder="Descreva a habilidade..."
+        rows={3}
+        className={`${inputClass} resize-y leading-relaxed`}
+      />
     </div>
   );
 }

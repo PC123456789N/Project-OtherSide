@@ -3,8 +3,6 @@ import { FaPlus, FaTimes, FaDice, FaTrash, FaFlag } from "react-icons/fa";
 
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
-const DICE_PRESETS = ["d4", "d6", "d8", "d10", "d12", "d20", "Personalizado"];
-
 const buttonBase = `
   flex
   h-10
@@ -16,6 +14,98 @@ const buttonBase = `
   font-semibold
   transition
 `;
+
+// Um bloco de resultado isolado (usado tanto pra rolagem livre/perícia
+// quanto para cada metade do par Teste + Dano de ataque).
+function RollResultBlock({ roll }) {
+  const usesHighest =
+    roll?.highestIndex !== undefined && roll?.highestIndex !== null;
+
+  function criticalBadgeLabel() {
+    if (roll.type === "ataque-teste") return "Teste Crítico!";
+    if (roll.type === "ataque-dano-critico") return "Dano Crítico!";
+    return "Crítico!";
+  }
+
+  return (
+    <div className="rounded-lg border border-zinc-700 bg-zinc-800 p-3">
+      <p className="mb-1 text-xs text-zinc-500">
+        {roll.label ? "Rolagem" : "Resultado"}
+      </p>
+
+      <p className="mb-2 flex items-center gap-2 text-xs text-zinc-400">
+        {roll.label || roll.notation}
+
+        {roll.isCritical && (
+          <span className="rounded bg-green-700/80 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+            {criticalBadgeLabel()}
+          </span>
+        )}
+      </p>
+
+      {/* Info da Margem/Bônus/Teste Crítico — só aparece nas rolagens
+          de Teste de ataque */}
+      {roll.critTestThreshold != null && (
+        <div className="mb-2 space-y-0.5 text-[11px] text-zinc-500">
+          <p>Margem de ameaça = {roll.threatMargin}</p>
+          <p>
+            Bônus ={" "}
+            {roll.testBonus >= 0 ? `+${roll.testBonus}` : roll.testBonus}
+          </p>
+          <p>Teste Crítico = {roll.critTestThreshold}</p>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-300">
+        {roll.rolls.map((value, index) => {
+          // Rolagens "pega o maior" (perícia, teste de ataque) destacam
+          // o maior dado e apagam/riscam os outros, já que não entram
+          // na soma.
+          const isHighest = usesHighest && index === roll.highestIndex;
+          const isDiscarded = usesHighest && index !== roll.highestIndex;
+
+          return (
+            <span key={index}>
+              {!usesHighest && index > 0 && "+ "}
+              <span
+                className={`
+                  rounded-md
+                  px-2
+                  py-1
+                  font-bold
+                  ${
+                    isHighest
+                      ? "bg-violet-600 text-white"
+                      : isDiscarded
+                        ? "bg-zinc-800 text-zinc-600 line-through"
+                        : "bg-zinc-700 text-violet-300"
+                  }
+                `}
+              >
+                {value}
+              </span>
+            </span>
+          );
+        })}
+
+        {roll.modifier !== 0 && <span>+ {roll.modifier}</span>}
+
+        <span>=</span>
+
+        {/* Destaque de crítico: sublinhado + verde-claro brilhante */}
+        <span
+          className={`text-2xl font-bold ${
+            roll.isCritical
+              ? "text-green-400 underline decoration-2 decoration-green-400 [text-shadow:0_0_10px_rgba(74,222,128,0.6)]"
+              : "text-violet-400"
+          }`}
+        >
+          {roll.total}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function CombatSidebar({
   entities,
@@ -33,8 +123,9 @@ export default function CombatSidebar({
   const lista = initiativeList || [];
 
   // rollHistory é compartilhado via contexto — rolagem livre, rolagem de
-  // perícia e rolagem de ataque (teste e dano) todas escrevem nele, então
-  // aparecem juntas aqui, na ordem em que aconteceram.
+  // perícia e rolagem de ataque (teste + dano/dano crítico) todas
+  // escrevem nele, então aparecem juntas aqui, na ordem em que
+  // aconteceram.
   const history = rollHistory || [];
 
   const [collapsed, setCollapsed] = useState(false);
@@ -43,7 +134,6 @@ export default function CombatSidebar({
   const [newNome, setNewNome] = useState("");
   const [newIniciativa, setNewIniciativa] = useState("");
 
-  const [diceType, setDiceType] = useState("Personalizado");
   const [notation, setNotation] = useState("2d20+5");
 
   function findMatchingEntity(nome) {
@@ -90,75 +180,67 @@ export default function CombatSidebar({
     setSelectedPageId("2");
   }
 
-  function handleDiceTypeChange(type) {
-    setDiceType(type);
-
-    if (type !== "Personalizado") {
-      setNotation(`1${type}`);
-    }
-  }
-
   function rollDice() {
-  const cleaned = notation.replace(/\s/g, "");
+    const cleaned = notation.replace(/\s/g, "");
 
-  // número inteiro puro (ex: "15") -> retorna o próprio número
-  const integerMatch = cleaned.match(/^(\d+)$/);
+    // número inteiro puro (ex: "15") -> retorna o próprio número
+    const integerMatch = cleaned.match(/^(\d+)$/);
 
-  if (integerMatch) {
-    const value = Number(integerMatch[1]);
+    if (integerMatch) {
+      const value = Number(integerMatch[1]);
+
+      setRollHistory((prev) => [
+        {
+          id: crypto.randomUUID(),
+          notation: cleaned,
+          rolls: [value],
+          modifier: 0,
+          total: value,
+        },
+        ...(prev || []),
+      ]);
+
+      return;
+    }
+
+    const match = cleaned.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
+
+    if (!match) {
+      window.alert(
+        "Notação inválida. Use o formato: 2d20+5 ou um número inteiro (ex: 15)"
+      );
+      return;
+    }
+
+    const count = Number(match[1]);
+    const sides = Number(match[2]);
+    const modifier = match[3] ? Number(match[3]) : 0;
+
+    const rolls = Array.from(
+      { length: count },
+      () => Math.floor(Math.random() * sides) + 1
+    );
+
+    // Pega o maior dado tirado (em vez de somar todos) e soma o bônus,
+    // se houver. Sem bônus, o total é só o maior valor.
+    const highestIndex = rolls.reduce(
+      (bestIndex, value, index) => (value > rolls[bestIndex] ? index : bestIndex),
+      0
+    );
+
+    const total = rolls[highestIndex] + modifier;
 
     setRollHistory((prev) => [
       {
         id: crypto.randomUUID(),
-        notation: cleaned,
-        rolls: [value],
-        modifier: 0,
-        total: value,
+        notation,
+        rolls,
+        modifier,
+        total,
+        highestIndex,
       },
       ...(prev || []),
     ]);
-
-    return;
-  }
-
-  const match = cleaned.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
-
-  if (!match) {
-    window.alert(
-      "Notação inválida. Use o formato: 2d20+5 ou um número inteiro (ex: 15)"
-    );
-    return;
-  }
-
-  const count = Number(match[1]);
-  const sides = Number(match[2]);
-  const modifier = match[3] ? Number(match[3]) : 0;
-
-  const rolls = Array.from(
-    { length: count },
-    () => Math.floor(Math.random() * sides) + 1
-  );
-
-  // Pega o maior dado tirado (em vez de somar todos) e soma o bônus,
-  // se houver. Sem bônus, o total é só o maior valor.
-  const highestIndex = rolls.reduce(
-    (bestIndex, value, index) => (value > rolls[bestIndex] ? index : bestIndex),
-    0
-  );
-
-  const total = rolls[highestIndex] + modifier;
-
-  setRollHistory((prev) => [
-    {
-      id: crypto.randomUUID(),
-      notation,
-      rolls,
-      modifier,
-      total,
-      highestIndex,
-    },
-    ...(prev || []),
-  ]);
   }
 
   function clearHistory() {
@@ -167,13 +249,13 @@ export default function CombatSidebar({
 
   const lastRoll = history[0];
 
-  // Rolagens de perícia e de teste de ataque só somam o MAIOR d20 (os
-  // outros são descartados) — reconhecidas pela presença de highestIndex,
-  // em vez de checar um "type" específico, assim qualquer rolagem futura
-  // que siga essa mesma regra já é exibida corretamente sem precisar
-  // mexer aqui de novo.
-  const usesHighest =
-    lastRoll?.highestIndex !== undefined && lastRoll?.highestIndex !== null;
+  // Uma rolagem de ataque gera 2 entradas seguidas no histórico (Teste,
+  // depois Dano ou Dano Crítico). Quando a mais recente é uma das duas
+  // de dano, a entrada logo atrás dela (history[1]) é o Teste da mesma
+  // rolagem — mostramos as duas juntas em vez de só a última.
+  const isDamageEntry =
+    lastRoll?.type === "ataque-dano" || lastRoll?.type === "ataque-dano-critico";
+  const pairedTestRoll = isDamageEntry ? history[1] : null;
 
   return (
     <aside
@@ -382,7 +464,7 @@ export default function CombatSidebar({
         </div>
       </section>
 
-      {/* ================= SEÇÃO ROLAGEM DE DADOS ================= */}
+      {/* ================= SEÇÃO ROLAGEM DE DADOS / RESULTADOS ================= */}
 
       {!collapsed && (
         <section className="mt-8 flex flex-col gap-3 border-t border-zinc-800 pt-6">
@@ -417,66 +499,16 @@ export default function CombatSidebar({
             Rolar Dados
           </button>
 
-          {lastRoll && (
-            <div className="rounded-lg border border-zinc-700 bg-zinc-800 p-3">
-              <p className="mb-1 text-xs text-zinc-500">
-                {lastRoll.label ? "Rolagem" : "Resultado"}
-              </p>
-
-              <p className="mb-2 flex items-center gap-2 text-xs text-zinc-400">
-                {lastRoll.label || lastRoll.notation}
-
-                {lastRoll.isCritical && (
-                  <span className="rounded bg-red-700/80 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
-                    Crítico!
-                  </span>
-                )}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-300">
-                {lastRoll.rolls.map((roll, index) => {
-                  // Rolagens "pega o maior" (perícia, teste de
-                  // ataque) destacam o maior dado e apagam/riscam
-                  // os outros, já que não entram na soma.
-                  const isHighest =
-                    usesHighest && index === lastRoll.highestIndex;
-                  const isDiscarded =
-                    usesHighest && index !== lastRoll.highestIndex;
-
-                  return (
-                    <span key={index}>
-                      {!usesHighest && index > 0 && "+ "}
-                      <span
-                        className={`
-                          rounded-md
-                          px-2
-                          py-1
-                          font-bold
-                          ${
-                            isHighest
-                              ? "bg-violet-600 text-white"
-                              : isDiscarded
-                                ? "bg-zinc-800 text-zinc-600 line-through"
-                                : "bg-zinc-700 text-violet-300"
-                          }
-                        `}
-                      >
-                        {roll}
-                      </span>
-                    </span>
-                  );
-                })}
-
-                {lastRoll.modifier !== 0 && <span>+ {lastRoll.modifier}</span>}
-
-                <span>=</span>
-
-                <span className="text-2xl font-bold text-violet-400">
-                  {lastRoll.total}
-                </span>
-              </div>
+          {/* Rolagem de ataque: mostra Teste + Dano/Dano Crítico juntos.
+              Qualquer outra rolagem (livre ou perícia): mostra só 1. */}
+          {pairedTestRoll && (
+            <div className="space-y-2">
+              <RollResultBlock roll={pairedTestRoll} />
+              <RollResultBlock roll={lastRoll} />
             </div>
           )}
+
+          {!pairedTestRoll && lastRoll && <RollResultBlock roll={lastRoll} />}
 
           <button
             onClick={clearHistory}
