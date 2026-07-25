@@ -23,6 +23,21 @@ export async function getDBLastSave(userId) {
   }
 }
 
+export async function setDBLastSave(userId) {
+  if (!userId){
+    console.error("userId is undefined or null. Cannot set LastSave in Firestore.");
+    return;
+  };
+
+  console.log("doc firestore/Users atualizado")
+  await setDoc( //ja havia um docs la
+    doc(db, "Users", userId), //primeiro docs
+    {
+      LastSave: serverTimestamp(),
+    }, { merge: true }
+  );
+}
+
 export async function saveInitiativesToDB(userId, initiativeList) {
   //console.log("userId:", userId);
   //console.log("initiativeList:", initiativeList);
@@ -266,6 +281,8 @@ export async function saveAllToDB(userId, initiativeList, combats, monsterList, 
   await saveCombatsToDB(userId, combats, monsterList);
   await saveScriptsToDB(userId, scripts, notesList);
   await saveMusicsToDB(userId, playlist);
+
+  await setDBLastSave(userId);
 }
 
 export async function loadAllFromDB(userId) {

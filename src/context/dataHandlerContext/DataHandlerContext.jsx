@@ -245,11 +245,7 @@ export function DataHandlerProvider({ children }) {
       if (!cacheTime && firestoreTime) {
         console.log("Firestore encontrado, cache vazio");
 
-        const firestoreData = await loadAllFromDB(
-          userId,
-          initiativeList,
-          playlist,
-        );
+        const firestoreData = await loadAllFromDB(userId);
 
         setInitiativeList(firestoreData.initiatives);
         setCombats(firestoreData.combat);
@@ -261,7 +257,7 @@ export function DataHandlerProvider({ children }) {
         setNotesList(firestoreData.notes);
         setPlaylist(firestoreData.music);
 
-        //place firestoreData.combats instead of null
+        //place firestoreData.combat instead of null
         await saveToCache(
           firestoreData.initiatives,
           firestoreData.combat,
@@ -270,7 +266,6 @@ export function DataHandlerProvider({ children }) {
           firestoreData.notes,
           firestoreData.music,
         );
-
         return;
       }
 
@@ -290,7 +285,14 @@ export function DataHandlerProvider({ children }) {
         setNotesList(firestoreData.notes);
         setPlaylist(firestoreData.music);
 
-        await saveToCache(firestoreData); //remake this shit, will break
+        await saveToCache(
+          firestoreData.initiatives,
+          firestoreData.combat,
+          firestoreData.monster,
+          firestoreData.scripts,
+          firestoreData.notes,
+          firestoreData.music,
+        ); //remake this shit, will break
 
         return;
       }
