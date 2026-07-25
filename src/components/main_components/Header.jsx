@@ -1,13 +1,25 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../context/authContext/auth.jsx";
 import { doSignOut } from "../../firebase/auth";
+import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
 import HeaderBtn from "../subcomponents/HeaderBtn"
+
+import logoOther from "../../assets/othersidelogo.webp";
 
 export default function Header() {
     const navigate = useNavigate();
     const { userLoggedIn } = useAuth();
-    const [isMinimized, setIsMinimized] = useState(false);
+    const { selectedPageId, setSelectedPageId } = useDataHandler();
+    const [isMinimized, setIsMinimized] = useState(selectedPageId === 0 ? true : false);
+
+    useEffect(() => {
+        if (selectedPageId === 0) {
+            setIsMinimized(true);
+        } else{
+            setIsMinimized(false);
+        }
+    }, [selectedPageId]);
 
     return (
         <div className="sticky top-0 z-50 w-full bg-[#050505] overflow-x-hidden">
@@ -32,7 +44,7 @@ export default function Header() {
                     <div className="flex items-center justify-between lg:justify-start">
                         <div className="flex items-center gap-2 md:gap-4 transition-transform duration-300">
                             <img
-                                src="https://static.wikia.nocookie.net/ordemparanormal/images/e/ec/S%C3%ADmbolo_de_Tenebris.png/revision/latest/scale-to-width-down/1200?cb=20230111234920&path-prefix=pt-br"
+                                src={logoOther}
                                 alt="Logo"
                                 className="size-7 md:size-12 drop-shadow-[0_0_10px_rgba(220,38,38,0.9)]"
                             />
@@ -45,7 +57,7 @@ export default function Header() {
                         <div className="lg:hidden">
                             {userLoggedIn ? (
                                 <button
-                                    onClick={() => {doSignOut(); navigate("/login");}}
+                                    onClick={() => {setSelectedPageId(0); doSignOut();}}
                                     className="text-[10px] px-3 py-1 rounded-full border border-red-600 text-red-500 active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.6)]"
                                 >
                                     Sair
@@ -114,7 +126,7 @@ export default function Header() {
                     <div className="hidden lg:flex justify-end items-center gap-2">
                         {userLoggedIn ? (
                             <button
-                                onClick={() => doSignOut()}
+                                onClick={() => {setSelectedPageId(0); doSignOut();}}
                                 className="
                                 mt-1
                                 px-4 py-2

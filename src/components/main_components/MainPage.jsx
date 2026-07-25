@@ -18,6 +18,9 @@ export default function MainPage(){
   if (userLoggedIn && selectedPageId === 0) {
     setSelectedPageId(1);
   }
+  else if (!userLoggedIn && selectedPageId !== 0) {
+    setSelectedPageId(0);
+  }
 }, [])
   
   return (
