@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router";
 
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from "../../firebase/auth.js";
 import { useAuth } from "../../context/authContext/auth.jsx";

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router";
 import { DataHandlerProvider } from './context/dataHandlerContext/DataHandlerContext.jsx';
 import { AudioPlayerProvider } from './context/audioPlayerContext/AudioPlayerContext.jsx';
 

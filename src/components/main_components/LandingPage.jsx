@@ -1,5 +1,5 @@
 
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router"
 import logoOther from "../../assets/othersidelogo.webp";
 
 export default function LandingPage() {

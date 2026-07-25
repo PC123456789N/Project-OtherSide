@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import CombatItem from "./CombatItem";
 import CreateCombatModal from "./CreateCombatModal";
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
