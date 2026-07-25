@@ -99,11 +99,21 @@ export default function CombatSelector() {
   return (
     <main
       className="
+            relative
             min-h-screen
+            overflow-hidden
             bg-zinc-950
             px-6
             py-8"
     >
+      {/* Fundo: mesmo gradiente esfumaçado vermelho-sangue das outras páginas */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute -top-32 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-red-950/40 blur-[160px]" />
+        <div className="absolute bottom-0 right-0 h-[420px] w-[520px] rounded-full bg-violet-950/25 blur-[140px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_75%)]" />
+      </div>
+
+      <div className="relative z-10">
 
       {/* Cabeçalho */}
       <div
@@ -251,7 +261,8 @@ export default function CombatSelector() {
         onSave={saveCombat}
         combat={selectedCombat}
       />
-      
+
+      </div>
     </main>
   );
 }
