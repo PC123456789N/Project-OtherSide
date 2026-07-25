@@ -118,7 +118,11 @@ export default function CreateCombatModal({
                 skills: [],
                 attacks: [],
                 abilities: [],
-                resistances: [],
+                // As 15 resistências do sistema agora são um objeto
+                // { tipo: valor }, não mais uma lista livre de itens
+                // adicionados/removidos um a um. Nasce vazio — cada tipo
+                // sem chave aqui é tratado como valor 0 na ficha.
+                resistances: {},
                 vulnerabilities: [],
                 immunities: [],
 

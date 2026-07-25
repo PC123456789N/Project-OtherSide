@@ -33,18 +33,18 @@ export default function CombatPage() {
   }, [combatId, combats, monstersList, selectedEntity]);
 
   function updateEntity(updater) {
-  setSelectedEntity((prev) => {
-    if (!prev) return prev;
+    setSelectedEntity((prev) => {
+      if (!prev) return prev;
 
-    const updated = updater(prev);
+      const updated = updater(prev);
 
-    setMonstersList((list) =>
-      list.map((monster) => (monster.id === updated.id ? updated : monster))
-    );
+      setMonstersList((list) =>
+        list.map((monster) => (monster.id === updated.id ? updated : monster))
+      );
 
-    return updated;
-  });
- }
+      return updated;
+    });
+  }
 
   // ================= HEADER/HP/DEFESA/DESLOCAMENTO/ATRIBUTOS =================
 
@@ -232,7 +232,7 @@ export default function CombatPage() {
         {
           id: crypto.randomUUID(),
           name: "Novo Ataque",
-          type: "Dano",          // era "Corpo a Corpo" — não existe mais na lista nova
+          type: "Dano",
           range: "",
           testNotation: "1d20+5",
           damage: "1d6",
@@ -336,34 +336,19 @@ export default function CombatPage() {
   }
 
   // ================= RESISTÊNCIAS =================
+  // Tipos fixos (as 15 resistências do sistema) — não existe mais
+  // adicionar/remover, só alterar o valor de um tipo específico.
+  // monster.resistances é um objeto { [tipo]: valor }.
 
-  function handleResistanceAdd() {
+  function handleResistanceChange(type, value) {
     updateEntity((prev) => ({
       ...prev,
-      resistances: [
-        ...prev.resistances,
-        { id: crypto.randomUUID(), name: "Nova Resistência", description: "" },
-      ],
-    }));
-  }
-
-  function handleResistanceRemove(resistanceId) {
-    updateEntity((prev) => ({
-      ...prev,
-      resistances: prev.resistances.filter(
-        (resistance) => resistance.id !== resistanceId
-      ),
-    }));
-  }
-
-  function handleResistanceChange(resistanceId, field, value) {
-    updateEntity((prev) => ({
-      ...prev,
-      resistances: prev.resistances.map((resistance) =>
-        resistance.id === resistanceId
-          ? { ...resistance, [field]: value }
-          : resistance
-      ),
+      resistances: {
+        ...(prev.resistances && !Array.isArray(prev.resistances)
+          ? prev.resistances
+          : {}),
+        [type]: value,
+      },
     }));
   }
 
@@ -477,8 +462,6 @@ export default function CombatPage() {
           onAbilityAdd={handleAbilityAdd}
           onAbilityRemove={handleAbilityRemove}
           onAbilityChange={handleAbilityChange}
-          onResistanceAdd={handleResistanceAdd}
-          onResistanceRemove={handleResistanceRemove}
           onResistanceChange={handleResistanceChange}
           onVulnerabilityAdd={handleVulnerabilityAdd}
           onVulnerabilityRemove={handleVulnerabilityRemove}

@@ -21,6 +21,27 @@ const ATTACK_TYPES = [
   "Dano",
 ];
 
+// As 15 resistências fixas do sistema. O objeto monster.resistances usa
+// essas strings como chave -> valor numérico. Nenhum tipo é
+// adicionado/removido pelo usuário, só o valor de cada um muda.
+const RESISTANCE_TYPES = [
+  "Dano",
+  "Balístico",
+  "Corte",
+  "Eletricidade",
+  "Fogo",
+  "Frio",
+  "Impacto",
+  "Mental",
+  "Conhecimento",
+  "Energia",
+  "Medo",
+  "Morte",
+  "Sangue",
+  "Perfuração",
+  "Químico",
+];
+
 const inputClass = `
   w-full
   rounded-md
@@ -94,15 +115,22 @@ function NumericField({ value, onChange, className, placeholder = "0" }) {
     }
   }
 
+  function handleFocus() {
+    isFocused.current = true;
+    // Se o campo estiver mostrando "0", limpa ao focar — assim o usuário
+    // digita o valor direto, sem precisar apagar o zero antes.
+    if (text === "0") {
+      setText("");
+    }
+  }
+
   return (
     <input
       type="text"
       inputMode="numeric"
       value={text}
       onChange={handleChange}
-      onFocus={() => {
-        isFocused.current = true;
-      }}
+      onFocus={handleFocus}
       onBlur={handleBlur}
       placeholder={placeholder}
       className={className}
@@ -595,49 +623,145 @@ function AbilityCard({ ability, onChange, onRemove }) {
   );
 }
 
-// ---------- Resistências (simples: nome + descrição) ----------
+// ---------- Resistências (2 modos: edição com os 15 tipos fixos em grid,
+// visualização em lista só com os valores >= 1) ----------
 
-function ResistanceCard({ resistance, onChange, onRemove }) {
+function ResistancesPanel({ resistances, onChange }) {
+  const [editing, setEditing] = useState(false);
+
+  // Defesa contra o formato antigo (array de {id,name,description}) em
+  // monstros criados antes dessa mudança — trata como vazio.
+  const values = resistances && !Array.isArray(resistances) ? resistances : {};
+
+  const activeEntries = RESISTANCE_TYPES.map((type) => ({
+    type,
+    value: Number(values[type]) || 0,
+  })).filter((entry) => entry.value >= 1);
+
   return (
-    <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-800/60 p-3">
-      <div className="flex items-center gap-2">
-        <input
-          value={resistance.name}
-          onChange={(e) => onChange(resistance.id, "name", e.target.value)}
-          placeholder="Nome da resistência"
-          className={`${inputClass} flex-1 font-medium`}
-        />
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm uppercase text-zinc-500">Resistências</h3>
 
-        <button
-          onClick={() => onRemove(resistance.id)}
-          title="Remover Resistência"
-          className="
-            flex
-            h-9
-            w-9
-            shrink-0
-            items-center
-            justify-center
-            rounded-md
-            text-zinc-500
-            transition
-            hover:bg-red-900/30
-            hover:text-red-400
-          "
-        >
-          <FaTimes size={12} />
-        </button>
+        <div className="flex items-center gap-3">
+          {activeEntries.length > 0 && (
+            <button
+              onClick={() =>
+                RESISTANCE_TYPES.forEach((type) => onChange(type, 0))
+              }
+              title="Zerar todas as resistências"
+              className="
+                flex
+                h-7
+                w-7
+                items-center
+                justify-center
+                rounded-md
+                text-zinc-500
+                transition
+                hover:bg-red-900/30
+                hover:text-red-400
+              "
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+
+          <button
+            onClick={() => setEditing((prev) => !prev)}
+            className="
+              flex
+              items-center
+              gap-1.5
+              text-xs
+              font-semibold
+              text-violet-400
+              transition
+              hover:text-violet-300
+            "
+          >
+            {editing ? (
+              "Concluir"
+            ) : (
+              <>
+                <FaPlus size={11} />
+                Adicionar Resistências
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      <textarea
-        value={resistance.description}
-        onChange={(e) =>
-          onChange(resistance.id, "description", e.target.value)
-        }
-        placeholder="Descreva a resistência..."
-        rows={3}
-        className={`${inputClass} resize-y leading-relaxed`}
-      />
+      {editing && (
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+          {RESISTANCE_TYPES.map((type) => (
+            <div
+              key={type}
+              className="relative rounded-lg border border-zinc-800 bg-zinc-800/60 p-2 text-center"
+            >
+              <button
+                onClick={() => onChange(type, 0)}
+                title="Zerar"
+                className="
+                  absolute
+                  right-1
+                  top-1
+                  flex
+                  h-4
+                  w-4
+                  items-center
+                  justify-center
+                  rounded
+                  text-zinc-500
+                  transition
+                  hover:bg-red-900/30
+                  hover:text-red-400
+                "
+              >
+                <FaTimes size={9} />
+              </button>
+
+              <p className="mb-1.5 truncate text-[11px] uppercase tracking-wide text-zinc-400">
+                {type}
+              </p>
+              <NumericField
+                value={values[type] ?? 0}
+                onChange={(value) => onChange(type, value)}
+                className={`${fieldInputClass} text-center`}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!editing &&
+        (activeEntries.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-zinc-800 p-4 text-center text-xs text-zinc-600">
+            Nenhuma resistência cadastrada.
+          </p>
+        ) : (
+          <div
+            className="
+              grid
+              grid-flow-col
+              grid-rows-5
+              gap-x-6
+              gap-y-1
+              rounded-lg
+              border
+              border-zinc-800
+              bg-zinc-800/60
+              p-3
+            "
+          >
+            {activeEntries.map(({ type, value }) => (
+              <span key={type} className="whitespace-nowrap text-sm">
+                <span className="text-zinc-400">{type}:</span>{" "}
+                <span className="font-semibold text-violet-300">{value}</span>
+              </span>
+            ))}
+          </div>
+        ))}
     </div>
   );
 }
@@ -727,8 +851,6 @@ export default function CombatSection({
   onAbilityRemove,
   onAbilityChange,
 
-  onResistanceAdd,
-  onResistanceRemove,
   onResistanceChange,
 
   onVulnerabilityAdd,
@@ -798,45 +920,10 @@ export default function CombatSection({
       {/* ===== RESISTÊNCIAS / VULNERABILIDADES / IMUNIDADES ===== */}
 
       <div className="space-y-5">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm uppercase text-zinc-500">Resistências</h3>
-
-            <button
-              onClick={onResistanceAdd}
-              className="
-                flex
-                items-center
-                gap-1.5
-                text-xs
-                font-semibold
-                text-violet-400
-                transition
-                hover:text-violet-300
-              "
-            >
-              <FaPlus size={11} />
-              Adicionar Resistência
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {monster.resistances.map((resistance) => (
-              <ResistanceCard
-                key={resistance.id}
-                resistance={resistance}
-                onChange={onResistanceChange}
-                onRemove={onResistanceRemove}
-              />
-            ))}
-
-            {monster.resistances.length === 0 && (
-              <p className="rounded-lg border border-dashed border-zinc-800 p-4 text-center text-xs text-zinc-600 sm:col-span-2">
-                Nenhuma resistência cadastrada.
-              </p>
-            )}
-          </div>
-        </div>
+        <ResistancesPanel
+          resistances={monster.resistances}
+          onChange={onResistanceChange}
+        />
 
         <TagList
           title="Vulnerabilidades"

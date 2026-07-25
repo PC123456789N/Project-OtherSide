@@ -25,8 +25,6 @@ export default function MonsterPanel({
   onAbilityRemove,
   onAbilityChange,
 
-  onResistanceAdd,
-  onResistanceRemove,
   onResistanceChange,
 
   onVulnerabilityAdd,
@@ -52,8 +50,6 @@ export default function MonsterPanel({
             onAbilityAdd={onAbilityAdd}
             onAbilityRemove={onAbilityRemove}
             onAbilityChange={onAbilityChange}
-            onResistanceAdd={onResistanceAdd}
-            onResistanceRemove={onResistanceRemove}
             onResistanceChange={onResistanceChange}
             onVulnerabilityAdd={onVulnerabilityAdd}
             onVulnerabilityRemove={onVulnerabilityRemove}
