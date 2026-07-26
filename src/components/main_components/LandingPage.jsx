@@ -39,7 +39,7 @@ export default function LandingPage() {
           className="relative text-xs tracking-[0.4em] uppercase text-[#dc2626] mb-4"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
-          O melhor companion para mestres de Ordem Paranormal
+          Bem Vindo a Tenebris
         </span>
 
         {/* <h1
@@ -49,7 +49,7 @@ export default function LandingPage() {
           PROJETO <span className="text-[#dc2626]">OTHERSIDE</span>
         </h1> */}
         <h1
-          className="relative text-5xl md:text-6xl font-bold mb-4 tracking-wide"
+          className="relative text-3xl md:text-6xl font-bold mb-4 tracking-wide"
           style={{ fontFamily: "'Cinzel', serif" }}
         >
           <span className="me-5">PROJECT</span>
@@ -59,9 +59,8 @@ export default function LandingPage() {
           </span>
         </h1>
 
-        <p className="relative w-170 text-[#8b8594] mb-10 leading-relaxed">
-          Sua mesa, sua campanha, seu grimório digital. Combates, iniciativas,
-          roteiro e trilhas sonoras. Tudo em um só lugar, para você e seus jogadores.
+        <p className="relative w-100 md:w-180 text-[#8b8594] mb-10 leading-relaxed">
+          Sua mesa, sua campanha, seu grimório digital. Tudo em um só lugar, para você e seus jogadores.
         </p>
 
         <div className="flex gap-10 relative">
@@ -93,12 +92,21 @@ export default function LandingPage() {
           <div className="h-px flex-1 bg-linear-to-l from-transparent to-[#dc2626]/40" />
         </div>
 
+        <div className="flex justify-center items-center">
+          <p className="text-center w-100 md:w-170 text-[#8b8594] mb-10 leading-relaxed">
+            Project Otherside é uma plataforma de gerenciamento de campanhas de RPG, oferecendo ferramentas 
+            para organizar iniciativas, registrar combates, criar roteiros e adicionar trilhas sonoras para suas campanhas.
+            Esse projeto foi inspirado no site C.R.I.S e foi desenvolvido por 2 amigos que gostavam de ordem e RPG, 
+            ENTÃO! decidimos criar a nossa própria versão de um cris para mestres poderem mestrar sessões de qualquer local, até mesmo de seus celulares.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
           {[
-            { label: "Iniciativas", desc: "Organização de iniciativas automaticas." },
-            { label: "Combate", desc: "Registro de todas as batalhas" },
-            { label: "Roteiro", desc: "Saber tudo, é perder tudo." },
-            { label: "Música", desc: "Trilha sonora de cada cena" },
+            { label: "Iniciativas", desc: "Organização de iniciativas Automaticas." },
+            { label: "Combates", desc: "Fichas de monstro customizadas." },
+            { label: "Roteiro", desc: "Roteiro semelhante ao Docs, basta copiar e colar." },
+            { label: "Músicas", desc: "Uma trilha sonora para cada cena." },
           ].map((item) => (
             <div
               key={item.label}

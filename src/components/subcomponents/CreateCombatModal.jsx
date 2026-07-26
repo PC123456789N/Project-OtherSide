@@ -103,19 +103,25 @@ export default function CreateCombatModal({
 
                 hp: { current: 10, max: 10 },
                 combat: {
-                    defense: 10,
-                    movement: 6,
-                    sanityDamage: { value: 0, damage: "1d6" },
+                    defense: 15,
+                    movement: 9,
+                    sanityDamage: { value: 15, damage: "1d6" },
                 },
                 attributes: {
-                    agility: 0,
-                    strength: 0,
-                    intellect: 0,
-                    presence: 0,
-                    vigor: 0,
+                    agility: 1,
+                    strength: 1,
+                    intellect: 1,
+                    presence: 1,
+                    vigor: 1,
                 },
 
-                skills: [],
+                skills: [
+                    {id: '1', name: 'Percepção', attribute: 'presence', bonus: 5, lastResult: null},
+                    {id: '2', name: 'Iniciativa', attribute: 'agility', bonus: 5, lastResult: null},
+                    {id: '3', name: 'Fortitude', attribute: 'vigor', bonus: 5, lastResult: null},
+                    {id: '4', name: 'Reflexos', attribute: 'agility', bonus: 5, lastResult: null},
+                    {id: '5', name: 'Vontade', attribute: 'presence', bonus: 5, lastResult: null},
+                ],
                 attacks: [],
                 abilities: [],
                 // As 15 resistências do sistema agora são um objeto
