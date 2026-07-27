@@ -1,5 +1,7 @@
 import { useAuth } from "../authContext/auth";
 
+import { getDeviceId } from "../../services/DeviceIdHandler";
+
 import {
   verifyUser,
   getCachedLastSave,
@@ -12,20 +14,23 @@ import {
   loadInitiativesFromDB,
   saveMusicsToDB,
   loadMusicsFromDB,
+  subscribeToMusicsDB,
   saveAllToDB,
   loadAllFromDB,
 } from "../../services/DataDBHandler";
 
-import React, { useContext, createContext, useState, useEffect } from "react";
+import React, { useContext, createContext, useState, useEffect, useRef } from "react";
 
 const DataHandler = React.createContext();
 
 export function DataHandlerProvider({ children }) {
   //Start Standart Data Block Below
+  
+  //pull userID from AuthContext
   const { userId } = useAuth();
   const { userLoggedIn } = useAuth();
+  const deviceId = getDeviceId();
 
-  //pull userID from AuthContext
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   //alters when something changes, triggers autosave
 
@@ -42,121 +47,35 @@ export function DataHandlerProvider({ children }) {
   const [combatId, setCombatId] = useState(null);
 
   const [monstersList, setMonstersList] = useState([]);
-    // {
-    //   id: "blood_zombie",
-    //   name: "Blood Zombie",
-    //   image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZPj2MX7yEFpT3bqJR0ImNDrt9z61_lSBRvst4pdi7PA&s=10",
-    //   element: "Blood",
-    //   type: "Boss",
-    //   size: "Medium",
-
-    //   hp: {
-    //     current: 60,
-    //     max: 60,
-    //   },
-    //   combat: {
-    //     defense: 15,
-    //     movement: 9,
-    //     sanityDamage: {
-    //       value: 15,
-    //       damage: "2d10",
-    //     },
-    //   },
-    //   attributes: {
-    //     agility: 1,
-    //     strength: 3,
-    //     intellect: 0,
-    //     presence: 0,
-    //     vigor: 3,
-    //   },
-
-    //   skills: [
-    //     {
-    //       id: "skill-fortitude",
-    //       name: "Fortitude",
-    //       value: 3,
-    //       bonus: 5,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-luta",
-    //       name: "Luta",
-    //       value: 3,
-    //       bonus: 6,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-iniciativa",
-    //       name: "Iniciativa",
-    //       value: 2,
-    //       bonus: 3,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-pontaria",
-    //       name: "Pontaria",
-    //       value: 1,
-    //       bonus: 0,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-vontade",
-    //       name: "Vontade",
-    //       value: 2,
-    //       bonus: 2,
-    //       lastResult: null,
-    //     },
-    //   ],
-
-    //   attacks: [
-    //     {
-    //       id: "attack-claws",
-    //       name: "Claws",
-    //       type: "Corpo a Corpo",
-    //       range: "3m",
-    //       testBonus: 8,
-    //       damage: "2d8+5",
-    //       threatMargin: 20,
-    //       critMultiplier: 2,
-    //       lastTestResult: null,
-    //       lastCritical: false,
-    //       lastDamageResult: null,
-    //       lastCritDamageResult: null,
-    //     },
-    //   ],
-    //   abilities: [
-    //     {
-    //       id: "ability-fury",
-    //       name: "Uncontrolled Fury",
-    //       attributeName: "Fúria Descontrolada",
-    //       attributeDescription: "When below 50% HP, gains +2 on attack rolls.",
-    //     },
-    //   ],
-    //   resistances: [
-    //     {
-    //       id: "resistance-blood",
-    //       name: "Sangue",
-    //       description: "Reduz em 10 o dano recebido do elemento Sangue.",
-    //     },
-    //   ],
-    //   vulnerabilities: [{ id: "vuln-death", value: "Death" }],
-
-    //   immunities: [
-    //     { id: "immunity-fear", value: "Fear" },
-    //     { id: "immunity-bleeding", value: "Bleeding" },
-    //     { id: "immunity-blindness", value: "Blindness" },
-    //   ],
-
-    //   fearEnigma: "",
-
-    //   description: "A creature twisted by the Blood element, driven only by violence.",
-    // },
 
   const [scripts, setScripts] = useState({ title: "", body: "" });
   const [notesList, setNotesList] = useState([]);
 
   const [playlist, setPlaylist] = useState([]);
   const [videoId, setVideoId] = useState(null);
+
+
+  // dirty flags for each data type, to avoid unnecessary saves when only one type changes
+  const [unsavedChangesInitiatives, setUnsavedChangesInitiatives] = useState(false);
+  const [unsavedChangesCombats, setUnsavedChangesCombats] = useState(false);
+  const [unsavedChangesMonsters, setUnsavedChangesMonsters] = useState(false);
+  const [unsavedChangesScripts, setUnsavedChangesScripts] = useState(false);
+  const [unsavedChangesNotes, setUnsavedChangesNotes] = useState(false);
+  const [unsavedChangesPlaylist, setUnsavedChangesPlaylist] = useState(false);
+
+  const unsavedChangesInitiativesRef = useRef(false);
+  const unsavedChangesCombatsRef = useRef(false);
+  const unsavedChangesMonstersRef = useRef(false);
+  const unsavedChangesScriptsRef = useRef(false);
+  const unsavedChangesNotesRef = useRef(false);
+  const unsavedChangesPlaylistRef = useRef(false);
+
+  const isApplyingRemoteInitiativesRef = useRef(false);
+  const isApplyingRemoteCombatsRef = useRef(false);
+  const isApplyingRemoteMonstersRef = useRef(false);
+  const isApplyingRemoteScriptsRef = useRef(false);
+  const isApplyingRemoteNotesRef = useRef(false);
+  const isApplyingRemotePlaylistRef = useRef(false);
 
   // Histórico de rolagem de dados (compartilhado entre a CombatSidebar e as
   // abas da ficha, ex: rolagem de perícia). É estado de sessão, não é
@@ -166,12 +85,14 @@ export function DataHandlerProvider({ children }) {
 
   //End Standart Data Block
 
+  //reloads pageid from localstorage
   useEffect(() => {
     //Saves the SelectedPageID
     localStorage.setItem("selectedPageId", selectedPageId);
     //console.log("selectedId mudou para:", selectedPageId);
   }, [selectedPageId]);
 
+  //makes sure user is same as before, if not, clears cache and db
   useEffect(() => {
     if (!userId) return;
 
@@ -188,13 +109,13 @@ export function DataHandlerProvider({ children }) {
     };
   }, [userId]);
 
+  // atual save system, will be deleted when multi doc sync is fully implemented
   useEffect(() => {
-    //if (!unsavedChanges) return;
 
     const timeout = setTimeout(() => {
       saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
 
-      saveAllToDB(userId, initiativeList, combats, monstersList, scripts, notesList, playlist);
+      saveAllToDB(userId, deviceId, initiativeList, combats, monstersList, scripts, notesList, playlist);
 
       setUnsavedChanges(false);
     }, 1000);
@@ -207,10 +128,10 @@ export function DataHandlerProvider({ children }) {
     monstersList,
     scripts,
     notesList,
-    playlist,
-    videoId,
+    //playlist,
   ]);
 
+  //syncs data when starting aplication, checks if cache or firestore is more recent and loads it
   async function syncData(userId) {
     try {
       const cacheTime = await getCachedLastSave();
@@ -230,12 +151,13 @@ export function DataHandlerProvider({ children }) {
 
         await saveAllToDB(
           userId,
-          cachedData.initiatives,
-          cachedData.combats,
-          cachedData.monsters,
-          cachedData.script,
-          cachedData.notes,
-          cachedData.music,
+          deviceId,
+          cachedData.initiatives ?? [],
+          cachedData.combats ?? [],
+          cachedData.monsters ?? [],
+          cachedData.script ?? {Title: "", Body: ""},
+          cachedData.notes ?? [],
+          cachedData.music ?? [],
         );
 
         return;
@@ -318,6 +240,7 @@ export function DataHandlerProvider({ children }) {
 
         await saveAllToDB(
           userId,
+          deviceId,
           cachedData.initiatives,
           cachedData.combats,
           cachedData.monsters,
@@ -346,6 +269,62 @@ export function DataHandlerProvider({ children }) {
       console.error("Erro na sincronização:", error);
     }
   }
+
+  //tells that there are changes in the playlist, and triggers autosave
+  useEffect(() => {
+    if (isApplyingRemotePlaylistRef.current) {
+      // essa mudança em `playlist` foi o próprio listener aplicando dado remoto —
+      // não é uma edição do usuário, então não marca como "não salvo"
+      isApplyingRemotePlaylistRef.current = false;
+      return;
+    }
+    console.log("playlist changed, unsavedChangesPlaylist set to true");
+    setUnsavedChangesPlaylist(true);
+    unsavedChangesPlaylistRef.current = true;
+  }, [playlist]);
+  
+  //saves data in musics docs, from db to db and resets dirtyflag to false;.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveMusicsToDB(userId, deviceId, playlist);
+      //await savePlaylistToCache(playlist) put in comment, due to last save not being setted
+      await saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
+
+      setUnsavedChangesPlaylist(false);
+      unsavedChangesPlaylistRef.current = false;
+      console.log("saved playlist to db and cache, unsavedChangesPlaylist set to false");
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [playlist]);
+
+  // loads synced data in musics docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToMusicsDB(userId, (syncData) => {
+      const remotePlaylist = syncData.Playlist || [];
+      // if (syncData.DeviceId === deviceId) {
+      //   console.log("syncData.DeviceId === deviceId, not applying remote playlist");
+      //   return;
+      // } 
+      if (unsavedChangesPlaylistRef.current) {
+        console.log("unsavedChangesPlaylistRef.current is true, not applying remote playlist");
+        return;
+      }
+      setPlaylist(current => {
+        if (JSON.stringify(current) === JSON.stringify(remotePlaylist)) {
+          return current;
+        }
+
+        isApplyingRemotePlaylistRef.current = true;
+        return remotePlaylist;
+      });
+      console.log("syncing musics from db to db");
+    });
+
+    return () => unsubscribe();
+  },[userId]);
 
   return (
     <DataHandler.Provider

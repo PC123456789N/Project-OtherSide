@@ -211,7 +211,7 @@ export async function loadScriptsFromDB(userId){
 }
 
 
-export async function saveMusicsToDB(userId, playlist) {
+export async function saveMusicsToDB(userId, deviceId, playlist) {
   //console.trace("saveMusicsToDB chamado com:", playlist);
   //console.log("userId:", userId);
   //console.log("initiativeList:", initiativeList);
@@ -230,8 +230,9 @@ export async function saveMusicsToDB(userId, playlist) {
       await setDoc(
         doc(collection(db, "Musics")), 
         {
-          lastSave: serverTimestamp(),
+          //lastSave: serverTimestamp(),
           UserId: userId,
+          DeviceId: deviceId,
           Playlist: playlist,
         }
       );
@@ -243,8 +244,9 @@ export async function saveMusicsToDB(userId, playlist) {
     await setDoc( //ja havia um docs la
       doc(db, "Musics", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
+        //lastSave: serverTimestamp(),
         UserId: userId,
+        DeviceId: deviceId,
         Playlist: playlist,
       }
     );
@@ -275,12 +277,33 @@ export async function loadMusicsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveAllToDB(userId, initiativeList, combats, monsterList, scripts, notesList, playlist) {
+export function subscribeToMusicsDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Musics"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/musics nn existe")
+      return;
+    };
+    
+    const musicDoc = snapshot.docs[0];
+    console.log("snapshot data musics pulled:", musicDoc.data());
+    onChange(musicDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
+export async function saveAllToDB(userId, deviceId , initiativeList, combats, monsterList, scripts, notesList, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);
   await saveCombatsToDB(userId, combats, monsterList);
   await saveScriptsToDB(userId, scripts, notesList);
-  await saveMusicsToDB(userId, playlist);
+  await saveMusicsToDB(userId, deviceId, playlist);
 
   await setDBLastSave(userId);
 }

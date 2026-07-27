@@ -117,3 +117,63 @@ export async function saveToCache(
   );
 }
 
+export async function saveInitiativesToCache(initiativeList) {
+  const cache = await dbPromise;
+
+  await cache.put(
+    "initiatives",
+    initiativeList,
+    "cachedInitiativeList"
+  );
+}
+
+export async function saveCombatsToCache(combats) {
+  const cache = await dbPromise;
+
+  await cache.put(
+    "combats",
+    combats,
+    "cachedUserCombats"
+  );
+}
+
+export async function saveMonstersToCache(monstersList) {
+  const cache = await dbPromise;
+
+  await cache.put(
+    "monsters",
+    monstersList,
+    "cachedMonstersList"
+  );
+}
+
+export async function saveScriptsToCache(scripts) {
+  const cache = await dbPromise;
+
+  await cache.put(
+    "scripts",
+    scripts,
+    "cachedScript"
+  );
+}
+
+export async function saveNotesToCache(notesList) {
+  const cache = await dbPromise;
+
+  await cache.put(
+    "scripts",
+    notesList,
+    "cachedNotesList"
+  );
+}
+
+export async function savePlaylistToCache(playlist) {
+  const cache = await dbPromise;
+
+  await cache.put(
+    "musics",
+    playlist,
+    "cachedPlaylist"
+  );
+}
+
