@@ -38,6 +38,9 @@ export async function setDBLastSave(userId) {
   );
 }
 
+//--------------------------------------------------------------------------------------
+//INITIATIVES BLOCK
+
 export async function saveInitiativesToDB(userId, initiativeList) {
   //console.log("userId:", userId);
   //console.log("initiativeList:", initiativeList);
@@ -54,7 +57,6 @@ export async function saveInitiativesToDB(userId, initiativeList) {
       await setDoc(
         doc(collection(db, "Initiatives")), 
         {
-          lastSave: serverTimestamp(),
           UserId: userId,
           PlayerArray: initiativeList,
         }
@@ -66,7 +68,6 @@ export async function saveInitiativesToDB(userId, initiativeList) {
     await setDoc( //ja havia um docs la
       doc(db, "Initiatives", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
         UserId: userId,
         PlayerArray: initiativeList,
       }
@@ -96,6 +97,29 @@ export async function loadInitiativesFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
+export function subscribeToInitiativesDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Initiatives"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/Initiatives nn existe")
+      return;
+    };
+    
+    const InitiativesDoc = snapshot.docs[0];
+    console.log("snapshot data Initiatives pulled:", InitiativesDoc.data());
+    onChange(InitiativesDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
+//--------------------------------------------------------------------------------------
+//COMBATS BLOCK
 export async function saveCombatsToDB(userId, combats, monsterList) {
   try{
     const q = query(
@@ -153,6 +177,8 @@ export async function loadCombatsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
+//--------------------------------------------------------------------------------------
+//SCRIPTS AND NOTES BLOCK
 export async function saveScriptsToDB(userId, scripts, notesList){
   try{
     const q = query(
@@ -210,7 +236,8 @@ export async function loadScriptsFromDB(userId){
   return snapshot.docs[0].data();
 }
 
-
+//--------------------------------------------------------------------------------------
+//MUSICS BLOCK
 export async function saveMusicsToDB(userId, deviceId, playlist) {
   //console.trace("saveMusicsToDB chamado com:", playlist);
   //console.log("userId:", userId);
@@ -232,7 +259,6 @@ export async function saveMusicsToDB(userId, deviceId, playlist) {
         {
           //lastSave: serverTimestamp(),
           UserId: userId,
-          DeviceId: deviceId,
           Playlist: playlist,
         }
       );
@@ -246,7 +272,6 @@ export async function saveMusicsToDB(userId, deviceId, playlist) {
       {
         //lastSave: serverTimestamp(),
         UserId: userId,
-        DeviceId: deviceId,
         Playlist: playlist,
       }
     );
@@ -298,6 +323,8 @@ export function subscribeToMusicsDB(userId, onChange) {
   return unsubscribe;
 }
 
+//--------------------------------------------------------------------------------------
+//GENERAL BLOCK
 export async function saveAllToDB(userId, deviceId , initiativeList, combats, monsterList, scripts, notesList, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);

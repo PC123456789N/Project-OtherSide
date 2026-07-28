@@ -7,11 +7,14 @@ import {
   getCachedLastSave,
   loadFromCache,
   saveToCache,
+  saveInitiativesToCache,
+  savePlaylistToCache,
 } from "../../services/DataCacheHandler";
 import {
   getDBLastSave,
   saveInitiativesToDB,
   loadInitiativesFromDB,
+  subscribeToInitiativesDB,
   saveMusicsToDB,
   loadMusicsFromDB,
   subscribeToMusicsDB,
@@ -123,7 +126,7 @@ export function DataHandlerProvider({ children }) {
     return () => clearTimeout(timeout);
   }, [
     unsavedChanges,
-    initiativeList,
+    //initiativeList,
     combats,
     monstersList,
     scripts,
@@ -214,7 +217,7 @@ export function DataHandlerProvider({ children }) {
           firestoreData.scripts,
           firestoreData.notes,
           firestoreData.music,
-        ); //remake this shit, will break
+        );
 
         return;
       }
@@ -226,16 +229,13 @@ export function DataHandlerProvider({ children }) {
         // console.log(cachedData.combat)
 
         setInitiativeList(cachedData.initiatives);
-
         setCombats(cachedData.combats);
         setMonstersList(cachedData.monsters);
-
         setScripts({
           title: cachedData.script.title,
           body: cachedData.script.body,
         });
         setNotesList(cachedData.notes);
-
         setPlaylist(cachedData.music);
 
         await saveAllToDB(
@@ -251,24 +251,70 @@ export function DataHandlerProvider({ children }) {
 
         return;
       }
-
-      // Iguais WIP
-      // console.log("Dados sincronizados");
-
-      // const cachedData = await loadFromCache();
-
-      // setInitiativeList(
-      //   cachedData.initiatives
-      // );
-      // setPlaylist(
-      //   {
-      //     nome: "wablua1"
-      //   }
-      // )
     } catch (error) {
       console.error("Erro na sincronização:", error);
     }
   }
+
+//--------------------------------------------------------------------------------------
+  // INITIATIVES SYNC BLOCK
+
+  //tells that there are changes in InitiativesList, and triggers autosave
+  useEffect(() => {
+    if (isApplyingRemoteInitiativesRef.current) {
+      isApplyingRemoteInitiativesRef.current = false;
+      return;
+    }
+    console.log("initiatives changed, unsavedChangesInitiatives set to true");
+    setUnsavedChangesInitiatives(true);
+    unsavedChangesInitiativesRef.current = true;
+  } , [initiativeList]);
+
+  //saves data in initiatives docs, from db to db and resets dirtyflag to false;.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveInitiativesToDB(userId, initiativeList);
+      await saveInitiativesToCache(initiativeList);
+
+      setUnsavedChangesInitiatives(false);
+      unsavedChangesInitiativesRef.current = false;
+      console.log("saved initiatives to db and cache, unsavedChangesInitiatives set to false");
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [initiativeList]);
+
+  // loads synced data in initiatives docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToInitiativesDB(userId, (syncData) => {
+      const remoteInitiatives = syncData.PlayerArray || [];
+      if (unsavedChangesInitiativesRef.current) {
+        console.log("unsavedChangesInitiativesRef.current is true, not applying remote initiatives");
+        return;
+      }
+      setInitiativeList(current => {
+        if (JSON.stringify(current) === JSON.stringify(remoteInitiatives)) {
+          return current;
+        }
+
+        isApplyingRemoteInitiativesRef.current = true;
+        return remoteInitiatives;
+      });
+      console.log("syncing initiatives from db to db");
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+//--------------------------------------------------------------------------------------
+  //COMBATS SYNC BLOCK
+  //wip
+//--------------------------------------------------------------------------------------
+  //SCRIPTS AND NOTES SYNC BLOCK
+  //wip
+//--------------------------------------------------------------------------------------
+  // PLAYLIST SYNC BLOCK
 
   //tells that there are changes in the playlist, and triggers autosave
   useEffect(() => {
@@ -286,9 +332,9 @@ export function DataHandlerProvider({ children }) {
   //saves data in musics docs, from db to db and resets dirtyflag to false;.
   useEffect(() => {
     const timeout = setTimeout(async () => {
-      await saveMusicsToDB(userId, deviceId, playlist);
+      await saveMusicsToDB(userId, deviceId, playlist); //later remove deviceId
       //await savePlaylistToCache(playlist) put in comment, due to last save not being setted
-      await saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
+      await savePlaylistToCache(playlist);
 
       setUnsavedChangesPlaylist(false);
       unsavedChangesPlaylistRef.current = false;
@@ -304,10 +350,6 @@ export function DataHandlerProvider({ children }) {
 
     const unsubscribe = subscribeToMusicsDB(userId, (syncData) => {
       const remotePlaylist = syncData.Playlist || [];
-      // if (syncData.DeviceId === deviceId) {
-      //   console.log("syncData.DeviceId === deviceId, not applying remote playlist");
-      //   return;
-      // } 
       if (unsavedChangesPlaylistRef.current) {
         console.log("unsavedChangesPlaylistRef.current is true, not applying remote playlist");
         return;
@@ -324,7 +366,9 @@ export function DataHandlerProvider({ children }) {
     });
 
     return () => unsubscribe();
-  },[userId]);
+  }, [userId]);
+
+//--------------------------------------------------------------------------------------
 
   return (
     <DataHandler.Provider
