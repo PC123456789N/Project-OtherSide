@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { BsShield } from "react-icons/bs";
 import { GiBroadsword } from "react-icons/gi";
 import { FaHeart, FaHeartbeat, FaRunning, FaBrain, FaDice } from "react-icons/fa";
+import { MdOutlineEdit } from "react-icons/md";
+import CreateCombatModal from "../subcomponents/CreateCombatModal";
 
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext";
 
@@ -190,10 +192,11 @@ export default function MonsterHeader({
   onSanityDamageRoll,
   onHpCurrentChange,
   onHpMaxChange,
+  onMonsterInfoChange,
 }) {
   const [amount, setAmount] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
   const { setRollHistory } = useDataHandler();
-
   // Guard: sem monstro selecionado, não renderiza nada em vez de quebrar
   // tentando ler monster.hp / monster.combat / monster.attributes.
   if (!monster) return null;
@@ -240,6 +243,15 @@ export default function MonsterHeader({
     ]);
   }
 
+  function handleEditSave(data) {
+    onMonsterInfoChange?.({
+      name: data.name,
+      image: data.image,
+      type: data.type,
+      element: data.element,
+    });
+  }
+
   const hpMax = monster.hp.max || 0;
 
   const hpPercent =
@@ -262,7 +274,18 @@ export default function MonsterHeader({
     setAmount("");
   }
 
+  const editModalCombat = useMemo(
+    () => ({
+      name: monster.name,
+      image: monster.image,
+      type: monster.type,
+      element: monster.element,
+    }),
+    [monster.name, monster.image, monster.type, monster.element]
+  );
+
   return (
+    <>
     <section
       className="
         rounded-xl
@@ -309,6 +332,26 @@ export default function MonsterHeader({
               <h1 className="truncate text-3xl font-bold text-white">
                 {monster.name}
               </h1>
+
+              <button
+                onClick={() => setEditOpen(true)}
+                title="Editar Nome/Imagem/Tipo/Elemento"
+                className="
+                  flex
+                  h-7
+                  w-7
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  text-zinc-500
+                  transition
+                  hover:bg-violet-900/40
+                  hover:text-violet-300
+                "
+              >
+                <MdOutlineEdit size={15} />
+              </button>
 
               {monster.type && (
                 <span
@@ -531,7 +574,7 @@ export default function MonsterHeader({
 
             <div className="flex flex-1 flex-col items-center gap-1">
               <input
-                type="number"
+                type="text"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
@@ -623,5 +666,13 @@ export default function MonsterHeader({
         </div>
       </div>
     </section>
+
+    <CreateCombatModal
+      open={editOpen}
+      onClose={() => setEditOpen(false)}
+      onSave={handleEditSave}
+      combat={editModalCombat}
+    />
+    </>
   );
 }

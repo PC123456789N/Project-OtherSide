@@ -7,7 +7,7 @@ import MonsterPanel from "../components/Combats/MonsterPanel";
 import { useDataHandler } from "../context/dataHandlerContext/DataHandlerContext";
 
 export default function CombatPage() {
-  const { combatId, combats } = useDataHandler();
+  const { combatId, combats, setCombats } = useDataHandler();
   const { monstersList, setMonstersList } = useDataHandler();
 
   const [selectedTab, setSelectedTab] = useState("combat");
@@ -99,6 +99,19 @@ export default function CombatPage() {
       },
     }));
   }
+
+  function handleMonsterInfoChange(data) {
+    updateEntity((prev) => ({
+        ...prev,
+        ...data,
+    }));
+
+    setCombats((prev) =>
+        prev.map((item) =>
+            item.id === combatId ? { ...item, ...data } : item
+        )
+    );
+}
 
   function handleDefenseChange(value) {
     updateEntity((prev) => ({
@@ -437,6 +450,7 @@ export default function CombatPage() {
           onSanityDamageChange={handleSanityDamageChange}
           onSanityValueChange={handleSanityValueChange}
           onSanityDamageRoll={handleSanityDamageRoll}
+          onMonsterInfoChange={handleMonsterInfoChange}
         />
 
         <MonsterTabs

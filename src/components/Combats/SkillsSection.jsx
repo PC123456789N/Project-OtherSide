@@ -190,7 +190,7 @@ export default function SkillsSection({
               </div>
 
               <input
-                type="number"
+                type="text"
                 value={skill.bonus}
                 onChange={(e) =>
                   onSkillChange(skill.id, "bonus", Number(e.target.value) || 0)

@@ -682,6 +682,8 @@ function ResistancesPanel({ resistances, onChange }) {
           >
             {editing ? (
               "Concluir"
+            ) : activeEntries.length > 0 ? (
+              "Editar"
             ) : (
               <>
                 <FaPlus size={11} />
@@ -794,35 +796,36 @@ function TagList({ title, items, onAdd, onRemove, onChange, placeholder }) {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="space-y-2">
         {items.map((item) => (
-          <div
-            key={item.id}
-            className="
-              flex
-              items-center
-              gap-2
-              rounded-md
-              border
-              border-zinc-700
-              bg-zinc-800/60
-              px-2
-              py-1
-            "
-          >
-            <input
-              value={item.value}
-              onChange={(e) => onChange(item.id, e.target.value)}
-              placeholder={placeholder}
-              className="w-28 bg-transparent text-sm text-white outline-none"
-            />
+          <div key={item.id} className="flex items-start gap-2">
+            <div className="w-128">
+              <AutoResizeTextarea
+                value={item.value}
+                onChange={(value) => onChange(item.id, value)}
+                placeholder={placeholder}
+              />
+            </div>
 
             <button
               onClick={() => onRemove(item.id)}
               title="Remover"
-              className="text-zinc-500 transition hover:text-red-400"
+              className="
+                mt-1.5
+                flex
+                h-6
+                w-6
+                shrink-0
+                items-center
+                justify-center
+                rounded-md
+                text-zinc-500
+                transition
+                hover:bg-red-900/30
+                hover:text-red-400
+              "
             >
-              <FaTimes size={10} />
+              <FaTimes size={12} />
             </button>
           </div>
         ))}
