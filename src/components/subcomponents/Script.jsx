@@ -26,6 +26,8 @@ import History from "@tiptap/extension-history"
 import Color from "@tiptap/extension-color"
 import Highlight from "@tiptap/extension-highlight"
 
+import ScriptsSidebar from "./ScriptsSidebar"
+
 function ColorPicker({ label, activeColor, onSelect, onClear }) {
   const [open, setOpen] = useState(false)
 
@@ -91,12 +93,59 @@ function ColorPicker({ label, activeColor, onSelect, onClear }) {
 
 export default function Script() {
 
-  const {scripts, setScripts} = useDataHandler();
-  const {notesList, setNotesList} = useDataHandler();
+  // ── ATENÇÃO: bloco temporário ──────────────────────────────────────────
+  // Isso ainda NÃO está ligado ao Firebase/Context. É só state local pra
+  // gente validar o visual e o comportamento da sidebar. Quando formos
+  // cuidar do salvamento, esse bloco inteiro vira chamadas pro
+  // useDataHandler (scriptsList, activeScriptId, createScript, etc).
+  const [scriptsList, setScriptsList] = useState([
+    { id: "script-1", title: "Novo Roteiro", body: "<p>Cole Seu Roteiro Aqui :)</p>" },
+  ])
+  const [activeScriptId, setActiveScriptId] = useState("script-1")
 
-  const {unsavedChanges, setUnsavedChanges} = useDataHandler();
+  const activeScript = scriptsList.find((s) => s.id === activeScriptId) || null
 
-  const [loadedScript, setLoadedScript] = useState(false);
+  function createScript() {
+    const newScript = {
+      id: `script-${Date.now()}`,
+      title: "Novo Roteiro",
+      body: "<p>Cole Seu Roteiro Aqui :)</p>",
+    }
+    setScriptsList((prev) => [...prev, newScript])
+    setActiveScriptId(newScript.id)
+  }
+
+  function deleteScript(id) {
+    setScriptsList((prev) => {
+      const filtered = prev.filter((s) => s.id !== id)
+      // se apagou o roteiro ativo, seleciona o primeiro que sobrou (ou nenhum)
+      if (id === activeScriptId) {
+        setActiveScriptId(filtered[0]?.id ?? null)
+      }
+      return filtered
+    })
+  }
+
+  function renameScript(id, newTitle) {
+    setScriptsList((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, title: newTitle } : s))
+    )
+  }
+
+  function updateActiveScriptBody(html) {
+    setScriptsList((prev) =>
+      prev.map((s) => (s.id === activeScriptId ? { ...s, body: html } : s))
+    )
+  }
+
+  function updateActiveScriptTitle(newTitle) {
+    setScriptsList((prev) =>
+      prev.map((s) => (s.id === activeScriptId ? { ...s, title: newTitle } : s))
+    )
+  }
+  // ── fim do bloco temporário ─────────────────────────────────────────────
+
+  const { unsavedChanges, setUnsavedChanges } = useDataHandler();
 
   const editor = useEditor({
     extensions: [
@@ -120,7 +169,7 @@ export default function Script() {
       FontSize,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
-    content: "<p>Cole Seu Roteiro Aqui :)</p>",
+    content: activeScript?.body || "<p>Cole Seu Roteiro Aqui :)</p>",
     editorProps: {
       attributes: {
         class: "focus:outline-none"
@@ -128,197 +177,214 @@ export default function Script() {
     },
 
     onUpdate: ({ editor }) => {
-      setScripts(prev => ({
-        ...prev,
-        body: editor.getHTML()
-      }))
+      updateActiveScriptBody(editor.getHTML())
       setUnsavedChanges(true)
     }
   })
 
+  // troca o conteúdo do editor sempre que o usuário seleciona outro roteiro
+  // na sidebar (o editor não recria sozinho o conteúdo, precisa ser avisado)
   useEffect(() => {
-    if (!editor || loadedScript || !scripts.body) return;
+    if (!editor || !activeScript) return;
 
-    editor.commands.setContent(scripts.body);
-    setLoadedScript(true);
-  }, [editor, scripts.body, loadedScript]);
-
-  useEffect(() => {
-    setScripts(prev => ({
-      ...prev,
-      title: scripts.title
-    }))
-    setUnsavedChanges(true)
-  }, [scripts.title])
+    editor.commands.setContent(activeScript.body || "<p></p>");
+  }, [activeScriptId]);
 
   if (!editor) return null
 
+  // nenhum roteiro criado ainda (ex: usuário apagou o último)
+  if (!activeScript) {
+    return (
+      <div className="h-full w-full bg-black flex overflow-hidden relative">
+        <ScriptsSidebar
+          scripts={scriptsList}
+          activeId={activeScriptId}
+          onSelect={setActiveScriptId}
+          onCreate={createScript}
+          onDelete={deleteScript}
+          onRename={renameScript}
+        />
+        <div className="flex-1 flex items-center justify-center text-gray-500">
+          Nenhum roteiro selecionado. Crie um na barra lateral.
+        </div>
+      </div>
+    )
+  }
+
   return(
-    <div className="h-full w-full bg-black flex flex-col overflow-hidden relative">
+    <div className="h-full w-full bg-black flex overflow-hidden relative">
 
-      {/* ambient red glow, same language as the top nav bar */}
-      <div className="pointer-events-none absolute top-0 left-0 right-0 h-40 bg-linear-to-b from-red-900/20 via-red-900/5 to-transparent" />
+      <ScriptsSidebar
+        scripts={scriptsList}
+        activeId={activeScriptId}
+        onSelect={setActiveScriptId}
+        onCreate={createScript}
+        onDelete={deleteScript}
+        onRename={renameScript}
+      />
 
-      <div className="flex-1 overflow-hidden p-3 relative">
-        <div className="max-w-5xl mx-auto min-h-0 bg-zinc-900/80 backdrop-blur-sm text-white p-5 rounded-xl h-full flex flex-col shadow-lg border border-purple-900/50">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
 
-          <input
-            type="text"
-            placeholder="Título..."
-            onChange={(e) => setScripts(prev => ({
-                ...prev,
-                title: (e.target.value)
-              }))
-            }
-            value={scripts.title}
-            className="bg-transparent text-2xl font-bold outline-none placeholder:text-gray-500 pb-3 tracking-wide"
-          />
+        {/* ambient red glow, same language as the top nav bar */}
+        <div className="pointer-events-none absolute top-0 left-0 right-0 h-40 bg-linear-to-b from-red-900/20 via-red-900/5 to-transparent" />
 
-          <div className="flex items-center gap-2 border-b border-purple-900 pb-3 mb-3 flex-wrap">
-            <button
-              onClick={() => editor.chain().focus().undo().run()}
-              disabled={!editor.can().undo()}
-              className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-purple-500 hover:text-white disabled:opacity-30 disabled:hover:border-purple-900/40 disabled:hover:text-gray-300 transition-colors"
-            >
-              ↶
-            </button>
+        <div className="flex-1 overflow-hidden p-3 relative">
+          <div className="max-w-5xl mx-auto min-h-0 bg-zinc-900/80 backdrop-blur-sm text-white p-5 rounded-xl h-full flex flex-col shadow-lg border border-purple-900/50">
 
-            <button
-              onClick={() => editor.chain().focus().redo().run()}
-              disabled={!editor.can().redo()}
-              className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-purple-500 hover:text-white disabled:opacity-30 disabled:hover:border-purple-900/40 disabled:hover:text-gray-300 transition-colors"
-            >
-              ↷
-            </button>
-            
-            <select
-              onChange={(e) => {
-                const value = e.target.value
-                if (value === "paragraph") {
-                  editor.chain().focus().setParagraph().run()
-                } else {
-                  editor.chain().focus().toggleHeading({ level: Number(value) }).run()
-                }
-              }}
-              className="bg-black/60 border border-purple-900/40 text-white text-sm rounded-full px-3 py-1.5 outline-none focus:border-purple-500 cursor-pointer"
-            >
-              <option value="paragraph">Parágrafo</option>
-              <option value="1">Título 1</option>
-              <option value="2">Título 2</option>
-              <option value="3">Título 3</option>
-            </select>
-            
-            <select
-              onChange={(e) => editor.chain().focus().setFontSize(e.target.value).run()}
-              className="bg-black/60 border border-purple-900/40 text-white text-sm rounded-full px-3 py-1.5 outline-none focus:border-purple-500 cursor-pointer"
-            >
-              <option value="8px">8</option>
-              <option value="9px">9</option>
-              <option value="10px">10</option>
-              <option value="12px">12</option>
-              <option value="14px">14</option>
-              <option value="18px">18</option>
-              <option value="24px">24</option>
-              <option value="30px">30</option>
-              <option value="36px">36</option>
-              <option value="48px">48</option>
-            </select>
-
-
-            <button
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                editor.isActive('bold')
-                  ? 'bg-purple-600 border-purple-500 text-white'
-                  : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-              }`}
-            >
-              <strong>B</strong>
-            </button>
-
-            <button
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                editor.isActive('italic')
-                  ? 'bg-purple-600 border-purple-500 text-white'
-                  : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-              }`}
-            >
-              <em>I</em>
-            </button>
-
-            <button
-              onClick={() => editor.chain().focus().toggleUnderline().run()}
-              className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                editor.isActive('underline')
-                  ? 'bg-purple-600 border-purple-500 text-white'
-                  : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-              }`}
-            >
-              <u className="underline">U</u>
-            </button>
-
-            <button
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                editor.isActive('strike')
-                  ? 'bg-purple-600 border-purple-500 text-white'
-                  : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-              }`}
-            >
-              <s className="line-through">S</s>
-            </button>
-
-            <ColorPicker
-              label="Cor do texto"
-              activeColor={editor.getAttributes('textStyle').color}
-              onSelect={(color) => editor.chain().focus().setColor(color).run()}
-              onClear={() => editor.chain().focus().unsetColor().run()}
+            <input
+              type="text"
+              placeholder="Título..."
+              onChange={(e) => updateActiveScriptTitle(e.target.value)}
+              value={activeScript.title}
+              className="bg-transparent text-2xl font-bold outline-none placeholder:text-gray-500 pb-3 tracking-wide"
             />
 
-            <ColorPicker
-              label="Marca-texto"
-              activeColor={editor.getAttributes('highlight').color}
-              onSelect={(color) => editor.chain().focus().toggleHighlight({ color }).run()}
-              onClear={() => editor.chain().focus().unsetHighlight().run()}
-            />
+            <div className="flex items-center gap-2 border-b border-purple-900 pb-3 mb-3 flex-wrap">
+              <button
+                onClick={() => editor.chain().focus().undo().run()}
+                disabled={!editor.can().undo()}
+                className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-purple-500 hover:text-white disabled:opacity-30 disabled:hover:border-purple-900/40 disabled:hover:text-gray-300 transition-colors"
+              >
+                ↶
+              </button>
 
-            <select
-              onChange={(e) => editor.chain().focus().setTextAlign(e.target.value).run()}
-              className="bg-black/60 border border-purple-900/40 text-white text-sm rounded-full px-3 py-1.5 outline-none focus:border-purple-500 cursor-pointer"
-            >
-              <option value="left">Esquerda</option>
-              <option value="center">Centralizar</option>
-              <option value="right">Direita</option>
-              <option value="justify">Justificar</option>
-            </select>
+              <button
+                onClick={() => editor.chain().focus().redo().run()}
+                disabled={!editor.can().redo()}
+                className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-purple-500 hover:text-white disabled:opacity-30 disabled:hover:border-purple-900/40 disabled:hover:text-gray-300 transition-colors"
+              >
+                ↷
+              </button>
 
-            <button
-              onClick={() => editor.chain().focus().setHorizontalRule().run()}
-              className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-purple-500 hover:text-white transition-colors"
-            >
-              ―
-            </button>
+              <select
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === "paragraph") {
+                    editor.chain().focus().setParagraph().run()
+                  } else {
+                    editor.chain().focus().toggleHeading({ level: Number(value) }).run()
+                  }
+                }}
+                className="bg-black/60 border border-purple-900/40 text-white text-sm rounded-full px-3 py-1.5 outline-none focus:border-purple-500 cursor-pointer"
+              >
+                <option value="paragraph">Parágrafo</option>
+                <option value="1">Título 1</option>
+                <option value="2">Título 2</option>
+                <option value="3">Título 3</option>
+              </select>
 
-            <button
-              onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
-              className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-red-500 hover:text-white transition-colors"
-              title="Limpar formatação"
-            >
-              <FaRemoveFormat size={20}/>
-            </button>
+              <select
+                onChange={(e) => editor.chain().focus().setFontSize(e.target.value).run()}
+                className="bg-black/60 border border-purple-900/40 text-white text-sm rounded-full px-3 py-1.5 outline-none focus:border-purple-500 cursor-pointer"
+              >
+                <option value="8px">8</option>
+                <option value="9px">9</option>
+                <option value="10px">10</option>
+                <option value="12px">12</option>
+                <option value="14px">14</option>
+                <option value="18px">18</option>
+                <option value="24px">24</option>
+                <option value="30px">30</option>
+                <option value="36px">36</option>
+                <option value="48px">48</option>
+              </select>
 
-            <div className="ml-auto text-xs uppercase tracking-widest text-purple-300/70 font-semibold pr-1">
-              {unsavedChanges ? "Salvando" : "Salvo"}
-            </div>
-          </div>
 
-          <div className="flex-1 overflow-hidden min-h-0">
-            <div className="h-full overflow-auto min-h-0 pr-1">
-              <EditorContent
-                editor={editor}
-                className="prose prose-invert max-w-none prose-headings:text-purple-200"
+              <button
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
+                  editor.isActive('bold')
+                    ? 'bg-purple-600 border-purple-500 text-white'
+                    : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
+                }`}
+              >
+                <strong>B</strong>
+              </button>
+
+              <button
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
+                  editor.isActive('italic')
+                    ? 'bg-purple-600 border-purple-500 text-white'
+                    : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
+                }`}
+              >
+                <em>I</em>
+              </button>
+
+              <button
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
+                  editor.isActive('underline')
+                    ? 'bg-purple-600 border-purple-500 text-white'
+                    : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
+                }`}
+              >
+                <u className="underline">U</u>
+              </button>
+
+              <button
+                onClick={() => editor.chain().focus().toggleStrike().run()}
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
+                  editor.isActive('strike')
+                    ? 'bg-purple-600 border-purple-500 text-white'
+                    : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
+                }`}
+              >
+                <s className="line-through">S</s>
+              </button>
+
+              <ColorPicker
+                label="Cor do texto"
+                activeColor={editor.getAttributes('textStyle').color}
+                onSelect={(color) => editor.chain().focus().setColor(color).run()}
+                onClear={() => editor.chain().focus().unsetColor().run()}
               />
+
+              <ColorPicker
+                label="Marca-texto"
+                activeColor={editor.getAttributes('highlight').color}
+                onSelect={(color) => editor.chain().focus().toggleHighlight({ color }).run()}
+                onClear={() => editor.chain().focus().unsetHighlight().run()}
+              />
+
+              <select
+                onChange={(e) => editor.chain().focus().setTextAlign(e.target.value).run()}
+                className="bg-black/60 border border-purple-900/40 text-white text-sm rounded-full px-3 py-1.5 outline-none focus:border-purple-500 cursor-pointer"
+              >
+                <option value="left">Esquerda</option>
+                <option value="center">Centralizar</option>
+                <option value="right">Direita</option>
+                <option value="justify">Justificar</option>
+              </select>
+
+              <button
+                onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-purple-500 hover:text-white transition-colors"
+              >
+                ―
+              </button>
+
+              <button
+                onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+                className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-red-500 hover:text-white transition-colors"
+                title="Limpar formatação"
+              >
+                <FaRemoveFormat size={20}/>
+              </button>
+
+              <div className="ml-auto text-xs uppercase tracking-widest text-purple-300/70 font-semibold pr-1">
+                {unsavedChanges ? "Salvando" : "Salvo"}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-hidden min-h-0">
+              <div className="h-full overflow-auto min-h-0 pr-1">
+                <EditorContent
+                  editor={editor}
+                  className="prose prose-invert max-w-none prose-headings:text-purple-200"
+                />
+              </div>
             </div>
           </div>
         </div>
