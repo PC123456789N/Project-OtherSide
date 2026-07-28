@@ -582,35 +582,43 @@ function AttackCard({
 
 function AbilityCard({ ability, onChange, onRemove }) {
   return (
-    <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-800/60 p-3">
-      <div className="flex items-center gap-2">
-        <input
-          value={ability.name}
-          onChange={(e) => onChange(ability.id, "name", e.target.value)}
-          placeholder="Nome da habilidade"
-          className={`${inputClass} flex-1 font-medium`}
-        />
+    <div className="relative space-y-2 rounded-lg border border-zinc-800 bg-zinc-800/60 p-3">
+      <button
+        onClick={() => onRemove(ability.id)}
+        title="Remover Habilidade"
+        className="
+          absolute
+          right-2
+          top-2
+          flex
+          h-7
+          w-7
+          items-center
+          justify-center
+          rounded-md
+          text-zinc-500
+          transition
+          hover:bg-red-900/30
+          hover:text-red-400
+        "
+      >
+        <FaTimes size={12} />
+      </button>
 
-        <button
-          onClick={() => onRemove(ability.id)}
-          title="Remover Habilidade"
-          className="
-            flex
-            h-9
-            w-9
-            shrink-0
-            items-center
-            justify-center
-            rounded-md
-            text-zinc-500
-            transition
-            hover:bg-red-900/30
-            hover:text-red-400
-          "
-        >
-          <FaTimes size={12} />
-        </button>
-      </div>
+      <input
+        value={ability.name}
+        onChange={(e) => onChange(ability.id, "name", e.target.value)}
+        placeholder="Nome da habilidade"
+        className="
+          w-48
+          bg-transparent
+          text-sm
+          font-medium
+          text-zinc-100
+          outline-none
+          focus:text-violet-300
+        "
+      />
 
       <textarea
         value={ability.description}
