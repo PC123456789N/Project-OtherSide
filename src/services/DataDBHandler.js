@@ -325,12 +325,12 @@ export function subscribeToMusicsDB(userId, onChange) {
 
 //--------------------------------------------------------------------------------------
 //GENERAL BLOCK
-export async function saveAllToDB(userId, deviceId , initiativeList, combats, monsterList, scripts, notesList, playlist) {
+export async function saveAllToDB(userId, initiativeList, combats, monsterList, scripts, notesList, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);
   await saveCombatsToDB(userId, combats, monsterList);
   await saveScriptsToDB(userId, scripts, notesList);
-  await saveMusicsToDB(userId, deviceId, playlist);
+  await saveMusicsToDB(userId, playlist);
 
   await setDBLastSave(userId);
 }

@@ -32,7 +32,6 @@ export function DataHandlerProvider({ children }) {
   //pull userID from AuthContext
   const { userId } = useAuth();
   const { userLoggedIn } = useAuth();
-  const deviceId = getDeviceId();
 
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   //alters when something changes, triggers autosave
@@ -118,7 +117,7 @@ export function DataHandlerProvider({ children }) {
     const timeout = setTimeout(() => {
       saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
 
-      saveAllToDB(userId, deviceId, initiativeList, combats, monstersList, scripts, notesList, playlist);
+      saveAllToDB(userId, initiativeList, combats, monstersList, scripts, notesList, playlist);
 
       setUnsavedChanges(false);
     }, 1000);
@@ -154,7 +153,6 @@ export function DataHandlerProvider({ children }) {
 
         await saveAllToDB(
           userId,
-          deviceId,
           cachedData.initiatives ?? [],
           cachedData.combats ?? [],
           cachedData.monsters ?? [],
@@ -240,7 +238,6 @@ export function DataHandlerProvider({ children }) {
 
         await saveAllToDB(
           userId,
-          deviceId,
           cachedData.initiatives,
           cachedData.combats,
           cachedData.monsters,
