@@ -128,7 +128,7 @@ export default function MusicRPG() {
   const { play } = useAudioPlayer();
   const [loading, setLoading] = useState(false);
 
-  const categorias = ["Chefes", "Combates", "Suspences", "Exploração"];
+  const categorias = ["Chefes", "Combates", "Suspenses", "Exploração"];
 
   const handleAdd = async () => {
     const id = getYoutubeId(link);
