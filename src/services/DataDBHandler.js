@@ -288,7 +288,7 @@ export async function saveScriptsToDB(userId, scripts){
         doc(collection(db, "Scripts")), 
         {
           UserId: userId,
-          ScriptDoc: {Title: scripts?.title || "", Body: scripts?.body || ""},
+          ScriptDocs: scripts
         }
       );
       console.log("doc firestore/Scripts Criado")
@@ -299,7 +299,7 @@ export async function saveScriptsToDB(userId, scripts){
       doc(db, "Scripts", snapshot.docs[0].id), //primeiro docs
       {
         UserId: userId,
-        ScriptDoc: {Title: scripts?.title || "fuck me", Body: scripts?.body || "fuck me 2"},
+        ScriptDocs: scripts,
       }
     );
     console.log("doc firestore/Scripts atualizado")
@@ -438,7 +438,7 @@ export async function loadAllFromDB(userId) {
     initiatives: initiativesData?.PlayerArray ?? [],
     combat: combatsData?.CombatsList ?? [],
     monster: monstersData?.MonsterList ?? [],
-    scripts: scriptsData?.ScriptDoc ?? {Title: "", Body: ""},
+    scripts: scriptsData?.ScriptDocs ?? [],
     music: musicsData.Playlist ?? [],
   };
 }

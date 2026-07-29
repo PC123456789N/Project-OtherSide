@@ -98,9 +98,7 @@ export default function Script() {
   // gente validar o visual e o comportamento da sidebar. Quando formos
   // cuidar do salvamento, esse bloco inteiro vira chamadas pro
   // useDataHandler (scriptsList, activeScriptId, createScript, etc).
-  const [scriptsList, setScriptsList] = useState([
-    { id: "script-1", title: "Novo Roteiro", body: "<p>Cole Seu Roteiro Aqui :)</p>" },
-  ])
+  const {scriptsList, setScriptsList} = useDataHandler();
   const [activeScriptId, setActiveScriptId] = useState("script-1")
 
   const activeScript = scriptsList.find((s) => s.id === activeScriptId) || null

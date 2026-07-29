@@ -59,7 +59,7 @@ export function DataHandlerProvider({ children }) {
 
   const [monstersList, setMonstersList] = useState([]);
 
-  const [scripts, setScripts] = useState({ title: "", body: "" });
+  const [scriptsList, setScriptsList] = useState([{ id: "",title: "", body: ""}]);
 
   const [playlist, setPlaylist] = useState([]);
   const [videoId, setVideoId] = useState(null);
@@ -116,27 +116,6 @@ export function DataHandlerProvider({ children }) {
     };
   }, [userId]);
 
-  // atual save system, will be deleted when multi doc sync is fully implemented.
-  useEffect(() => {
-    //currently only works with script since others were removed for their own save system
-    const timeout = setTimeout(() => {
-      saveScriptsToCache(scripts);
-
-      saveScriptsToDB(userId, scripts);
-
-      setUnsavedChanges(false);
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [
-    unsavedChanges,
-    //initiativeList,
-    //combats,
-    //monstersList,
-    scripts,
-    //playlist,
-  ]);
-
   //syncs data when starting aplication, checks if cache or firestore is more recent and loads it.
   async function syncData(userId) {
     try {
@@ -176,10 +155,7 @@ export function DataHandlerProvider({ children }) {
         setInitiativeList(firestoreData.initiatives);
         setCombats(firestoreData.combat);
         setMonstersList(firestoreData.monster);
-        setScripts({
-          title: firestoreData.scripts?.Title || "",
-          body: firestoreData.scripts?.Body || "",
-        });
+        setScriptsList(firestoreData.scripts || []);
         setPlaylist(firestoreData.music);
 
         //place firestoreData.combat instead of null
@@ -202,10 +178,7 @@ export function DataHandlerProvider({ children }) {
         setInitiativeList(firestoreData.initiatives);
         setCombats(firestoreData.combat);
         setMonstersList(firestoreData.monster);
-        setScripts({
-          title: firestoreData.scripts?.Title || "",
-          body: firestoreData.scripts?.Body || "",
-        });
+        setScriptsList(firestoreData.scripts || []);
         setPlaylist(firestoreData.music);
 
         await saveToCache(
@@ -228,10 +201,7 @@ export function DataHandlerProvider({ children }) {
         setInitiativeList(cachedData.initiatives);
         setCombats(cachedData.combats);
         setMonstersList(cachedData.monsters);
-        setScripts({
-          title: cachedData.script.title,
-          body: cachedData.script.body,
-        });
+        setScriptsList(cachedData.script);
         setPlaylist(cachedData.music);
 
         await saveAllToDB(
@@ -355,8 +325,6 @@ export function DataHandlerProvider({ children }) {
 //--------------------------------------------------------------------------------------
   //MONSTERS SYNC BLOCK
 
-  //wip
-
   //tells that there are changes in the playlist, and triggers autosave
   useEffect(() => {
     if (isApplyingRemoteMonstersRef.current) {
@@ -406,7 +374,31 @@ export function DataHandlerProvider({ children }) {
   }, [userId]);
 //--------------------------------------------------------------------------------------
   //SCRIPTS SYNC BLOCK
+  
   //wip, doing with collab
+
+  // atual save system, will be deleted when multi doc sync is fully implemented.
+  useEffect(() => {
+    //currently only works with script since others were removed for their own save system
+    const timeout = setTimeout(() => {
+      saveScriptsToCache(scriptsList);
+
+      saveScriptsToDB(userId, scriptsList);
+
+      setUnsavedChanges(false);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [
+    unsavedChanges,
+    //initiativeList,
+    //combats,
+    //monstersList,
+    scriptsList,
+    //playlist,
+  ]);
+
+
 //--------------------------------------------------------------------------------------
   // PLAYLIST SYNC BLOCK
 
@@ -479,8 +471,8 @@ export function DataHandlerProvider({ children }) {
         setCombatId,
         monstersList,
         setMonstersList,
-        scripts,
-        setScripts,
+        scriptsList,
+        setScriptsList,
         playlist,
         setPlaylist,
         videoId,
