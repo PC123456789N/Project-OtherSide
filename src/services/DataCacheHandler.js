@@ -58,7 +58,6 @@ export async function loadFromCache(){
     combats: await cache.get("combats", "cachedUserCombats"),
     monsters: await cache.get("monsters", "cachedMonstersList"),
     script: await cache.get("scripts", "cachedScript"),
-    notes: await cache.get("scripts", "cachedNotesList"),
     music: await cache.get("musics", "cachedPlaylist"),
   };
 }
@@ -68,7 +67,6 @@ export async function saveToCache(
   combats,
   monstersList,
   scripts, 
-  notesList,
   playlist
 ){
   console.log("data sent to idb")
@@ -93,6 +91,7 @@ export async function saveToCache(
     combats,
     "cachedUserCombats"
   );
+  
   await cache.put(
     "monsters",
     monstersList,
@@ -103,11 +102,6 @@ export async function saveToCache(
     "scripts",
     scripts,
     "cachedScript"
-  );
-  await cache.put(
-    "scripts",
-    notesList,
-    "cachedNotesList"
   );
 
   await cache.put(
@@ -154,16 +148,6 @@ export async function saveScriptsToCache(scripts) {
     "scripts",
     scripts,
     "cachedScript"
-  );
-}
-
-export async function saveNotesToCache(notesList) {
-  const cache = await dbPromise;
-
-  await cache.put(
-    "scripts",
-    notesList,
-    "cachedNotesList"
   );
 }
 

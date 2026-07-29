@@ -120,7 +120,7 @@ export function subscribeToInitiativesDB(userId, onChange) {
 
 //--------------------------------------------------------------------------------------
 //COMBATS BLOCK
-export async function saveCombatsToDB(userId, combats, monsterList) {
+export async function saveCombatsToDB(userId, combats) {
   try{
     const q = query(
     collection(db, "Combats"),
@@ -133,10 +133,8 @@ export async function saveCombatsToDB(userId, combats, monsterList) {
       await setDoc(
         doc(collection(db, "Combats")), 
         {
-          lastSave: serverTimestamp(),
           UserId: userId,
           CombatsList: combats,
-          MonsterList: monsterList
         }
       );
       console.log("doc firestore/Combats Criado")
@@ -146,10 +144,8 @@ export async function saveCombatsToDB(userId, combats, monsterList) {
     await setDoc( //ja havia um docs la
       doc(db, "Combats", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
         UserId: userId,
         CombatsList: combats,
-        MonsterList: monsterList
       }
     );
     console.log("doc firestore/Combats atualizado")
@@ -178,7 +174,62 @@ export async function loadCombatsFromDB(userId) {
 }
 
 //--------------------------------------------------------------------------------------
-//SCRIPTS AND NOTES BLOCK
+//MONSTERS BLOCK
+export async function saveMonstersToDB(userId, monsterList) {
+  try{
+    const q = query(
+    collection(db, "Monsters"),
+    where("UserId", "==", userId)
+  );
+  
+  const snapshot = await getDocs(q);
+  
+    if (snapshot.empty) { //nn havia docs la
+      await setDoc(
+        doc(collection(db, "Monsters")), 
+        {
+          UserId: userId,
+          MonsterList: monsterList
+        }
+      );
+      console.log("doc firestore/Monsters Criado")
+      return;
+    }
+
+    await setDoc( //ja havia um docs la
+      doc(db, "Monsters", snapshot.docs[0].id), //primeiro docs
+      {
+        UserId: userId,
+        MonsterList: monsterList
+      }
+    );
+    console.log("doc firestore/Monsters atualizado")
+    return;
+  } 
+  
+  catch(error){
+    console.error("Erro ao salvar:", error);
+  }
+}
+
+export async function loadMonstersFromDB(userId) {
+  console.log("loaded monsters from firestore")
+  const q = query(
+    collection(db, "Monsters"),
+    where("UserId", "==", userId)
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  return snapshot.docs[0].data();
+}
+
+//--------------------------------------------------------------------------------------
+//SCRIPTS BLOCK
 export async function saveScriptsToDB(userId, scripts, notesList){
   try{
     const q = query(
@@ -325,11 +376,12 @@ export function subscribeToMusicsDB(userId, onChange) {
 
 //--------------------------------------------------------------------------------------
 //GENERAL BLOCK
-export async function saveAllToDB(userId, initiativeList, combats, monsterList, scripts, notesList, playlist) {
+export async function saveAllToDB(userId, initiativeList, combats, monsterList, scripts, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);
-  await saveCombatsToDB(userId, combats, monsterList);
-  await saveScriptsToDB(userId, scripts, notesList);
+  await saveCombatsToDB(userId, combats);
+  await saveMonstersToDB(userId, monsterList)
+  await saveScriptsToDB(userId, scripts);
   await saveMusicsToDB(userId, playlist);
 
   await setDBLastSave(userId);
@@ -338,15 +390,15 @@ export async function saveAllToDB(userId, initiativeList, combats, monsterList, 
 export async function loadAllFromDB(userId) {
   const initiativesData = await loadInitiativesFromDB(userId);
   const combatsData = await loadCombatsFromDB(userId);
+  const monstersData = await loadMonstersFromDB(userId)
   const musicsData = await loadMusicsFromDB(userId);
   const scriptsData = await loadScriptsFromDB(userId);
 
   return {
     initiatives: initiativesData?.PlayerArray ?? [],
     combat: combatsData?.CombatsList ?? [],
-    monster: combatsData?.MonsterList ?? [],
-    music: musicsData.Playlist ?? [],
+    monster: monstersData?.MonsterList ?? [],
     scripts: scriptsData?.ScriptDoc ?? {Title: "", Body: ""},
-    notes: scriptsData?.NotesList ?? []
+    music: musicsData.Playlist ?? [],
   };
 }

@@ -51,7 +51,6 @@ export function DataHandlerProvider({ children }) {
   const [monstersList, setMonstersList] = useState([]);
 
   const [scripts, setScripts] = useState({ title: "", body: "" });
-  const [notesList, setNotesList] = useState([]);
 
   const [playlist, setPlaylist] = useState([]);
   const [videoId, setVideoId] = useState(null);
@@ -62,21 +61,18 @@ export function DataHandlerProvider({ children }) {
   const [unsavedChangesCombats, setUnsavedChangesCombats] = useState(false);
   const [unsavedChangesMonsters, setUnsavedChangesMonsters] = useState(false);
   const [unsavedChangesScripts, setUnsavedChangesScripts] = useState(false);
-  const [unsavedChangesNotes, setUnsavedChangesNotes] = useState(false);
   const [unsavedChangesPlaylist, setUnsavedChangesPlaylist] = useState(false);
 
   const unsavedChangesInitiativesRef = useRef(false);
   const unsavedChangesCombatsRef = useRef(false);
   const unsavedChangesMonstersRef = useRef(false);
   const unsavedChangesScriptsRef = useRef(false);
-  const unsavedChangesNotesRef = useRef(false);
   const unsavedChangesPlaylistRef = useRef(false);
 
   const isApplyingRemoteInitiativesRef = useRef(false);
   const isApplyingRemoteCombatsRef = useRef(false);
   const isApplyingRemoteMonstersRef = useRef(false);
   const isApplyingRemoteScriptsRef = useRef(false);
-  const isApplyingRemoteNotesRef = useRef(false);
   const isApplyingRemotePlaylistRef = useRef(false);
 
   // Histórico de rolagem de dados (compartilhado entre a CombatSidebar e as
@@ -115,9 +111,9 @@ export function DataHandlerProvider({ children }) {
   useEffect(() => {
 
     const timeout = setTimeout(() => {
-      saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
+      saveToCache(initiativeList, combats, monstersList, scripts, playlist);
 
-      saveAllToDB(userId, initiativeList, combats, monstersList, scripts, notesList, playlist);
+      saveAllToDB(userId, initiativeList, combats, monstersList, scripts, playlist);
 
       setUnsavedChanges(false);
     }, 1000);
@@ -129,7 +125,6 @@ export function DataHandlerProvider({ children }) {
     combats,
     monstersList,
     scripts,
-    notesList,
     //playlist,
   ]);
 
@@ -157,7 +152,6 @@ export function DataHandlerProvider({ children }) {
           cachedData.combats ?? [],
           cachedData.monsters ?? [],
           cachedData.script ?? {Title: "", Body: ""},
-          cachedData.notes ?? [],
           cachedData.music ?? [],
         );
 
@@ -177,7 +171,6 @@ export function DataHandlerProvider({ children }) {
           title: firestoreData.scripts?.Title || "",
           body: firestoreData.scripts?.Body || "",
         });
-        setNotesList(firestoreData.notes);
         setPlaylist(firestoreData.music);
 
         //place firestoreData.combat instead of null
@@ -186,7 +179,6 @@ export function DataHandlerProvider({ children }) {
           firestoreData.combat,
           firestoreData.monster,
           firestoreData.scripts,
-          firestoreData.notes,
           firestoreData.music,
         );
         return;
@@ -205,7 +197,6 @@ export function DataHandlerProvider({ children }) {
           title: firestoreData.scripts?.Title || "",
           body: firestoreData.scripts?.Body || "",
         });
-        setNotesList(firestoreData.notes);
         setPlaylist(firestoreData.music);
 
         await saveToCache(
@@ -213,7 +204,6 @@ export function DataHandlerProvider({ children }) {
           firestoreData.combat,
           firestoreData.monster,
           firestoreData.scripts,
-          firestoreData.notes,
           firestoreData.music,
         );
 
@@ -233,7 +223,6 @@ export function DataHandlerProvider({ children }) {
           title: cachedData.script.title,
           body: cachedData.script.body,
         });
-        setNotesList(cachedData.notes);
         setPlaylist(cachedData.music);
 
         await saveAllToDB(
@@ -242,7 +231,6 @@ export function DataHandlerProvider({ children }) {
           cachedData.combats,
           cachedData.monsters,
           cachedData.script,
-          cachedData.notes,
           cachedData.music,
         );
 
@@ -384,8 +372,6 @@ export function DataHandlerProvider({ children }) {
         setMonstersList,
         scripts,
         setScripts,
-        notesList,
-        setNotesList,
         playlist,
         setPlaylist,
         videoId,
