@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { BsShield } from "react-icons/bs";
 import { GiBroadsword } from "react-icons/gi";
 import { FaHeart, FaHeartbeat, FaRunning, FaBrain, FaDice } from "react-icons/fa";
@@ -44,6 +44,9 @@ function rollAttributeTest(quantity) {
 
 function EditableNumber({ value, onChange, className, placeholder = "0" }) {
   const [text, setText] = useState(value ? String(value) : "");
+  useEffect(() => {
+    setText(value ? String(value) : "");
+  }, [value]);
 
   function handleChange(e) {
     const raw = e.target.value;
