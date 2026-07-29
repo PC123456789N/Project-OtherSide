@@ -99,8 +99,7 @@ export default function Script() {
   // cuidar do salvamento, esse bloco inteiro vira chamadas pro
   // useDataHandler (scriptsList, activeScriptId, createScript, etc).
   const {scriptsList, setScriptsList} = useDataHandler();
-  const [activeScriptId, setActiveScriptId] = useState("script-1")
-  console.log(scriptsList)
+  const [activeScriptId, setActiveScriptId] = useState("")
 
   const activeScript = scriptsList.find((s) => s.id === activeScriptId) || null
 

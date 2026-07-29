@@ -374,7 +374,7 @@ export function DataHandlerProvider({ children }) {
   }, [userId]);
 //--------------------------------------------------------------------------------------
   //SCRIPTS SYNC BLOCK
-  
+
   //wip, doing with collab
 
   // atual save system, will be deleted when multi doc sync is fully implemented.
@@ -386,7 +386,7 @@ export function DataHandlerProvider({ children }) {
       saveScriptsToDB(userId, scriptsList);
 
       setUnsavedChanges(false);
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, [
