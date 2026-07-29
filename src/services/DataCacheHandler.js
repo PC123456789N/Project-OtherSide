@@ -1,5 +1,6 @@
 import { openDB } from "idb";
 
+//make any individual change update central lastSave
 
 export const dbPromise = openDB("app_web", 1, {
   upgrade(db) {
@@ -70,8 +71,9 @@ export async function saveToCache(
   playlist
 ){
   console.log("data sent to idb")
-  console.log("initiativeList:", initiativeList);
+  //console.log("initiativeList:", initiativeList);
   console.log("combats:", combats);
+  console.log("monstersList: ", monstersList)
   const cache = await dbPromise;
   
   await cache.put(
@@ -91,7 +93,7 @@ export async function saveToCache(
     combats,
     "cachedUserCombats"
   );
-  
+
   await cache.put(
     "monsters",
     monstersList,
@@ -113,7 +115,6 @@ export async function saveToCache(
 
 export async function saveInitiativesToCache(initiativeList) {
   const cache = await dbPromise;
-
   await cache.put(
     "initiatives",
     initiativeList,
@@ -123,7 +124,6 @@ export async function saveInitiativesToCache(initiativeList) {
 
 export async function saveCombatsToCache(combats) {
   const cache = await dbPromise;
-
   await cache.put(
     "combats",
     combats,
@@ -133,7 +133,6 @@ export async function saveCombatsToCache(combats) {
 
 export async function saveMonstersToCache(monstersList) {
   const cache = await dbPromise;
-
   await cache.put(
     "monsters",
     monstersList,
@@ -143,7 +142,6 @@ export async function saveMonstersToCache(monstersList) {
 
 export async function saveScriptsToCache(scripts) {
   const cache = await dbPromise;
-
   await cache.put(
     "scripts",
     scripts,
@@ -153,7 +151,6 @@ export async function saveScriptsToCache(scripts) {
 
 export async function savePlaylistToCache(playlist) {
   const cache = await dbPromise;
-
   await cache.put(
     "musics",
     playlist,

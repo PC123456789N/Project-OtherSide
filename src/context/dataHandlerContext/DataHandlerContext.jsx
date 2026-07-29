@@ -8,6 +8,9 @@ import {
   loadFromCache,
   saveToCache,
   saveInitiativesToCache,
+  saveCombatsToCache,
+  saveMonstersToCache,
+  saveScriptsToCache,
   savePlaylistToCache,
 } from "../../services/DataCacheHandler";
 import {
@@ -15,6 +18,11 @@ import {
   saveInitiativesToDB,
   loadInitiativesFromDB,
   subscribeToInitiativesDB,
+  saveCombatsToDB,
+  loadCombatsFromDB,
+  subscribeToCombatsDB,
+  saveMonstersToDB,
+  loadMonstersFromDB,
   saveMusicsToDB,
   loadMusicsFromDB,
   subscribeToMusicsDB,
@@ -90,7 +98,7 @@ export function DataHandlerProvider({ children }) {
     //console.log("selectedId mudou para:", selectedPageId);
   }, [selectedPageId]);
 
-  //makes sure user is same as before, if not, clears cache and db
+  //makes sure user is same as before, if not, clears cache and db.
   useEffect(() => {
     if (!userId) return;
 
@@ -107,7 +115,7 @@ export function DataHandlerProvider({ children }) {
     };
   }, [userId]);
 
-  // atual save system, will be deleted when multi doc sync is fully implemented
+  // atual save system, will be deleted when multi doc sync is fully implemented.
   useEffect(() => {
 
     const timeout = setTimeout(() => {
@@ -128,7 +136,7 @@ export function DataHandlerProvider({ children }) {
     //playlist,
   ]);
 
-  //syncs data when starting aplication, checks if cache or firestore is more recent and loads it
+  //syncs data when starting aplication, checks if cache or firestore is more recent and loads it.
   async function syncData(userId) {
     try {
       const cacheTime = await getCachedLastSave();
@@ -244,7 +252,7 @@ export function DataHandlerProvider({ children }) {
 //--------------------------------------------------------------------------------------
   // INITIATIVES SYNC BLOCK
 
-  //tells that there are changes in InitiativesList, and triggers autosave
+  //tells that there are changes in InitiativesList, and triggers autosave.
   useEffect(() => {
     if (isApplyingRemoteInitiativesRef.current) {
       isApplyingRemoteInitiativesRef.current = false;
@@ -255,7 +263,7 @@ export function DataHandlerProvider({ children }) {
     unsavedChangesInitiativesRef.current = true;
   } , [initiativeList]);
 
-  //saves data in initiatives docs, from db to db and resets dirtyflag to false;.
+  //saves data in initiatives docs, from db to db and resets dirtyflag to false.
   useEffect(() => {
     const timeout = setTimeout(async () => {
       await saveInitiativesToDB(userId, initiativeList);
@@ -294,10 +302,73 @@ export function DataHandlerProvider({ children }) {
 
 //--------------------------------------------------------------------------------------
   //COMBATS SYNC BLOCK
+
+  //tells there are changes in the combats, and triggers autosave.
+  useEffect(() => {
+    if (isApplyingRemoteCombatsRef.current) {
+      isApplyingRemoteCombatsRef.current = false;
+      return;
+    }
+    console.log("combats changed, unsavedChangesCombats set to true");
+    setUnsavedChangesCombats(true);
+    unsavedChangesCombatsRef.current = true;
+  } , [combats]);
+
+  //saves data in combats docs, from db to db and resets dirtyflag to false.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveCombatsToDB(userId, combats);
+      await saveCombatsToCache(combats);
+
+      setUnsavedChangesCombats(false);
+      unsavedChangesCombatsRef.current = false;
+      console.log("saved combats to db and cache, unsavedChangesCombats set to false");
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [combats]);
+
+  //loads synced data in combats docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToCombatsDB(userId, (syncData) => {
+      const remoteCombats = syncData.CombatsList || [];
+      if (unsavedChangesCombatsRef.current) {
+        console.log("unsavedChangesCombatsRef.current is true, not applying remote combats");
+        return;
+      }
+      setCombats(current => {
+        if (JSON.stringify(current) === JSON.stringify(remoteCombats)) {
+          return current;
+        }
+
+        isApplyingRemoteCombatsRef.current = true;
+        return remoteCombats;
+      });
+      console.log("syncing combats from db to db");
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+//--------------------------------------------------------------------------------------
+  //MONSTERS SYNC BLOCK
+
   //wip
+
+  //tells that there are changes in the playlist, and triggers autosave
+  useEffect(() => {
+    if (isApplyingRemoteMonstersRef.current) {
+      isApplyingRemoteMonstersRef.current = false;
+      return;
+    }
+    console.log("monsterslist changed, unsavedChangesMonsters set to true");
+    setUnsavedChangesMonsters(true);
+    unsavedChangesMonstersRef.current = true;
+  } , [monstersList]);
 //--------------------------------------------------------------------------------------
   //SCRIPTS SYNC BLOCK
-  //wip
+  //wip, doing with collab
 //--------------------------------------------------------------------------------------
   // PLAYLIST SYNC BLOCK
 
@@ -317,8 +388,8 @@ export function DataHandlerProvider({ children }) {
   //saves data in musics docs, from db to db and resets dirtyflag to false;.
   useEffect(() => {
     const timeout = setTimeout(async () => {
-      await saveMusicsToDB(userId, deviceId, playlist); //later remove deviceId
-      //await savePlaylistToCache(playlist) put in comment, due to last save not being setted
+      await saveMusicsToDB(userId, playlist); //later remove deviceId
+      
       await savePlaylistToCache(playlist);
 
       setUnsavedChangesPlaylist(false);

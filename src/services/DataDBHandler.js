@@ -2,6 +2,8 @@ import { db } from "../firebase/firebase";
 import { onSnapshot, collection, query, where, serverTimestamp } from "firebase/firestore";
 import { doc ,getDoc, getDocs, setDoc } from "firebase/firestore";
 
+//make any individual change update central lastSave
+
 export async function getDBLastSave(userId) {
   const docRef = doc(db, "Users", userId,);
   const docSnap = await getDoc(docRef);
@@ -173,6 +175,27 @@ export async function loadCombatsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
+export function subscribeToCombatsDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Combats"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/Combats nn existe")
+      return;
+    };
+    
+    const CombatsDoc = snapshot.docs[0];
+    console.log("snapshot data Combats pulled:", CombatsDoc.data());
+    onChange(CombatsDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
 //--------------------------------------------------------------------------------------
 //MONSTERS BLOCK
 export async function saveMonstersToDB(userId, monsterList) {
@@ -228,9 +251,30 @@ export async function loadMonstersFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
+export function subscribeToMonstersDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Monsters"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/Monsters nn existe")
+      return;
+    };
+    
+    const MonstersDoc = snapshot.docs[0];
+    console.log("snapshot data Monsters pulled:", MonstersDoc.data());
+    onChange(MonstersDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
 //--------------------------------------------------------------------------------------
 //SCRIPTS BLOCK
-export async function saveScriptsToDB(userId, scripts, notesList){
+export async function saveScriptsToDB(userId, scripts){
   try{
     const q = query(
     collection(db, "Scripts"),
@@ -243,9 +287,7 @@ export async function saveScriptsToDB(userId, scripts, notesList){
       await setDoc(
         doc(collection(db, "Scripts")), 
         {
-          lastSave: serverTimestamp(),
           UserId: userId,
-          NotesList: notesList || [{title: "Exemplo de nota", content: "1Esta é uma nota de exemplo. Você pode adicionar, editar e excluir notas conforme necessário."}],
           ScriptDoc: {Title: scripts?.title || "", Body: scripts?.body || ""},
         }
       );
@@ -256,9 +298,7 @@ export async function saveScriptsToDB(userId, scripts, notesList){
     await setDoc( //ja havia um docs la
       doc(db, "Scripts", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
         UserId: userId,
-        NotesList: notesList || [{title: "Exemplo de nota", content: "2Esta é uma nota de exemplo. Você pode adicionar, editar e excluir notas conforme necessário."}],
         ScriptDoc: {Title: scripts?.title || "fuck me", Body: scripts?.body || "fuck me 2"},
       }
     );
@@ -287,6 +327,8 @@ export async function loadScriptsFromDB(userId){
   return snapshot.docs[0].data();
 }
 
+//collab with tip tap
+
 //--------------------------------------------------------------------------------------
 //MUSICS BLOCK
 export async function saveMusicsToDB(userId, deviceId, playlist) {
@@ -308,7 +350,6 @@ export async function saveMusicsToDB(userId, deviceId, playlist) {
       await setDoc(
         doc(collection(db, "Musics")), 
         {
-          //lastSave: serverTimestamp(),
           UserId: userId,
           Playlist: playlist,
         }
@@ -321,7 +362,6 @@ export async function saveMusicsToDB(userId, deviceId, playlist) {
     await setDoc( //ja havia um docs la
       doc(db, "Musics", snapshot.docs[0].id), //primeiro docs
       {
-        //lastSave: serverTimestamp(),
         UserId: userId,
         Playlist: playlist,
       }
