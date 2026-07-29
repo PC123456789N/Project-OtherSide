@@ -1,7 +1,5 @@
 import { useAuth } from "../authContext/auth";
 
-import { getDeviceId } from "../../services/DeviceIdHandler";
-
 import {
   verifyUser,
   getCachedLastSave,
@@ -23,6 +21,9 @@ import {
   subscribeToCombatsDB,
   saveMonstersToDB,
   loadMonstersFromDB,
+  subscribeToMonstersDB,
+  saveScriptsToDB,
+  loadScriptsFromDB,
   saveMusicsToDB,
   loadMusicsFromDB,
   subscribeToMusicsDB,
@@ -117,11 +118,11 @@ export function DataHandlerProvider({ children }) {
 
   // atual save system, will be deleted when multi doc sync is fully implemented.
   useEffect(() => {
-
+    //currently only works with script since others were removed for their own save system
     const timeout = setTimeout(() => {
-      saveToCache(initiativeList, combats, monstersList, scripts, playlist);
+      saveScriptsToCache(scripts);
 
-      saveAllToDB(userId, initiativeList, combats, monstersList, scripts, playlist);
+      saveScriptsToDB(userId, scripts);
 
       setUnsavedChanges(false);
     }, 1000);
@@ -130,8 +131,8 @@ export function DataHandlerProvider({ children }) {
   }, [
     unsavedChanges,
     //initiativeList,
-    combats,
-    monstersList,
+    //combats,
+    //monstersList,
     scripts,
     //playlist,
   ]);
@@ -366,6 +367,43 @@ export function DataHandlerProvider({ children }) {
     setUnsavedChangesMonsters(true);
     unsavedChangesMonstersRef.current = true;
   } , [monstersList]);
+
+  //saves data in monster docs, from db to db and resets dirtyflag to false.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveMonstersToDB(userId, monstersList);
+      await saveMonstersToCache(monstersList);
+
+      setUnsavedChangesMonsters(false);
+      unsavedChangesMonstersRef.current = false;
+      console.log("saved monstersList to db and cache, unsavedChangesMonsters set to false");
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [monstersList]);
+
+  //loads synced data in combats docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToMonstersDB(userId, (syncData) => {
+      const remoteMonsters = syncData.CombatsList || [];
+      if (unsavedChangesMonstersRef.current) {
+        console.log("unsavedChangesMonstersRef.current is true, not applying remote monsters");
+        return;
+      }
+      setMonstersList(current => {
+        if (JSON.stringify(current) === JSON.stringify(remoteMonsters)) {
+          return current;
+        }
+
+        isApplyingRemoteCombatsRef.current = true;
+        return remoteMonsters;
+      });
+      console.log("syncing monsters from db to db");
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
 //--------------------------------------------------------------------------------------
   //SCRIPTS SYNC BLOCK
   //wip, doing with collab

@@ -331,7 +331,7 @@ export async function loadScriptsFromDB(userId){
 
 //--------------------------------------------------------------------------------------
 //MUSICS BLOCK
-export async function saveMusicsToDB(userId, deviceId, playlist) {
+export async function saveMusicsToDB(userId, playlist) {
   //console.trace("saveMusicsToDB chamado com:", playlist);
   //console.log("userId:", userId);
   //console.log("initiativeList:", initiativeList);
