@@ -100,6 +100,7 @@ export default function Script() {
   // useDataHandler (scriptsList, activeScriptId, createScript, etc).
   const {scriptsList, setScriptsList} = useDataHandler();
   const [activeScriptId, setActiveScriptId] = useState("script-1")
+  console.log(scriptsList)
 
   const activeScript = scriptsList.find((s) => s.id === activeScriptId) || null
 
