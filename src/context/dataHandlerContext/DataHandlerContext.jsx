@@ -296,7 +296,7 @@ export function DataHandlerProvider({ children }) {
   //COMBATS SYNC BLOCK
   //wip
 //--------------------------------------------------------------------------------------
-  //SCRIPTS AND NOTES SYNC BLOCK
+  //SCRIPTS SYNC BLOCK
   //wip
 //--------------------------------------------------------------------------------------
   // PLAYLIST SYNC BLOCK
