@@ -1,5 +1,6 @@
 import { openDB } from "idb";
 
+//make any individual change update central lastSave
 
 export const dbPromise = openDB("app_web", 1, {
   upgrade(db) {
@@ -58,7 +59,6 @@ export async function loadFromCache(){
     combats: await cache.get("combats", "cachedUserCombats"),
     monsters: await cache.get("monsters", "cachedMonstersList"),
     script: await cache.get("scripts", "cachedScript"),
-    notes: await cache.get("scripts", "cachedNotesList"),
     music: await cache.get("musics", "cachedPlaylist"),
   };
 }
@@ -68,12 +68,12 @@ export async function saveToCache(
   combats,
   monstersList,
   scripts, 
-  notesList,
   playlist
 ){
   console.log("data sent to idb")
-  console.log("initiativeList:", initiativeList);
+  //console.log("initiativeList:", initiativeList);
   console.log("combats:", combats);
+  console.log("monstersList: ", monstersList)
   const cache = await dbPromise;
   
   await cache.put(
@@ -93,6 +93,7 @@ export async function saveToCache(
     combats,
     "cachedUserCombats"
   );
+
   await cache.put(
     "monsters",
     monstersList,
@@ -104,12 +105,52 @@ export async function saveToCache(
     scripts,
     "cachedScript"
   );
+
+  await cache.put(
+    "musics",
+    playlist,
+    "cachedPlaylist"
+  );
+}
+
+export async function saveInitiativesToCache(initiativeList) {
+  const cache = await dbPromise;
+  await cache.put(
+    "initiatives",
+    initiativeList,
+    "cachedInitiativeList"
+  );
+}
+
+export async function saveCombatsToCache(combats) {
+  const cache = await dbPromise;
+  await cache.put(
+    "combats",
+    combats,
+    "cachedUserCombats"
+  );
+}
+
+export async function saveMonstersToCache(monstersList) {
+  const cache = await dbPromise;
+  await cache.put(
+    "monsters",
+    monstersList,
+    "cachedMonstersList"
+  );
+}
+
+export async function saveScriptsToCache(scripts) {
+  const cache = await dbPromise;
   await cache.put(
     "scripts",
-    notesList,
-    "cachedNotesList"
+    scripts,
+    "cachedScript"
   );
+}
 
+export async function savePlaylistToCache(playlist) {
+  const cache = await dbPromise;
   await cache.put(
     "musics",
     playlist,

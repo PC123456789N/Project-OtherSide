@@ -2,6 +2,8 @@ import { db } from "../firebase/firebase";
 import { onSnapshot, collection, query, where, serverTimestamp } from "firebase/firestore";
 import { doc ,getDoc, getDocs, setDoc } from "firebase/firestore";
 
+//make any individual change update central lastSave
+
 export async function getDBLastSave(userId) {
   const docRef = doc(db, "Users", userId,);
   const docSnap = await getDoc(docRef);
@@ -38,6 +40,9 @@ export async function setDBLastSave(userId) {
   );
 }
 
+//--------------------------------------------------------------------------------------
+//INITIATIVES BLOCK
+
 export async function saveInitiativesToDB(userId, initiativeList) {
   //console.log("userId:", userId);
   //console.log("initiativeList:", initiativeList);
@@ -54,7 +59,6 @@ export async function saveInitiativesToDB(userId, initiativeList) {
       await setDoc(
         doc(collection(db, "Initiatives")), 
         {
-          lastSave: serverTimestamp(),
           UserId: userId,
           PlayerArray: initiativeList,
         }
@@ -66,7 +70,6 @@ export async function saveInitiativesToDB(userId, initiativeList) {
     await setDoc( //ja havia um docs la
       doc(db, "Initiatives", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
         UserId: userId,
         PlayerArray: initiativeList,
       }
@@ -96,7 +99,30 @@ export async function loadInitiativesFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveCombatsToDB(userId, combats, monsterList) {
+export function subscribeToInitiativesDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Initiatives"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/Initiatives nn existe")
+      return;
+    };
+    
+    const InitiativesDoc = snapshot.docs[0];
+    console.log("snapshot data Initiatives pulled:", InitiativesDoc.data());
+    onChange(InitiativesDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
+//--------------------------------------------------------------------------------------
+//COMBATS BLOCK
+export async function saveCombatsToDB(userId, combats) {
   try{
     const q = query(
     collection(db, "Combats"),
@@ -109,10 +135,8 @@ export async function saveCombatsToDB(userId, combats, monsterList) {
       await setDoc(
         doc(collection(db, "Combats")), 
         {
-          lastSave: serverTimestamp(),
           UserId: userId,
           CombatsList: combats,
-          MonsterList: monsterList
         }
       );
       console.log("doc firestore/Combats Criado")
@@ -122,10 +146,8 @@ export async function saveCombatsToDB(userId, combats, monsterList) {
     await setDoc( //ja havia um docs la
       doc(db, "Combats", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
         UserId: userId,
         CombatsList: combats,
-        MonsterList: monsterList
       }
     );
     console.log("doc firestore/Combats atualizado")
@@ -153,7 +175,106 @@ export async function loadCombatsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveScriptsToDB(userId, scripts, notesList){
+export function subscribeToCombatsDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Combats"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/Combats nn existe")
+      return;
+    };
+    
+    const CombatsDoc = snapshot.docs[0];
+    console.log("snapshot data Combats pulled:", CombatsDoc.data());
+    onChange(CombatsDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
+//--------------------------------------------------------------------------------------
+//MONSTERS BLOCK
+export async function saveMonstersToDB(userId, monsterList) {
+  try{
+    const q = query(
+    collection(db, "Monsters"),
+    where("UserId", "==", userId)
+  );
+  
+  const snapshot = await getDocs(q);
+  
+    if (snapshot.empty) { //nn havia docs la
+      await setDoc(
+        doc(collection(db, "Monsters")), 
+        {
+          UserId: userId,
+          MonsterList: monsterList
+        }
+      );
+      console.log("doc firestore/Monsters Criado")
+      return;
+    }
+
+    await setDoc( //ja havia um docs la
+      doc(db, "Monsters", snapshot.docs[0].id), //primeiro docs
+      {
+        UserId: userId,
+        MonsterList: monsterList
+      }
+    );
+    console.log("doc firestore/Monsters atualizado")
+    return;
+  } 
+  
+  catch(error){
+    console.error("Erro ao salvar:", error);
+  }
+}
+
+export async function loadMonstersFromDB(userId) {
+  console.log("loaded monsters from firestore")
+  const q = query(
+    collection(db, "Monsters"),
+    where("UserId", "==", userId)
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  return snapshot.docs[0].data();
+}
+
+export function subscribeToMonstersDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Monsters"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/Monsters nn existe")
+      return;
+    };
+    
+    const MonstersDoc = snapshot.docs[0];
+    console.log("snapshot data Monsters pulled:", MonstersDoc.data());
+    onChange(MonstersDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
+//--------------------------------------------------------------------------------------
+//SCRIPTS BLOCK
+export async function saveScriptsToDB(userId, scripts){
   try{
     const q = query(
     collection(db, "Scripts"),
@@ -166,9 +287,7 @@ export async function saveScriptsToDB(userId, scripts, notesList){
       await setDoc(
         doc(collection(db, "Scripts")), 
         {
-          lastSave: serverTimestamp(),
           UserId: userId,
-          NotesList: notesList || [{title: "Exemplo de nota", content: "1Esta é uma nota de exemplo. Você pode adicionar, editar e excluir notas conforme necessário."}],
           ScriptDoc: {Title: scripts?.title || "", Body: scripts?.body || ""},
         }
       );
@@ -179,9 +298,7 @@ export async function saveScriptsToDB(userId, scripts, notesList){
     await setDoc( //ja havia um docs la
       doc(db, "Scripts", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
         UserId: userId,
-        NotesList: notesList || [{title: "Exemplo de nota", content: "2Esta é uma nota de exemplo. Você pode adicionar, editar e excluir notas conforme necessário."}],
         ScriptDoc: {Title: scripts?.title || "fuck me", Body: scripts?.body || "fuck me 2"},
       }
     );
@@ -210,7 +327,10 @@ export async function loadScriptsFromDB(userId){
   return snapshot.docs[0].data();
 }
 
+//collab with tip tap
 
+//--------------------------------------------------------------------------------------
+//MUSICS BLOCK
 export async function saveMusicsToDB(userId, playlist) {
   //console.trace("saveMusicsToDB chamado com:", playlist);
   //console.log("userId:", userId);
@@ -230,7 +350,6 @@ export async function saveMusicsToDB(userId, playlist) {
       await setDoc(
         doc(collection(db, "Musics")), 
         {
-          lastSave: serverTimestamp(),
           UserId: userId,
           Playlist: playlist,
         }
@@ -243,7 +362,6 @@ export async function saveMusicsToDB(userId, playlist) {
     await setDoc( //ja havia um docs la
       doc(db, "Musics", snapshot.docs[0].id), //primeiro docs
       {
-        lastSave: serverTimestamp(),
         UserId: userId,
         Playlist: playlist,
       }
@@ -275,11 +393,35 @@ export async function loadMusicsFromDB(userId) {
   return snapshot.docs[0].data();
 }
 
-export async function saveAllToDB(userId, initiativeList, combats, monsterList, scripts, notesList, playlist) {
+export function subscribeToMusicsDB(userId, onChange) {
+
+  const q = query(
+    collection(db, "Musics"),
+    where("UserId", "==", userId)
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (snapshot.empty){
+      console.log("snapshot/musics nn existe")
+      return;
+    };
+    
+    const musicDoc = snapshot.docs[0];
+    console.log("snapshot data musics pulled:", musicDoc.data());
+    onChange(musicDoc.data()); // repassa o dado cru, sem decidir nada
+  });
+
+  return unsubscribe;
+}
+
+//--------------------------------------------------------------------------------------
+//GENERAL BLOCK
+export async function saveAllToDB(userId, initiativeList, combats, monsterList, scripts, playlist) {
   
   await saveInitiativesToDB(userId, initiativeList);
-  await saveCombatsToDB(userId, combats, monsterList);
-  await saveScriptsToDB(userId, scripts, notesList);
+  await saveCombatsToDB(userId, combats);
+  await saveMonstersToDB(userId, monsterList)
+  await saveScriptsToDB(userId, scripts);
   await saveMusicsToDB(userId, playlist);
 
   await setDBLastSave(userId);
@@ -288,15 +430,15 @@ export async function saveAllToDB(userId, initiativeList, combats, monsterList, 
 export async function loadAllFromDB(userId) {
   const initiativesData = await loadInitiativesFromDB(userId);
   const combatsData = await loadCombatsFromDB(userId);
+  const monstersData = await loadMonstersFromDB(userId)
   const musicsData = await loadMusicsFromDB(userId);
   const scriptsData = await loadScriptsFromDB(userId);
 
   return {
     initiatives: initiativesData?.PlayerArray ?? [],
     combat: combatsData?.CombatsList ?? [],
-    monster: combatsData?.MonsterList ?? [],
-    music: musicsData.Playlist ?? [],
+    monster: monstersData?.MonsterList ?? [],
     scripts: scriptsData?.ScriptDoc ?? {Title: "", Body: ""},
-    notes: scriptsData?.NotesList ?? []
+    music: musicsData.Playlist ?? [],
   };
 }

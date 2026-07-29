@@ -5,27 +5,43 @@ import {
   getCachedLastSave,
   loadFromCache,
   saveToCache,
+  saveInitiativesToCache,
+  saveCombatsToCache,
+  saveMonstersToCache,
+  saveScriptsToCache,
+  savePlaylistToCache,
 } from "../../services/DataCacheHandler";
 import {
   getDBLastSave,
   saveInitiativesToDB,
   loadInitiativesFromDB,
+  subscribeToInitiativesDB,
+  saveCombatsToDB,
+  loadCombatsFromDB,
+  subscribeToCombatsDB,
+  saveMonstersToDB,
+  loadMonstersFromDB,
+  subscribeToMonstersDB,
+  saveScriptsToDB,
+  loadScriptsFromDB,
   saveMusicsToDB,
   loadMusicsFromDB,
+  subscribeToMusicsDB,
   saveAllToDB,
   loadAllFromDB,
 } from "../../services/DataDBHandler";
 
-import React, { useContext, createContext, useState, useEffect } from "react";
+import React, { useContext, createContext, useState, useEffect, useRef } from "react";
 
 const DataHandler = React.createContext();
 
 export function DataHandlerProvider({ children }) {
   //Start Standart Data Block Below
+  
+  //pull userID from AuthContext
   const { userId } = useAuth();
   const { userLoggedIn } = useAuth();
 
-  //pull userID from AuthContext
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   //alters when something changes, triggers autosave
 
@@ -42,121 +58,31 @@ export function DataHandlerProvider({ children }) {
   const [combatId, setCombatId] = useState(null);
 
   const [monstersList, setMonstersList] = useState([]);
-    // {
-    //   id: "blood_zombie",
-    //   name: "Blood Zombie",
-    //   image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZPj2MX7yEFpT3bqJR0ImNDrt9z61_lSBRvst4pdi7PA&s=10",
-    //   element: "Blood",
-    //   type: "Boss",
-    //   size: "Medium",
-
-    //   hp: {
-    //     current: 60,
-    //     max: 60,
-    //   },
-    //   combat: {
-    //     defense: 15,
-    //     movement: 9,
-    //     sanityDamage: {
-    //       value: 15,
-    //       damage: "2d10",
-    //     },
-    //   },
-    //   attributes: {
-    //     agility: 1,
-    //     strength: 3,
-    //     intellect: 0,
-    //     presence: 0,
-    //     vigor: 3,
-    //   },
-
-    //   skills: [
-    //     {
-    //       id: "skill-fortitude",
-    //       name: "Fortitude",
-    //       value: 3,
-    //       bonus: 5,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-luta",
-    //       name: "Luta",
-    //       value: 3,
-    //       bonus: 6,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-iniciativa",
-    //       name: "Iniciativa",
-    //       value: 2,
-    //       bonus: 3,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-pontaria",
-    //       name: "Pontaria",
-    //       value: 1,
-    //       bonus: 0,
-    //       lastResult: null,
-    //     },
-    //     {
-    //       id: "skill-vontade",
-    //       name: "Vontade",
-    //       value: 2,
-    //       bonus: 2,
-    //       lastResult: null,
-    //     },
-    //   ],
-
-    //   attacks: [
-    //     {
-    //       id: "attack-claws",
-    //       name: "Claws",
-    //       type: "Corpo a Corpo",
-    //       range: "3m",
-    //       testBonus: 8,
-    //       damage: "2d8+5",
-    //       threatMargin: 20,
-    //       critMultiplier: 2,
-    //       lastTestResult: null,
-    //       lastCritical: false,
-    //       lastDamageResult: null,
-    //       lastCritDamageResult: null,
-    //     },
-    //   ],
-    //   abilities: [
-    //     {
-    //       id: "ability-fury",
-    //       name: "Uncontrolled Fury",
-    //       attributeName: "Fúria Descontrolada",
-    //       attributeDescription: "When below 50% HP, gains +2 on attack rolls.",
-    //     },
-    //   ],
-    //   resistances: [
-    //     {
-    //       id: "resistance-blood",
-    //       name: "Sangue",
-    //       description: "Reduz em 10 o dano recebido do elemento Sangue.",
-    //     },
-    //   ],
-    //   vulnerabilities: [{ id: "vuln-death", value: "Death" }],
-
-    //   immunities: [
-    //     { id: "immunity-fear", value: "Fear" },
-    //     { id: "immunity-bleeding", value: "Bleeding" },
-    //     { id: "immunity-blindness", value: "Blindness" },
-    //   ],
-
-    //   fearEnigma: "",
-
-    //   description: "A creature twisted by the Blood element, driven only by violence.",
-    // },
 
   const [scripts, setScripts] = useState({ title: "", body: "" });
-  const [notesList, setNotesList] = useState([]);
 
   const [playlist, setPlaylist] = useState([]);
   const [videoId, setVideoId] = useState(null);
+
+
+  // dirty flags for each data type, to avoid unnecessary saves when only one type changes
+  const [unsavedChangesInitiatives, setUnsavedChangesInitiatives] = useState(false);
+  const [unsavedChangesCombats, setUnsavedChangesCombats] = useState(false);
+  const [unsavedChangesMonsters, setUnsavedChangesMonsters] = useState(false);
+  const [unsavedChangesScripts, setUnsavedChangesScripts] = useState(false);
+  const [unsavedChangesPlaylist, setUnsavedChangesPlaylist] = useState(false);
+
+  const unsavedChangesInitiativesRef = useRef(false);
+  const unsavedChangesCombatsRef = useRef(false);
+  const unsavedChangesMonstersRef = useRef(false);
+  const unsavedChangesScriptsRef = useRef(false);
+  const unsavedChangesPlaylistRef = useRef(false);
+
+  const isApplyingRemoteInitiativesRef = useRef(false);
+  const isApplyingRemoteCombatsRef = useRef(false);
+  const isApplyingRemoteMonstersRef = useRef(false);
+  const isApplyingRemoteScriptsRef = useRef(false);
+  const isApplyingRemotePlaylistRef = useRef(false);
 
   // Histórico de rolagem de dados (compartilhado entre a CombatSidebar e as
   // abas da ficha, ex: rolagem de perícia). É estado de sessão, não é
@@ -166,12 +92,14 @@ export function DataHandlerProvider({ children }) {
 
   //End Standart Data Block
 
+  //reloads pageid from localstorage
   useEffect(() => {
     //Saves the SelectedPageID
     localStorage.setItem("selectedPageId", selectedPageId);
     //console.log("selectedId mudou para:", selectedPageId);
   }, [selectedPageId]);
 
+  //makes sure user is same as before, if not, clears cache and db.
   useEffect(() => {
     if (!userId) return;
 
@@ -188,13 +116,13 @@ export function DataHandlerProvider({ children }) {
     };
   }, [userId]);
 
+  // atual save system, will be deleted when multi doc sync is fully implemented.
   useEffect(() => {
-    //if (!unsavedChanges) return;
-
+    //currently only works with script since others were removed for their own save system
     const timeout = setTimeout(() => {
-      saveToCache(initiativeList, combats, monstersList, scripts, notesList, playlist);
+      saveScriptsToCache(scripts);
 
-      saveAllToDB(userId, initiativeList, combats, monstersList, scripts, notesList, playlist);
+      saveScriptsToDB(userId, scripts);
 
       setUnsavedChanges(false);
     }, 1000);
@@ -202,15 +130,14 @@ export function DataHandlerProvider({ children }) {
     return () => clearTimeout(timeout);
   }, [
     unsavedChanges,
-    initiativeList,
-    combats,
-    monstersList,
+    //initiativeList,
+    //combats,
+    //monstersList,
     scripts,
-    notesList,
-    playlist,
-    videoId,
+    //playlist,
   ]);
 
+  //syncs data when starting aplication, checks if cache or firestore is more recent and loads it.
   async function syncData(userId) {
     try {
       const cacheTime = await getCachedLastSave();
@@ -230,12 +157,11 @@ export function DataHandlerProvider({ children }) {
 
         await saveAllToDB(
           userId,
-          cachedData.initiatives,
-          cachedData.combats,
-          cachedData.monsters,
-          cachedData.script,
-          cachedData.notes,
-          cachedData.music,
+          cachedData.initiatives ?? [],
+          cachedData.combats ?? [],
+          cachedData.monsters ?? [],
+          cachedData.script ?? {Title: "", Body: ""},
+          cachedData.music ?? [],
         );
 
         return;
@@ -254,7 +180,6 @@ export function DataHandlerProvider({ children }) {
           title: firestoreData.scripts?.Title || "",
           body: firestoreData.scripts?.Body || "",
         });
-        setNotesList(firestoreData.notes);
         setPlaylist(firestoreData.music);
 
         //place firestoreData.combat instead of null
@@ -263,7 +188,6 @@ export function DataHandlerProvider({ children }) {
           firestoreData.combat,
           firestoreData.monster,
           firestoreData.scripts,
-          firestoreData.notes,
           firestoreData.music,
         );
         return;
@@ -282,7 +206,6 @@ export function DataHandlerProvider({ children }) {
           title: firestoreData.scripts?.Title || "",
           body: firestoreData.scripts?.Body || "",
         });
-        setNotesList(firestoreData.notes);
         setPlaylist(firestoreData.music);
 
         await saveToCache(
@@ -290,9 +213,8 @@ export function DataHandlerProvider({ children }) {
           firestoreData.combat,
           firestoreData.monster,
           firestoreData.scripts,
-          firestoreData.notes,
           firestoreData.music,
-        ); //remake this shit, will break
+        );
 
         return;
       }
@@ -304,16 +226,12 @@ export function DataHandlerProvider({ children }) {
         // console.log(cachedData.combat)
 
         setInitiativeList(cachedData.initiatives);
-
         setCombats(cachedData.combats);
         setMonstersList(cachedData.monsters);
-
         setScripts({
           title: cachedData.script.title,
           body: cachedData.script.body,
         });
-        setNotesList(cachedData.notes);
-
         setPlaylist(cachedData.music);
 
         await saveAllToDB(
@@ -322,30 +240,229 @@ export function DataHandlerProvider({ children }) {
           cachedData.combats,
           cachedData.monsters,
           cachedData.script,
-          cachedData.notes,
           cachedData.music,
         );
 
         return;
       }
-
-      // Iguais WIP
-      // console.log("Dados sincronizados");
-
-      // const cachedData = await loadFromCache();
-
-      // setInitiativeList(
-      //   cachedData.initiatives
-      // );
-      // setPlaylist(
-      //   {
-      //     nome: "wablua1"
-      //   }
-      // )
     } catch (error) {
       console.error("Erro na sincronização:", error);
     }
   }
+
+//--------------------------------------------------------------------------------------
+  // INITIATIVES SYNC BLOCK
+
+  //tells that there are changes in InitiativesList, and triggers autosave.
+  useEffect(() => {
+    if (isApplyingRemoteInitiativesRef.current) {
+      isApplyingRemoteInitiativesRef.current = false;
+      return;
+    }
+    console.log("initiatives changed, unsavedChangesInitiatives set to true");
+    setUnsavedChangesInitiatives(true);
+    unsavedChangesInitiativesRef.current = true;
+  } , [initiativeList]);
+
+  //saves data in initiatives docs, from db to db and resets dirtyflag to false.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveInitiativesToDB(userId, initiativeList);
+      await saveInitiativesToCache(initiativeList);
+
+      setUnsavedChangesInitiatives(false);
+      unsavedChangesInitiativesRef.current = false;
+      console.log("saved initiatives to db and cache, unsavedChangesInitiatives set to false");
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [initiativeList]);
+
+  // loads synced data in initiatives docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToInitiativesDB(userId, (syncData) => {
+      const remoteInitiatives = syncData.PlayerArray || [];
+      if (unsavedChangesInitiativesRef.current) {
+        console.log("unsavedChangesInitiativesRef.current is true, not applying remote initiatives");
+        return;
+      }
+      setInitiativeList(current => {
+        if (JSON.stringify(current) === JSON.stringify(remoteInitiatives)) {
+          return current;
+        }
+
+        isApplyingRemoteInitiativesRef.current = true;
+        return remoteInitiatives;
+      });
+      console.log("syncing initiatives from db to db");
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+//--------------------------------------------------------------------------------------
+  //COMBATS SYNC BLOCK
+
+  //tells there are changes in the combats, and triggers autosave.
+  useEffect(() => {
+    if (isApplyingRemoteCombatsRef.current) {
+      isApplyingRemoteCombatsRef.current = false;
+      return;
+    }
+    console.log("combats changed, unsavedChangesCombats set to true");
+    setUnsavedChangesCombats(true);
+    unsavedChangesCombatsRef.current = true;
+  } , [combats]);
+
+  //saves data in combats docs, from db to db and resets dirtyflag to false.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveCombatsToDB(userId, combats);
+      await saveCombatsToCache(combats);
+
+      setUnsavedChangesCombats(false);
+      unsavedChangesCombatsRef.current = false;
+      console.log("saved combats to db and cache, unsavedChangesCombats set to false");
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [combats]);
+
+  //loads synced data in combats docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToCombatsDB(userId, (syncData) => {
+      const remoteCombats = syncData.CombatsList || [];
+      if (unsavedChangesCombatsRef.current) {
+        console.log("unsavedChangesCombatsRef.current is true, not applying remote combats");
+        return;
+      }
+      setCombats(current => {
+        if (JSON.stringify(current) === JSON.stringify(remoteCombats)) {
+          return current;
+        }
+
+        isApplyingRemoteCombatsRef.current = true;
+        return remoteCombats;
+      });
+      console.log("syncing combats from db to db");
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+//--------------------------------------------------------------------------------------
+  //MONSTERS SYNC BLOCK
+
+  //wip
+
+  //tells that there are changes in the playlist, and triggers autosave
+  useEffect(() => {
+    if (isApplyingRemoteMonstersRef.current) {
+      isApplyingRemoteMonstersRef.current = false;
+      return;
+    }
+    console.log("monsterslist changed, unsavedChangesMonsters set to true");
+    setUnsavedChangesMonsters(true);
+    unsavedChangesMonstersRef.current = true;
+  } , [monstersList]);
+
+  //saves data in monster docs, from db to db and resets dirtyflag to false.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveMonstersToDB(userId, monstersList);
+      await saveMonstersToCache(monstersList);
+
+      setUnsavedChangesMonsters(false);
+      unsavedChangesMonstersRef.current = false;
+      console.log("saved monstersList to db and cache, unsavedChangesMonsters set to false");
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [monstersList]);
+
+  //loads synced data in combats docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToMonstersDB(userId, (syncData) => {
+      const remoteMonsters = syncData.CombatsList || [];
+      if (unsavedChangesMonstersRef.current) {
+        console.log("unsavedChangesMonstersRef.current is true, not applying remote monsters");
+        return;
+      }
+      setMonstersList(current => {
+        if (JSON.stringify(current) === JSON.stringify(remoteMonsters)) {
+          return current;
+        }
+
+        isApplyingRemoteCombatsRef.current = true;
+        return remoteMonsters;
+      });
+      console.log("syncing monsters from db to db");
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+//--------------------------------------------------------------------------------------
+  //SCRIPTS SYNC BLOCK
+  //wip, doing with collab
+//--------------------------------------------------------------------------------------
+  // PLAYLIST SYNC BLOCK
+
+  //tells that there are changes in the playlist, and triggers autosave
+  useEffect(() => {
+    if (isApplyingRemotePlaylistRef.current) {
+      // essa mudança em `playlist` foi o próprio listener aplicando dado remoto —
+      // não é uma edição do usuário, então não marca como "não salvo"
+      isApplyingRemotePlaylistRef.current = false;
+      return;
+    }
+    console.log("playlist changed, unsavedChangesPlaylist set to true");
+    setUnsavedChangesPlaylist(true);
+    unsavedChangesPlaylistRef.current = true;
+  }, [playlist]);
+  
+  //saves data in musics docs, from db to db and resets dirtyflag to false;.
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      await saveMusicsToDB(userId, playlist); //later remove deviceId
+      
+      await savePlaylistToCache(playlist);
+
+      setUnsavedChangesPlaylist(false);
+      unsavedChangesPlaylistRef.current = false;
+      console.log("saved playlist to db and cache, unsavedChangesPlaylist set to false");
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [playlist]);
+
+  // loads synced data in musics docs, from db to db.
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribe = subscribeToMusicsDB(userId, (syncData) => {
+      const remotePlaylist = syncData.Playlist || [];
+      if (unsavedChangesPlaylistRef.current) {
+        console.log("unsavedChangesPlaylistRef.current is true, not applying remote playlist");
+        return;
+      }
+      setPlaylist(current => {
+        if (JSON.stringify(current) === JSON.stringify(remotePlaylist)) {
+          return current;
+        }
+
+        isApplyingRemotePlaylistRef.current = true;
+        return remotePlaylist;
+      });
+      console.log("syncing musics from db to db");
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+//--------------------------------------------------------------------------------------
 
   return (
     <DataHandler.Provider
@@ -364,8 +481,6 @@ export function DataHandlerProvider({ children }) {
         setMonstersList,
         scripts,
         setScripts,
-        notesList,
-        setNotesList,
         playlist,
         setPlaylist,
         videoId,
