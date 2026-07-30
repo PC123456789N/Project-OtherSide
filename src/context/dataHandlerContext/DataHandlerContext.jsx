@@ -354,7 +354,7 @@ export function DataHandlerProvider({ children }) {
     if (!userId) return;
 
     const unsubscribe = subscribeToMonstersDB(userId, (syncData) => {
-      const remoteMonsters = syncData.CombatsList || [];
+      const remoteMonsters = syncData.MonsterList || [];
       if (unsavedChangesMonstersRef.current) {
         console.log("unsavedChangesMonstersRef.current is true, not applying remote monsters");
         return;
@@ -364,7 +364,7 @@ export function DataHandlerProvider({ children }) {
           return current;
         }
 
-        isApplyingRemoteCombatsRef.current = true;
+        isApplyingRemoteMonstersRef.current = true;
         return remoteMonsters;
       });
       console.log("syncing monsters from db to db");
