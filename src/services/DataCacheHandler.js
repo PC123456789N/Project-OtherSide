@@ -25,6 +25,16 @@ export const dbPromise = openDB("app_web", 1, {
   }
 })
 
+export async function clearCache(){
+  const cache = await dbPromise;
+  await cache.clear("initiatives");
+  await cache.clear("combats");
+  await cache.clear("monsters");
+  await cache.clear("scripts");
+  await cache.clear("musics");
+  await cache.clear("metadata");
+}
+
 export async function verifyUser( userId ) {
   const cache = await dbPromise;
   const cachedUserId = await cache.get("metadata", "cachedUserId")

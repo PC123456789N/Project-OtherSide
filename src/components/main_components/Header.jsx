@@ -5,6 +5,8 @@ import { doSignOut } from "../../firebase/auth";
 import { useDataHandler } from "../../context/dataHandlerContext/DataHandlerContext.jsx";
 import HeaderBtn from "../subcomponents/HeaderBtn"
 
+import { clearCache } from "../../services/DataCacheHandler.js";
+
 import logoOther from "../../assets/othersidelogo.webp";
 
 export default function Header() {
@@ -57,7 +59,7 @@ export default function Header() {
                         <div className="lg:hidden">
                             {userLoggedIn ? (
                                 <button
-                                    onClick={() => {setSelectedPageId(0); doSignOut();}}
+                                    onClick={() => {setSelectedPageId(0); clearCache(); doSignOut();}}
                                     className="text-[10px] px-3 py-1 rounded-full border border-red-600 text-red-500 active:scale-90 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.6)]"
                                 >
                                     Sair
@@ -126,7 +128,7 @@ export default function Header() {
                     <div className="hidden lg:flex justify-end items-center gap-2">
                         {userLoggedIn ? (
                             <button
-                                onClick={() => {setSelectedPageId(0); doSignOut();}}
+                                onClick={() => {setSelectedPageId(0); clearCache(); doSignOut();}}
                                 className="
                                 mt-1
                                 px-4 py-2
