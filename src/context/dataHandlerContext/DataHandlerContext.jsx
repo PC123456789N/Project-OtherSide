@@ -315,27 +315,21 @@ export function DataHandlerProvider({ children }) {
 
   //tells that there are changes in the playlist, and triggers autosave
   useEffect(() => {
-    if (isApplyingRemoteMonstersRef.current) {
-      isApplyingRemoteMonstersRef.current = false;
-      return;
-    }
-    console.log("monsterslist changed, unsavedChangesMonsters set to true");
-    setUnsavedChangesMonsters(true);
-    unsavedChangesMonstersRef.current = true;
-  } , [monstersList]);
+  if (isApplyingRemoteMonstersRef.current) {
+    isApplyingRemoteMonstersRef.current = false;
+    return; // não marca sujo nem agenda save
+  }
+  setUnsavedChangesMonsters(true);
+  unsavedChangesMonstersRef.current = true;
 
-  //saves data in monster docs, from db to db and resets dirtyflag to false.
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      await saveMonstersToDB(userId, monstersList);
-      await saveMonstersToCache(monstersList);
-
-      setUnsavedChangesMonsters(false);
-      unsavedChangesMonstersRef.current = false;
-      console.log("saved monstersList to db and cache, unsavedChangesMonsters set to false");
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [monstersList]);
+  const timeout = setTimeout(async () => {
+    await saveMonstersToDB(userId, monstersList);
+    await saveMonstersToCache(monstersList);
+    setUnsavedChangesMonsters(false);
+    unsavedChangesMonstersRef.current = false;
+  }, 1000);
+  return () => clearTimeout(timeout);
+}, [monstersList]);
 
   //loads synced data in combats docs, from db to db.
   useEffect(() => {
@@ -379,11 +373,7 @@ export function DataHandlerProvider({ children }) {
     return () => clearTimeout(timeout);
   }, [
     unsavedChanges,
-    //initiativeList,
-    //combats,
-    //monstersList,
     scriptsList,
-    //playlist,
   ]);
 
 
@@ -392,31 +382,21 @@ export function DataHandlerProvider({ children }) {
 
   //tells that there are changes in the playlist, and triggers autosave
   useEffect(() => {
-    if (isApplyingRemotePlaylistRef.current) {
-      // essa mudança em `playlist` foi o próprio listener aplicando dado remoto —
-      // não é uma edição do usuário, então não marca como "não salvo"
-      isApplyingRemotePlaylistRef.current = false;
-      return;
-    }
-    console.log("playlist changed, unsavedChangesPlaylist set to true");
-    setUnsavedChangesPlaylist(true);
-    unsavedChangesPlaylistRef.current = true;
-  }, [playlist]);
-  
-  //saves data in musics docs, from db to db and resets dirtyflag to false;.
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      await saveMusicsToDB(userId, playlist); //later remove deviceId
-      
-      await savePlaylistToCache(playlist);
+  if (isApplyingRemotePlaylistRef.current) {
+    isApplyingRemotePlaylistRef.current = false;
+    return; // não marca sujo nem agenda save
+  }
+  setUnsavedChangesMusics(true);
+  unsavedChangesPlaylistRef.current = true;
 
-      setUnsavedChangesPlaylist(false);
-      unsavedChangesPlaylistRef.current = false;
-      console.log("saved playlist to db and cache, unsavedChangesPlaylist set to false");
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [playlist]);
+  const timeout = setTimeout(async () => {
+    await saveMusicsToDB(userId, playlist);
+    await savePlaylistToCache(playlist);
+    setUnsavedChangesMusics(false);
+    unsavedChangesPlaylistRef.current = false;
+  }, 1000);
+  return () => clearTimeout(timeout);
+}, [playlist]);
 
   // loads synced data in musics docs, from db to db.
   useEffect(() => {
