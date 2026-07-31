@@ -185,10 +185,13 @@ export default function Script() {
   useEffect(() => {
     if (!editor || !activeScript) return;
 
-    editor.commands.setContent(activeScript.body || "<p></p>");
-  }, [activeScriptId]);
+    const desiredContent = activeScript.body || "<p></p>";
+    if (editor.getHTML() !== desiredContent) {
+      editor.commands.setContent(desiredContent);
+    }
+  }, [activeScriptId, activeScript?.body]);
 
-  if (!editor) return null
+    if (!editor) return null
 
   // nenhum roteiro criado ainda (ex: usuário apagou o último)
   if (!activeScript) {
