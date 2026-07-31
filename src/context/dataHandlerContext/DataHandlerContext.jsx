@@ -225,27 +225,21 @@ export function DataHandlerProvider({ children }) {
 
   //tells that there are changes in InitiativesList, and triggers autosave.
   useEffect(() => {
-    if (isApplyingRemoteInitiativesRef.current) {
-      isApplyingRemoteInitiativesRef.current = false;
-      return;
-    }
-    console.log("initiatives changed, unsavedChangesInitiatives set to true");
-    setUnsavedChangesInitiatives(true);
-    unsavedChangesInitiativesRef.current = true;
-  } , [initiativeList]);
+  if (isApplyingRemoteInitiativesRef.current) {
+    isApplyingRemoteInitiativesRef.current = false;
+    return; // não marca sujo nem agenda save
+  }
+  setUnsavedChangesInitiatives(true);
+  unsavedChangesInitiativesRef.current = true;
 
-  //saves data in initiatives docs, from db to db and resets dirtyflag to false.
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      await saveInitiativesToDB(userId, initiativeList);
-      await saveInitiativesToCache(initiativeList);
-
-      setUnsavedChangesInitiatives(false);
-      unsavedChangesInitiativesRef.current = false;
-      console.log("saved initiatives to db and cache, unsavedChangesInitiatives set to false");
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [initiativeList]);
+  const timeout = setTimeout(async () => {
+    await saveInitiativesToDB(userId, initiativeList);
+    await saveInitiativesToCache(initiativeList);
+    setUnsavedChangesInitiatives(false);
+    unsavedChangesInitiativesRef.current = false;
+  }, 1000);
+  return () => clearTimeout(timeout);
+}, [initiativeList]);
 
   // loads synced data in initiatives docs, from db to db.
   useEffect(() => {
