@@ -84,6 +84,8 @@ export function DataHandlerProvider({ children }) {
   const isApplyingRemoteScriptsRef = useRef(false);
   const isApplyingRemotePlaylistRef = useRef(false);
 
+  const hasSyncedRef = useRef(false);
+
   // Histórico de rolagem de dados (compartilhado entre a CombatSidebar e as
   // abas da ficha, ex: rolagem de perícia). É estado de sessão, não é
   // salvo em cache/Firebase junto com o resto — some ao recarregar a página,
@@ -104,6 +106,7 @@ export function DataHandlerProvider({ children }) {
     if (!userId) return;
 
     let cancelled = false;
+    hasSyncedRef.current = false;
 
     (async () => {
       await verifyUser(userId);
@@ -152,10 +155,15 @@ export function DataHandlerProvider({ children }) {
 
         const firestoreData = await loadAllFromDB(userId);
 
+        isApplyingRemoteInitiativesRef.current = true;
         setInitiativeList(firestoreData.initiatives);
+        isApplyingRemoteCombatsRef.current = true;
         setCombats(firestoreData.combat);
+        isApplyingRemoteMonstersRef.current = true;
         setMonstersList(firestoreData.monster);
+        //scripts being weird as always, fix later, may not break
         setScriptsList(firestoreData.scripts || []);
+        isApplyingRemotePlaylistRef.current = true;
         setPlaylist(firestoreData.music);
 
         //place firestoreData.combat instead of null
@@ -175,10 +183,15 @@ export function DataHandlerProvider({ children }) {
 
         const firestoreData = await loadAllFromDB(userId);
 
+        isApplyingRemoteInitiativesRef.current = true;
         setInitiativeList(firestoreData.initiatives);
+        isApplyingRemoteCombatsRef.current = true;
         setCombats(firestoreData.combat);
+        isApplyingRemoteMonstersRef.current = true;
         setMonstersList(firestoreData.monster);
+        //scripts being weird as always, fix later, may not break
         setScriptsList(firestoreData.scripts || []);
+        isApplyingRemotePlaylistRef.current = true;
         setPlaylist(firestoreData.music);
 
         await saveToCache(
@@ -198,10 +211,15 @@ export function DataHandlerProvider({ children }) {
         const cachedData = await loadFromCache();
         // console.log(cachedData.combat)
 
+        isApplyingRemoteInitiativesRef.current = true;
         setInitiativeList(cachedData.initiatives);
+        isApplyingRemoteCombatsRef.current = true;
         setCombats(cachedData.combats);
+        isApplyingRemoteMonstersRef.current = true;
         setMonstersList(cachedData.monsters);
+        //scripts being weird as always, fix later, may not break
         setScriptsList(cachedData.script);
+        isApplyingRemotePlaylistRef.current = true;
         setPlaylist(cachedData.music);
 
         await saveAllToDB(
@@ -217,6 +235,10 @@ export function DataHandlerProvider({ children }) {
       }
     } catch (error) {
       console.error("Erro na sincronização:", error);
+    } finally {
+      // libera os autosaves mesmo se algo tiver falhado acima — do contrário
+      // o usuário fica travado sem conseguir salvar nada até recarregar a página.
+      hasSyncedRef.current = true;
     }
   }
 
@@ -233,6 +255,7 @@ export function DataHandlerProvider({ children }) {
   unsavedChangesInitiativesRef.current = true;
 
   const timeout = setTimeout(async () => {
+    if (!userId || !hasSyncedRef.current) return;
     await saveInitiativesToDB(userId, initiativeList);
     await saveInitiativesToCache(initiativeList);
     setUnsavedChangesInitiatives(false);
@@ -278,6 +301,7 @@ export function DataHandlerProvider({ children }) {
   unsavedChangesCombatsRef.current = true;
 
   const timeout = setTimeout(async () => {
+    if (!userId || !hasSyncedRef.current) return;
     await saveCombatsToDB(userId, combats);
     await saveCombatsToCache(combats);
     setUnsavedChangesCombats(false);
@@ -323,6 +347,7 @@ export function DataHandlerProvider({ children }) {
   unsavedChangesMonstersRef.current = true;
 
   const timeout = setTimeout(async () => {
+    if (!userId || !hasSyncedRef.current) return;
     await saveMonstersToDB(userId, monstersList);
     await saveMonstersToCache(monstersList);
     setUnsavedChangesMonsters(false);
@@ -354,6 +379,7 @@ export function DataHandlerProvider({ children }) {
 
     return () => unsubscribe();
   }, [userId]);
+
 //--------------------------------------------------------------------------------------
   //SCRIPTS SYNC BLOCK
 
@@ -363,10 +389,9 @@ export function DataHandlerProvider({ children }) {
   useEffect(() => {
     //currently only works with script since others were removed for their own save system
     const timeout = setTimeout(() => {
+      if (!userId || !hasSyncedRef.current) return;
       saveScriptsToCache(scriptsList);
-
       saveScriptsToDB(userId, scriptsList);
-
       setUnsavedChanges(false);
     }, 500);
 
@@ -375,7 +400,6 @@ export function DataHandlerProvider({ children }) {
     unsavedChanges,
     scriptsList,
   ]);
-
 
 //--------------------------------------------------------------------------------------
   // PLAYLIST SYNC BLOCK
@@ -386,13 +410,14 @@ export function DataHandlerProvider({ children }) {
     isApplyingRemotePlaylistRef.current = false;
     return; // não marca sujo nem agenda save
   }
-  setUnsavedChangesMusics(true);
+  setUnsavedChangesPlaylist(true);
   unsavedChangesPlaylistRef.current = true;
 
   const timeout = setTimeout(async () => {
+    if (!userId || !hasSyncedRef.current) return;
     await saveMusicsToDB(userId, playlist);
     await savePlaylistToCache(playlist);
-    setUnsavedChangesMusics(false);
+    setUnsavedChangesPlaylist(false);
     unsavedChangesPlaylistRef.current = false;
   }, 1000);
   return () => clearTimeout(timeout);
