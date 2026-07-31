@@ -40,7 +40,7 @@ export async function verifyUser( userId ) {
   const cachedUserId = await cache.get("metadata", "cachedUserId")
 
   if (cachedUserId !== userId) {
-    //console.log("web-uid and idb-uid dont match. creating new Table!")//rm on postproduction
+    console.log("web-uid and idb-uid dont match. creating new Table!")//rm on postproduction
     await cache.clear("initiatives");
     await cache.clear("combats");
     await cache.clear("monsters");
@@ -49,7 +49,7 @@ export async function verifyUser( userId ) {
     await cache.clear("metadata");
     await cache.put("metadata", userId, "cachedUserId");
   } else {
-    //console.log("web-userId and idb-userId match. pass!") //rm on postproduction
+    console.log("web-userId and idb-userId match. pass!") //rm on postproduction
   }
 }
 
@@ -130,6 +130,11 @@ export async function saveInitiativesToCache(initiativeList) {
     initiativeList,
     "cachedInitiativeList"
   );
+  await cache.put(
+    "metadata",
+    Date.now(),
+    "cachedLastSave"
+  )
 }
 
 export async function saveCombatsToCache(combats) {
@@ -139,6 +144,11 @@ export async function saveCombatsToCache(combats) {
     combats,
     "cachedUserCombats"
   );
+  await cache.put(
+    "metadata",
+    Date.now(),
+    "cachedLastSave"
+  )
 }
 
 export async function saveMonstersToCache(monstersList) {
@@ -148,6 +158,11 @@ export async function saveMonstersToCache(monstersList) {
     monstersList,
     "cachedMonstersList"
   );
+  await cache.put(
+    "metadata",
+    Date.now(),
+    "cachedLastSave"
+  )
 }
 
 export async function saveScriptsToCache(scripts) {
@@ -157,6 +172,11 @@ export async function saveScriptsToCache(scripts) {
     scripts,
     "cachedScript"
   );
+  await cache.put(
+    "metadata",
+    Date.now(),
+    "cachedLastSave"
+  )
 }
 
 export async function savePlaylistToCache(playlist) {
@@ -166,5 +186,10 @@ export async function savePlaylistToCache(playlist) {
     playlist,
     "cachedPlaylist"
   );
+  await cache.put(
+    "metadata",
+    Date.now(),
+    "cachedLastSave"
+  )
 }
 

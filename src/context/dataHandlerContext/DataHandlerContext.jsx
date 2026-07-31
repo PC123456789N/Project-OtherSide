@@ -139,7 +139,7 @@ export function DataHandlerProvider({ children }) {
           cachedData.initiatives ?? [],
           cachedData.combats ?? [],
           cachedData.monsters ?? [],
-          cachedData.script ?? {Title: "", Body: ""},
+          cachedData.script ?? [{id: "",title: "", body: ""}],
           cachedData.music ?? [],
         );
 

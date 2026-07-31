@@ -5,39 +5,44 @@ import { doc ,getDoc, getDocs, setDoc } from "firebase/firestore";
 //make any individual change update central lastSave
 
 export async function getDBLastSave(userId) {
-  const docRef = doc(db, "Users", userId,);
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()){
-    const serverData = docSnap.data()
-
-    const firestoreLastSave = serverData.LastSave;
-
-    if (firestoreLastSave) {
-      const LastSave = firestoreLastSave.toDate().getTime();
-      return LastSave;
+  try {
+    const docSnap = await getDoc(doc(db, "Users", userId));
+    if (!docSnap.exists()) {
+      console.log("Documento não encontrado!");
+      return null;
     }
-    console.log("no LastSaved timestamp here!") 
-    return null;
-      
-  } else {
-    console.log("Documento não encontrado!");
+    const lastSave = docSnap.data().LastSave;
+    if (!lastSave) {
+      console.log("Nenhum timestamp LastSave encontrado!");
+      return null;
+    }
+    return lastSave.toDate().getTime();
+  } 
+  catch (error) {
+    console.error("Error in getting LastSave in db:", error);
+    throw error
   }
 }
 
 export async function setDBLastSave(userId) {
-  if (!userId){
-    console.error("userId is undefined or null. Cannot set LastSave in Firestore.");
-    return;
-  };
+  try {
+    if (!userId){
+      console.error("userId is undefined or null. Cannot set LastSave in Firestore.");
+      return;
+    };
 
-  console.log("doc firestore/Users atualizado")
-  await setDoc( //ja havia um docs la
-    doc(db, "Users", userId), //primeiro docs
-    {
-      LastSave: serverTimestamp(),
-    }, { merge: true }
-  );
+    await setDoc( //ja havia um docs la
+      doc(db, "Users", userId), //primeiro docs
+      {
+        LastSave: serverTimestamp(),
+      }, { merge: true }
+    );
+    console.log("doc firestore/Users atualizado")
+  }
+  catch (error) {
+    console.error("Error in setting LastSave in db:", error);
+    throw error
+  }
 }
 
 //--------------------------------------------------------------------------------------
@@ -49,11 +54,11 @@ export async function saveInitiativesToDB(userId, initiativeList) {
   
   try{
     const q = query(
-    collection(db, "Initiatives"),
-    where("UserId", "==", userId)
-  );
+      collection(db, "Initiatives"),
+      where("UserId", "==", userId)
+    );
   
-  const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
   
     if (snapshot.empty) { //nn havia docs la
       await setDoc(
@@ -63,6 +68,7 @@ export async function saveInitiativesToDB(userId, initiativeList) {
           PlayerArray: initiativeList,
         }
       );
+      await setDBLastSave(userId);
       console.log("doc firestore Criado")
       return;
     }
@@ -74,10 +80,10 @@ export async function saveInitiativesToDB(userId, initiativeList) {
         PlayerArray: initiativeList,
       }
     );
+    await setDBLastSave(userId);
     console.log("doc firestore/initiatives atualizado")
     return;
-  } 
-  
+  }
   catch(error){
     console.error("Erro ao salvar:", error);
   }
@@ -139,6 +145,7 @@ export async function saveCombatsToDB(userId, combats) {
           CombatsList: combats,
         }
       );
+      await setDBLastSave(userId);
       console.log("doc firestore/Combats Criado")
       return;
     }
@@ -150,6 +157,7 @@ export async function saveCombatsToDB(userId, combats) {
         CombatsList: combats,
       }
     );
+    await setDBLastSave(userId);
     console.log("doc firestore/Combats atualizado")
     return;
   } 
@@ -215,6 +223,7 @@ export async function saveMonstersToDB(userId, monsterList) {
           MonsterList: monsterList
         }
       );
+      await setDBLastSave(userId);
       console.log("doc firestore/Monsters Criado")
       return;
     }
@@ -226,6 +235,7 @@ export async function saveMonstersToDB(userId, monsterList) {
         MonsterList: monsterList
       }
     );
+    await setDBLastSave(userId);
     console.log("doc firestore/Monsters atualizado")
     return;
   } 
@@ -291,6 +301,7 @@ export async function saveScriptsToDB(userId, scripts){
           ScriptDocs: scripts
         }
       );
+      await setDBLastSave(userId);
       console.log("doc firestore/Scripts Criado")
       return;
     }
@@ -302,6 +313,7 @@ export async function saveScriptsToDB(userId, scripts){
         ScriptDocs: scripts,
       }
     );
+    await setDBLastSave(userId);
     console.log("doc firestore/Scripts atualizado")
     return;
   } 
@@ -354,6 +366,7 @@ export async function saveMusicsToDB(userId, playlist) {
           Playlist: playlist,
         }
       );
+      await setDBLastSave(userId);
       console.log("doc firestore/Musics Criado")
       return;
     }
@@ -366,6 +379,7 @@ export async function saveMusicsToDB(userId, playlist) {
         Playlist: playlist,
       }
     );
+    await setDBLastSave(userId);
     console.log("doc firestore/Musics atualizado")
     return;
   } 
@@ -423,8 +437,6 @@ export async function saveAllToDB(userId, initiativeList, combats, monsterList, 
   await saveMonstersToDB(userId, monsterList)
   await saveScriptsToDB(userId, scripts);
   await saveMusicsToDB(userId, playlist);
-
-  await setDBLastSave(userId);
 }
 
 export async function loadAllFromDB(userId) {
@@ -438,7 +450,7 @@ export async function loadAllFromDB(userId) {
     initiatives: initiativesData?.PlayerArray ?? [],
     combat: combatsData?.CombatsList ?? [],
     monster: monstersData?.MonsterList ?? [],
-    scripts: scriptsData?.ScriptDocs ?? [],
-    music: musicsData.Playlist ?? [],
+    scripts: scriptsData?.ScriptDocs ?? [{id: "", title: "", body:""}],
+    music: musicsData?.Playlist ?? [],
   };
 }
