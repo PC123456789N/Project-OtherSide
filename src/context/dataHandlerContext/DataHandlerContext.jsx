@@ -270,27 +270,21 @@ export function DataHandlerProvider({ children }) {
 
   //tells there are changes in the combats, and triggers autosave.
   useEffect(() => {
-    if (isApplyingRemoteCombatsRef.current) {
-      isApplyingRemoteCombatsRef.current = false;
-      return;
-    }
-    console.log("combats changed, unsavedChangesCombats set to true");
-    setUnsavedChangesCombats(true);
-    unsavedChangesCombatsRef.current = true;
-  } , [combats]);
+  if (isApplyingRemoteCombatsRef.current) {
+    isApplyingRemoteCombatsRef.current = false;
+    return; // não marca sujo nem agenda save
+  }
+  setUnsavedChangesCombats(true);
+  unsavedChangesCombatsRef.current = true;
 
-  //saves data in combats docs, from db to db and resets dirtyflag to false.
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      await saveCombatsToDB(userId, combats);
-      await saveCombatsToCache(combats);
-
-      setUnsavedChangesCombats(false);
-      unsavedChangesCombatsRef.current = false;
-      console.log("saved combats to db and cache, unsavedChangesCombats set to false");
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [combats]);
+  const timeout = setTimeout(async () => {
+    await saveCombatsToDB(userId, combats);
+    await saveCombatsToCache(combats);
+    setUnsavedChangesCombats(false);
+    unsavedChangesCombatsRef.current = false;
+  }, 1000);
+  return () => clearTimeout(timeout);
+}, [combats]);
 
   //loads synced data in combats docs, from db to db.
   useEffect(() => {
