@@ -1,9 +1,9 @@
 import {auth} from "../../firebase/firebase";
-import { db } from "../../firebase/firebase";
 
 import { onAuthStateChanged } from "firebase/auth";
 
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { serverTimestamp } from "firebase/firestore";
+import { provisionUserDocs } from "../../services/DataDBHandler";
 
 import React, { useContext, useEffect, useState} from "react";
 
@@ -39,23 +39,22 @@ export function AuthProvider({ children }){
         if (!currentUser) return;
 
         const checkUser = async () => {
-            const userRef = doc(db, "Users", currentUser?.uid);
-            const userSnap = await getDoc(userRef);
+            // provisionUserDocs cria o doc Users/{uid} + os 5 docs de jogo
+            // (Initiatives, Combats, Monsters, Scripts, Musics) atomicamente,
+            // dentro de uma transação — só na primeira vez que esse uid loga.
+            // Se dois dispositivos logarem "ao mesmo tempo" com uma conta
+            // nova, a transação garante que só um deles cria os documentos
+            // (o Firestore detecta o conflito e reexecuta automaticamente a
+            // transação perdedora, que então vê o doc já existente e não
+            // recria nada).
+            const result = await provisionUserDocs(currentUser.uid, {
+                CreatedAt: serverTimestamp(),
+                Name: currentUser?.displayName || currentUser?.email.split("@")[0],
+                Email: currentUser?.email || "",
+                UserId: currentUser?.uid,
+            });
 
-            if (!userSnap.exists()) {
-                // cria usuário, caso seu id não esteja no banco
-                await setDoc(userRef, {
-                    CreatedAt: serverTimestamp(),
-                    Name: currentUser?.displayName  || currentUser?.email.split("@")[0],
-                    Email: currentUser?.email  || "",
-                    UserId: currentUser?.uid,
-                    LastSave: serverTimestamp(),
-                });
-
-            console.log("Usuário criado"); //remove post production
-            } else {
-            console.log("Usuário já existe");  //remove post production
-            }
+            console.log(result.created ? "Usuário criado" : "Usuário já existe"); //remove post production
         };
 
         checkUser();

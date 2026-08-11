@@ -1,5 +1,5 @@
 import { db } from "../firebase/firebase";
-import { onSnapshot, collection, query, where, serverTimestamp } from "firebase/firestore";
+import { onSnapshot, collection, query, where, serverTimestamp, runTransaction } from "firebase/firestore";
 import { doc ,getDoc, getDocs, setDoc } from "firebase/firestore";
 
 //make any individual change update central lastSave
@@ -426,6 +426,58 @@ export function subscribeToMusicsDB(userId, onChange) {
   });
 
   return unsubscribe;
+}
+
+//--------------------------------------------------------------------------------------
+//PROVISIONAMENTO (fix de race condition sem usar userId como ID dos docs de jogo)
+//
+// Em vez de fazer getDocs()+setDoc() "criar se não existir" toda vez que se
+// salva (o que tem uma janela de corrida: duas escritas concorrentes podem
+// ambas ver "não existe" e criar 2 documentos duplicados), criamos os 5
+// documentos de jogo (com ID aleatório, exatamente como antes) UMA ÚNICA VEZ,
+// no momento da criação da conta — dentro de uma transação atômica ancorada
+// no doc Users/{uid} (que já usa o uid como ID e por isso pode ser lido e
+// escrito atomicamente pelo SDK web, que só suporta transaction.get() em
+// DocumentReference, não em queries).
+//
+// Depois disso, saveInitiativesToDB/saveCombatsToDB/etc. SEMPRE encontram um
+// documento já existente via getDocs(), então sempre caem no branch de
+// "atualizar" (setDoc num ID já conhecido) — que é seguro mesmo com escritas
+// concorrentes, porque não há mais a etapa de "descobrir se existe e criar".
+export async function provisionUserDocs(userId, userMeta) {
+  const userRef = doc(db, "Users", userId);
+  // doc(collection(db, X)) só gera um ID local, não faz nenhuma leitura/escrita —
+  // por isso pode ser chamado fora da transação sem quebrar a atomicidade.
+  const initiativesRef = doc(collection(db, "Initiatives"));
+  const combatsRef = doc(collection(db, "Combats"));
+  const monstersRef = doc(collection(db, "Monsters"));
+  const scriptsRef = doc(collection(db, "Scripts"));
+  const musicsRef = doc(collection(db, "Musics"));
+
+  return await runTransaction(db, async (transaction) => {
+    const userSnap = await transaction.get(userRef);
+
+    if (userSnap.exists()) {
+      // conta já existia — não recria nada, evita perder dados de um
+      // usuário existente e evita duplicar os docs de jogo.
+      return { created: false };
+    }
+
+    transaction.set(userRef, {
+      ...userMeta,
+      LastSave: serverTimestamp(),
+    });
+    transaction.set(initiativesRef, { UserId: userId, PlayerArray: [] });
+    transaction.set(combatsRef, { UserId: userId, CombatsList: [] });
+    transaction.set(monstersRef, { UserId: userId, MonsterList: [] });
+    transaction.set(scriptsRef, {
+      UserId: userId,
+      ScriptDocs: [{ id: "", title: "", body: "" }],
+    });
+    transaction.set(musicsRef, { UserId: userId, Playlist: [] });
+
+    return { created: true };
+  });
 }
 
 //--------------------------------------------------------------------------------------
