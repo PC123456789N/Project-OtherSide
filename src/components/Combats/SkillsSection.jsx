@@ -103,62 +103,100 @@ export default function SkillsSection({
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-zinc-800">
-        <div
-          className={`
-            ${rowGrid}
-            bg-zinc-950/60
-            px-4
-            py-2
-            text-[10px]
-            font-semibold
-            uppercase
-            tracking-wide
-            text-zinc-500
-          `}
-        >
-          <span>Perícia</span>
-          <span className="text-center">Atributo</span>
-          <span className="text-center">Bônus</span>
-          <span className="text-center">Resultado</span>
-          <span></span>
-          <span></span>
-        </div>
+      <div className="overflow-x-auto md:overflow-hidden rounded-xl border border-zinc-800">
+        <div className="min-w-[520px] md: min-w-0">
+          <div
+            className={`
+              ${rowGrid}
+              bg-zinc-950/60
+              px-4
+              py-2
+              text-[10px]
+              font-semibold
+              uppercase
+              tracking-wide
+              text-zinc-500
+            `}
+          >
+            <span>Perícia</span>
+            <span className="text-center">Atributo</span>
+            <span className="text-center">Bônus</span>
+            <span className="text-center">Resultado</span>
+            <span></span>
+            <span></span>
+          </div>
 
-        {monster.skills.map((skill, index) => {
-          const attributeValue = monster.attributes[skill.attribute] ?? 0;
+          {monster.skills.map((skill, index) => {
+            const attributeValue = monster.attributes[skill.attribute] ?? 0;
 
-          return (
-            <div
-              key={skill.id}
-              className={`
-                ${rowGrid}
-                px-4
-                py-2.5
-                ${index % 2 === 0 ? "bg-zinc-900" : "bg-zinc-900/50"}
-              `}
-            >
-              <input
-                value={skill.name}
-                onChange={(e) => onSkillChange(skill.id, "name", e.target.value)}
-                className="
-                  w-full
-                  bg-transparent
-                  text-sm
-                  font-medium
-                  text-white
-                  outline-none
-                  focus:text-violet-300
-                "
-              />
+            return (
+              <div
+                key={skill.id}
+                className={`
+                  ${rowGrid}
+                  px-4
+                  py-2.5
+                  ${index % 2 === 0 ? "bg-zinc-900" : "bg-zinc-900/50"}
+                `}
+              >
+                <input
+                  value={skill.name}
+                  onChange={(e) => onSkillChange(skill.id, "name", e.target.value)}
+                  className="
+                    w-full
+                    bg-transparent
+                    text-sm
+                    font-medium
+                    text-white
+                    outline-none
+                    focus:text-violet-300
+                  "
+                />
 
-              <div className="flex items-center justify-center gap-1.5">
-                <select
-                  value={skill.attribute}
+                <div className="flex items-center justify-center gap-1.5">
+                  <select
+                    value={skill.attribute}
+                    onChange={(e) =>
+                      onSkillChange(skill.id, "attribute", e.target.value)
+                    }
+                    title="Atributo vinculado (define quantos d20 são rolados)"
+                    className="
+                      w-full
+                      rounded-md
+                      border
+                      border-zinc-700
+                      bg-zinc-950
+                      px-1
+                      py-1
+                      text-center
+                      text-xs
+                      text-white
+                      outline-none
+                      focus:border-violet-500
+                    "
+                  >
+                    {ATTRIBUTE_OPTIONS.map((option) => (
+                      <option key={option.key} value={option.key}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <span
+                    title="Valor atual do atributo (quantidade de d20 rolados)"
+                    className="w-5 shrink-0 text-center text-xs font-bold text-zinc-500"
+                  >
+                    {attributeValue}
+                  </span>
+                </div>
+
+                <input
+                  type="text"
+                  value={skill.bonus}
                   onChange={(e) =>
-                    onSkillChange(skill.id, "attribute", e.target.value)
+                    onSkillChange(skill.id, "bonus", Number(e.target.value) || 0)
                   }
-                  title="Atributo vinculado (define quantos d20 são rolados)"
+                  title="Bônus somado ao maior d20"
                   className="
                     w-full
                     rounded-md
@@ -168,100 +206,64 @@ export default function SkillsSection({
                     px-1
                     py-1
                     text-center
-                    text-xs
+                    text-sm
                     text-white
                     outline-none
                     focus:border-violet-500
                   "
-                >
-                  {ATTRIBUTE_OPTIONS.map((option) => (
-                    <option key={option.key} value={option.key}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                />
 
-                <span
-                  title="Valor atual do atributo (quantidade de d20 rolados)"
-                  className="w-5 shrink-0 text-center text-xs font-bold text-zinc-500"
-                >
-                  {attributeValue}
+                <span className="text-center text-sm font-bold text-violet-300">
+                  {skill.lastResult ?? "—"}
                 </span>
+
+                <button
+                  onClick={() => handleRollSkill(skill)}
+                  title="Rolar Perícia"
+                  className="
+                    flex
+                    h-8
+                    w-8
+                    items-center
+                    justify-center
+                    rounded-md
+                    bg-violet-700/80
+                    text-white
+                    transition
+                    hover:bg-violet-600
+                  "
+                >
+                  <FaDice size={13} />
+                </button>
+
+                <button
+                  onClick={() => onSkillRemove(skill.id)}
+                  title="Remover Perícia"
+                  className="
+                    flex
+                    h-8
+                    w-8
+                    items-center
+                    justify-center
+                    rounded-md
+                    text-zinc-500
+                    transition
+                    hover:bg-red-900/30
+                    hover:text-red-400
+                  "
+                >
+                  <FaTimes size={12} />
+                </button>
               </div>
+            );
+          })}
 
-              <input
-                type="text"
-                value={skill.bonus}
-                onChange={(e) =>
-                  onSkillChange(skill.id, "bonus", Number(e.target.value) || 0)
-                }
-                title="Bônus somado ao maior d20"
-                className="
-                  w-full
-                  rounded-md
-                  border
-                  border-zinc-700
-                  bg-zinc-950
-                  px-1
-                  py-1
-                  text-center
-                  text-sm
-                  text-white
-                  outline-none
-                  focus:border-violet-500
-                "
-              />
-
-              <span className="text-center text-sm font-bold text-violet-300">
-                {skill.lastResult ?? "—"}
-              </span>
-
-              <button
-                onClick={() => handleRollSkill(skill)}
-                title="Rolar Perícia"
-                className="
-                  flex
-                  h-8
-                  w-8
-                  items-center
-                  justify-center
-                  rounded-md
-                  bg-violet-700/80
-                  text-white
-                  transition
-                  hover:bg-violet-600
-                "
-              >
-                <FaDice size={13} />
-              </button>
-
-              <button
-                onClick={() => onSkillRemove(skill.id)}
-                title="Remover Perícia"
-                className="
-                  flex
-                  h-8
-                  w-8
-                  items-center
-                  justify-center
-                  rounded-md
-                  text-zinc-500
-                  transition
-                  hover:bg-red-900/30
-                  hover:text-red-400
-                "
-              >
-                <FaTimes size={12} />
-              </button>
-            </div>
-          );
-        })}
-
-        {monster.skills.length === 0 && (
-          <p className="p-4 text-center text-xs text-zinc-600">
-            Nenhuma perícia cadastrada.
-          </p>
-        )}
+          {monster.skills.length === 0 && (
+            <p className="p-4 text-center text-xs text-zinc-600">
+              Nenhuma perícia cadastrada.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
