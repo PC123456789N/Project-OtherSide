@@ -289,8 +289,8 @@ export default function MonsterHeader({
 
   return (
     <>
-    <section
-      className="
+      <section
+        className="
         rounded-xl
         border
         border-zinc-800
@@ -298,15 +298,17 @@ export default function MonsterHeader({
         p-6
         backdrop-blur
       "
-    >
-      {/* ================= LINHA 1: FOTO / NOME / ELEMENTO ... ESCUDO + GRID (DESLOCAMENTO / SANIDADE) =================
+      >
+        {/* ================= LINHA 1: FOTO / NOME / ELEMENTO ... ESCUDO + GRID (DESLOCAMENTO / SANIDADE) =================
           flex-nowrap: o bloco da direita (escudo + grid) nunca deve quebrar linha, mesmo com a sidebar aberta.
           O bloco da esquerda (foto + nome) é o único que pode encolher (min-w-0 flex-1) caso falte espaço. */}
 
-      <div className="flex flex-nowrap items-start justify-between gap-4 overflow-x-auto">
-        <div className="flex min-w-0 flex-1 items-start gap-4">
-          <div
-            className="
+        <div className="grid grid-cols-2 gap-4 md:flex md:items-start md:justify-between">
+          <div className="contents md:flex md:min-w-0 md:flex-1 md:items-start md:gap-4">
+            <div
+              className="
+              col-start-1
+              row-start-1
               h-28
               w-28
               shrink-0
@@ -315,31 +317,32 @@ export default function MonsterHeader({
               border
               border-zinc-700
               bg-zinc-800
+              md:row-auto
             "
-          >
-            {monster.image ? (
-              <img
-                src={monster.image}
-                alt={monster.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center px-2 text-center text-xs text-zinc-500">
-                Sem imagem
-              </div>
-            )}
-          </div>
+            >
+              {monster.image ? (
+                <img
+                  src={monster.image}
+                  alt={monster.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center px-2 text-center text-xs text-zinc-500">
+                  Sem imagem
+                </div>
+              )}
+            </div>
 
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="truncate text-3xl font-bold text-white">
-                {monster.name}
-              </h1>
+            <div className="col-span-2 row-start-2 min-w-0 md:col-auto md:row-auto">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="truncate text-3xl font-bold text-white">
+                  {monster.name}
+                </h1>
 
-              <button
-                onClick={() => setEditOpen(true)}
-                title="Editar Nome/Imagem/Tipo/Elemento"
-                className="
+                <button
+                  onClick={() => setEditOpen(true)}
+                  title="Editar Nome/Imagem/Tipo/Elemento"
+                  className="
                   flex
                   h-7
                   w-7
@@ -352,13 +355,13 @@ export default function MonsterHeader({
                   hover:bg-violet-900/40
                   hover:text-violet-300
                 "
-              >
-                <MdOutlineEdit size={15} />
-              </button>
+                >
+                  <MdOutlineEdit size={15} />
+                </button>
 
-              {monster.type && (
-                <span
-                  className="
+                {monster.type && (
+                  <span
+                    className="
                     shrink-0
                     rounded-md
                     bg-red-700/80
@@ -369,82 +372,75 @@ export default function MonsterHeader({
                     uppercase
                     text-white
                   "
-                >
-                  {monster.type}
-                </span>
-              )}
-            </div>
-
-            {monster.element && (
-              <p className="mt-2 truncate text-zinc-400">
-                Elemento
-                <span
-                  className={`ml-2 font-semibold ${ELEMENT_COLORS[monster.element] || "text-zinc-300"}`}
-                >
-                  {monster.element}
-                </span>
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Escudo separado + grid de 2 colunas (Deslocamento / Sanidade) — shrink-0 garante que fica fixo à direita, no mesmo tamanho, nunca cai pra baixo */}
-
-        <div className="flex shrink-0 flex-nowrap items-center gap-5">
-          <Shield value={monster.combat.defense} onChange={onDefenseChange} />
-
-          <div
-            className="
-              grid
-              grid-cols-2
-              divide-x
-              divide-zinc-800
-              overflow-hidden
-              rounded-xl
-              border
-              border-zinc-800
-              bg-zinc-950/40
-            "
-          >
-            <div className="flex flex-col items-center gap-1 px-5 py-3">
-              <div className="flex items-center gap-1">
-                <EditableNumber
-                  value={monster.combat.movement}
-                  onChange={onMovementChange}
-                  className="w-10 bg-transparent text-center text-lg font-bold text-white outline-none"
-                />
-                <span className="text-xs text-zinc-400">m</span>
+                  >
+                    {monster.type}
+                  </span>
+                )}
               </div>
 
-              <span className="text-[10px] text-zinc-500">
-                {squares} quadrados
-              </span>
+              {monster.element && (
+                <p className="mt-2 truncate text-zinc-400">
+                  Elemento
+                  <span
+                    className={`ml-2 font-semibold ${ELEMENT_COLORS[monster.element] || "text-zinc-300"}`}
+                  >
+                    {monster.element}
+                  </span>
+                </p>
+              )}
+              <div
+                className="
+                mt-4
+                grid
+                grid-cols-2
+                divide-x
+                divide-zinc-800
+                overflow-hidden
+                rounded-xl
+                border
+                border-zinc-800
+                bg-zinc-950/40
+                md:hidden
+              "
+              >
+                <div className="flex flex-col items-center gap-1 px-5 py-3">
+                  <div className="flex items-center gap-1">
+                    <EditableNumber
+                      value={monster.combat.movement}
+                      onChange={onMovementChange}
+                      className="w-10 bg-transparent text-center text-lg font-bold text-white outline-none"
+                    />
+                    <span className="text-xs text-zinc-400">m</span>
+                  </div>
 
-              <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
-                <FaRunning />
-                Deslocamento
-              </span>
-            </div>
+                  <span className="text-[10px] text-zinc-500">
+                    {squares} quadrados
+                  </span>
 
-            <div className="flex flex-col items-center gap-1 px-5 py-3">
-              <div className="flex items-center gap-1">
-                <EditableText
-                  value={monster.combat.sanityDamage.damage}
-                  onChange={onSanityDamageChange}
-                  placeholder="2d10"
-                  className="w-12 bg-transparent text-center text-lg font-bold text-white outline-none"
-                />
-                <span className="text-zinc-600">/</span>
-                <EditableNumber
-                  value={monster.combat.sanityDamage.value}
-                  onChange={onSanityValueChange}
-                  className="w-8 bg-transparent text-center text-lg font-bold text-violet-400 outline-none"
-                />
+                  <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
+                    <FaRunning />
+                    Deslocamento
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-1 px-5 py-3">
+                  <div className="flex items-center gap-1">
+                    <EditableText
+                      value={monster.combat.sanityDamage.damage}
+                      onChange={onSanityDamageChange}
+                      placeholder="2d10"
+                      className="w-12 bg-transparent text-center text-lg font-bold text-white outline-none"
+                    />
+                    <span className="text-zinc-600">/</span>
+                    <EditableNumber
+                      value={monster.combat.sanityDamage.value}
+                      onChange={onSanityValueChange}
+                      className="w-8 bg-transparent text-center text-lg font-bold text-violet-400 outline-none"
+                    />
 
-                <button
-                  onClick={handleRollSanityDamage}
-                  title="Rolar Dano de Sanidade"
-                  className="
+                    <button
+                      onClick={handleRollSanityDamage}
+                      title="Rolar Dano de Sanidade"
+                      className="
                     flex
                     h-6
                     w-6
@@ -457,25 +453,112 @@ export default function MonsterHeader({
                     transition
                     hover:bg-violet-600
                   "
-                >
-                  <FaDice size={11} />
-                </button>
+                    >
+                      <FaDice size={11} />
+                    </button>
+                  </div>
+
+                  <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
+                    <FaBrain />
+                    Presença Perturbadora
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Escudo separado + grid de 2 colunas (Deslocamento / Sanidade) — shrink-0 garante que fica fixo à direita, no mesmo tamanho, nunca cai pra baixo */}
+
+          <div className="col-span-2 row-start-1 flex min-w-0 flex-col items-center gap-3 md:col-auto md:row-auto md:flex-row md:flex-nowrap md:shrink-0 md:gap-5">
+            <div className="col-start-2 row-start-1 md:contents">
+              <Shield value={monster.combat.defense} onChange={onDefenseChange} />
+            </div>
+            <div
+              className="
+              hidden
+              grid-cols-2
+              divide-x
+              divide-zinc-800
+              overflow-hidden
+              rounded-xl
+              border
+              border-zinc-800
+              bg-zinc-950/40
+              md:grid
+              md:col-auto
+              md:row-auto
+            "
+            >
+              <div className="flex flex-col items-center gap-1 px-5 py-3">
+                <div className="flex items-center gap-1">
+                  <EditableNumber
+                    value={monster.combat.movement}
+                    onChange={onMovementChange}
+                    className="w-10 bg-transparent text-center text-lg font-bold text-white outline-none"
+                  />
+                  <span className="text-xs text-zinc-400">m</span>
+                </div>
+
+                <span className="text-[10px] text-zinc-500">
+                  {squares} quadrados
+                </span>
+
+                <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
+                  <FaRunning />
+                  Deslocamento
+                </span>
               </div>
 
-              <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
-                <FaBrain />
-                Presença Perturbadora
-              </span>
+              <div className="flex flex-col items-center gap-1 px-5 py-3">
+                <div className="flex items-center gap-1">
+                  <EditableText
+                    value={monster.combat.sanityDamage.damage}
+                    onChange={onSanityDamageChange}
+                    placeholder="2d10"
+                    className="w-12 bg-transparent text-center text-lg font-bold text-white outline-none"
+                  />
+                  <span className="text-zinc-600">/</span>
+                  <EditableNumber
+                    value={monster.combat.sanityDamage.value}
+                    onChange={onSanityValueChange}
+                    className="w-8 bg-transparent text-center text-lg font-bold text-violet-400 outline-none"
+                  />
+
+                  <button
+                    onClick={handleRollSanityDamage}
+                    title="Rolar Dano de Sanidade"
+                    className="
+                    flex
+                    h-6
+                    w-6
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-md
+                    bg-violet-700/80
+                    text-white
+                    transition
+                    hover:bg-violet-600
+                  "
+                  >
+                    <FaDice size={11} />
+                  </button>
+                </div>
+
+                <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500">
+                  <FaBrain />
+                  Presença Perturbadora
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ================= LINHA 2: HP ... ATRIBUTOS =================
+        {/* ================= LINHA 2: HP ... ATRIBUTOS =================
           mt-6 -> mt-3 e p-4 -> p-3: aproxima esse bloco da Linha 1, "subindo" o HP/atributos. */}
 
-      <div
-        className="
+        <div
+          className="
           mt-3
           flex
           flex-wrap
@@ -488,19 +571,19 @@ export default function MonsterHeader({
           bg-zinc-950/40
           p-3
         "
-      >
-        <div className="min-w-[220px] flex-1">
-          <div className="mb-1 flex items-center justify-between text-sm">
-            <span className="flex items-center gap-1.5 text-red-300">
-              <FaHeartbeat />
-              HP
-            </span>
+        >
+          <div className="min-w-[220px] flex-1">
+            <div className="mb-1 flex items-center justify-between text-sm">
+              <span className="flex items-center gap-1.5 text-red-300">
+                <FaHeartbeat />
+                HP
+              </span>
 
-            <div className="flex items-center gap-1 font-semibold text-white">
-              <EditableNumber
-                value={monster.hp.current}
-                onChange={onHpCurrentChange}
-                className="
+              <div className="flex items-center gap-1 font-semibold text-white">
+                <EditableNumber
+                  value={monster.hp.current}
+                  onChange={onHpCurrentChange}
+                  className="
                   w-14
                   rounded-md
                   border
@@ -513,14 +596,14 @@ export default function MonsterHeader({
                   outline-none
                   focus:border-violet-500
                 "
-              />
+                />
 
-              <span className="text-zinc-500">/</span>
+                <span className="text-zinc-500">/</span>
 
-              <EditableNumber
-                value={monster.hp.max}
-                onChange={onHpMaxChange}
-                className="
+                <EditableNumber
+                  value={monster.hp.max}
+                  onChange={onHpMaxChange}
+                  className="
                   w-14
                   rounded-md
                   border
@@ -533,23 +616,23 @@ export default function MonsterHeader({
                   outline-none
                   focus:border-violet-500
                 "
+                />
+              </div>
+            </div>
+
+            <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-red-600 transition-all"
+                style={{ width: `${hpPercent}%` }}
               />
             </div>
-          </div>
 
-          <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
-            <div
-              className="h-full rounded-full bg-red-600 transition-all"
-              style={{ width: `${hpPercent}%` }}
-            />
-          </div>
-
-          {/* Dano à esquerda, valor centralizado embaixo, cura à direita */}
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <button
-              onClick={() => applyAmount("damage")}
-              title="Aplicar dano"
-              className="
+            {/* Dano à esquerda, valor centralizado embaixo, cura à direita */}
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <button
+                onClick={() => applyAmount("damage")}
+                title="Aplicar dano"
+                className="
                 group
                 flex
                 h-11
@@ -571,17 +654,17 @@ export default function MonsterHeader({
                 hover:shadow-[0_0_18px_rgba(220,38,38,0.55)]
                 active:scale-95
               "
-            >
-              <GiBroadsword size={17} className="transition group-hover:-rotate-12" />
-            </button>
+              >
+                <GiBroadsword size={17} className="transition group-hover:-rotate-12" />
+              </button>
 
-            <div className="flex flex-1 flex-col items-center gap-1">
-              <input
-                type="text"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0"
-                className="
+              <div className="flex flex-1 flex-col items-center gap-1">
+                <input
+                  type="text"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0"
+                  className="
                   w-16
                   rounded-lg
                   border
@@ -597,16 +680,16 @@ export default function MonsterHeader({
                   focus:border-violet-500
                   focus:shadow-[0_0_0_3px_rgba(139,92,246,0.25)]
                 "
-              />
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-zinc-500">
-                Valor
-              </span>
-            </div>
+                />
+                <span className="text-[9px] font-semibold uppercase tracking-widest text-zinc-500">
+                  Valor
+                </span>
+              </div>
 
-            <button
-              onClick={() => applyAmount("heal")}
-              title="Curar"
-              className="
+              <button
+                onClick={() => applyAmount("heal")}
+                title="Curar"
+                className="
                 group
                 flex
                 h-11
@@ -628,28 +711,28 @@ export default function MonsterHeader({
                 hover:shadow-[0_0_18px_rgba(16,185,129,0.55)]
                 active:scale-95
               "
-            >
-              <FaHeart size={16} className="transition group-hover:scale-110" />
-            </button>
+              >
+                <FaHeart size={16} className="transition group-hover:scale-110" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-wrap gap-3">
-          {Object.entries(monster.attributes).map(([key, value]) => (
-            <div key={key} className="flex flex-col items-center gap-1">
-              <Hexagon
-                value={value}
-                onChange={(newValue) => onAttributeChange(key, newValue)}
-              />
+          <div className="flex flex-wrap gap-3">
+            {Object.entries(monster.attributes).map(([key, value]) => (
+              <div key={key} className="flex flex-col items-center gap-1">
+                <Hexagon
+                  value={value}
+                  onChange={(newValue) => onAttributeChange(key, newValue)}
+                />
 
-              <p className="text-[10px] uppercase text-zinc-500">
-                {key.slice(0, 3)}
-              </p>
+                <p className="text-[10px] uppercase text-zinc-500">
+                  {key.slice(0, 3)}
+                </p>
 
-              <button
-                onClick={() => handleRollAttribute(key, value)}
-                title={`Testar ${ATTRIBUTE_LABELS[key] || key} (${Math.max(1, Number(value) || 1)}d20)`}
-                className="
+                <button
+                  onClick={() => handleRollAttribute(key, value)}
+                  title={`Testar ${ATTRIBUTE_LABELS[key] || key} (${Math.max(1, Number(value) || 1)}d20)`}
+                  className="
                   flex
                   h-6
                   w-6
@@ -661,21 +744,21 @@ export default function MonsterHeader({
                   transition
                   hover:bg-violet-600
                 "
-              >
-                <FaDice size={11} />
-              </button>
-            </div>
-          ))}
+                >
+                  <FaDice size={11} />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <CreateCombatModal
-      open={editOpen}
-      onClose={() => setEditOpen(false)}
-      onSave={handleEditSave}
-      combat={editModalCombat}
-    />
+      <CreateCombatModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSave={handleEditSave}
+        combat={editModalCombat}
+      />
     </>
   );
 }
