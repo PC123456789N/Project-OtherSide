@@ -23,6 +23,8 @@ const fetchTitle = async (id) => {
   } catch { return null; }
 };
 
+const toDownloadLink = (id) => `https://yout-ube.com/watch?v=${id}`;
+
 const MusicCard = ({ track, onPlay, onRemove, onRename }) => (
   <div
     className="
@@ -135,7 +137,7 @@ export default function MusicRPG() {
     if (!id) return alert("Link inválido");
     setLoading(true);
     const title = await fetchTitle(id);
-    setPlaylist([...playlist, { id, categoria, nome: title || `Música ${playlist.length + 1}` }]);
+    setPlaylist([...playlist, { id, categoria, nome: title || `Música ${playlist.length + 1}`, url: toDownloadLink(id) }]);
     setLink("");
     setLoading(false);
   };

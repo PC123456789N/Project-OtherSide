@@ -63,7 +63,8 @@ export default function GlobalPlayer() {
           width="100%"
           height="100%"
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&rel=0&playsinline=0&modestbranding=1`}
-          allow="autoplay"
+          allow="autoplay; encrypted-media"
+          referrerPolicy="strict-origin-when-cross-origin"
           title="player"
           className="absolute inset-0 h-full w-full"
         />
