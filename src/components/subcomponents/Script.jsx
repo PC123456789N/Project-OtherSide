@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 
 import { LiaMarkerSolid } from "react-icons/lia";
 import { FaRemoveFormat } from "react-icons/fa";
+import { FaMusic } from "react-icons/fa";
 
 import { useEditor, EditorContent } from "@tiptap/react"
 import Document from "@tiptap/extension-document"
@@ -27,6 +28,7 @@ import Color from "@tiptap/extension-color"
 import Highlight from "@tiptap/extension-highlight"
 
 import ScriptsSidebar from "./ScriptsSidebar"
+import PlaylistPopup from "./PlaylistPopup";
 
 function ColorPicker({ label, activeColor, onSelect, onClear }) {
   const [open, setOpen] = useState(false)
@@ -98,7 +100,8 @@ export default function Script() {
   // gente validar o visual e o comportamento da sidebar. Quando formos
   // cuidar do salvamento, esse bloco inteiro vira chamadas pro
   // useDataHandler (scriptsList, activeScriptId, createScript, etc).
-  const {scriptsList, setScriptsList} = useDataHandler();
+  const { scriptsList, setScriptsList } = useDataHandler();
+  const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
   const [activeScriptId, setActiveScriptId] = useState("")
 
   const activeScript = scriptsList.find((s) => s.id === activeScriptId) || null
@@ -191,7 +194,7 @@ export default function Script() {
     }
   }, [activeScriptId, activeScript?.body]);
 
-    if (!editor) return null
+  if (!editor) return null
 
   // nenhum roteiro criado ainda (ex: usuário apagou o último)
   if (!activeScript) {
@@ -212,7 +215,7 @@ export default function Script() {
     )
   }
 
-  return(
+  return (
     <div className="h-full w-full bg-black flex overflow-hidden relative">
 
       <ScriptsSidebar
@@ -231,14 +234,29 @@ export default function Script() {
 
         <div className="flex-1 overflow-hidden p-3 relative">
           <div className="max-w-5xl mx-auto min-h-0 bg-zinc-900/80 backdrop-blur-sm text-white p-5 rounded-xl h-full flex flex-col shadow-lg border border-purple-900/50">
+            <div className="relative flex justify-between gap-5">
+              <input
+                type="text"
+                placeholder="Título..."
+                onChange={(e) => updateActiveScriptTitle(e.target.value)}
+                value={activeScript.title}
+                className="bg-transparent flex-1 min-w-0 text-2xl font-bold outline-none placeholder:text-gray-500 pb-3 tracking-wide"
+              />
 
-            <input
-              type="text"
-              placeholder="Título..."
-              onChange={(e) => updateActiveScriptTitle(e.target.value)}
-              value={activeScript.title}
-              className="bg-transparent text-2xl font-bold outline-none placeholder:text-gray-500 pb-3 tracking-wide"
-            />
+              {isPlaylistOpen && (
+                <PlaylistPopup
+                  onClose={() => setIsPlaylistOpen(false)}
+                />
+              )}
+
+              <button
+                onClick={() => setIsPlaylistOpen(!isPlaylistOpen)}
+                title="Minha Playlist"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border-1 border-red-900/50 
+                bg-black transition hover:bg-red-900/60 hover:text-red-300 shrink-0">
+                <FaMusic />
+              </button>
+            </div>
 
             <div className="flex items-center gap-2 border-b border-purple-900 pb-3 mb-3 flex-wrap">
               <button
@@ -293,44 +311,40 @@ export default function Script() {
 
               <button
                 onClick={() => editor.chain().focus().toggleBold().run()}
-                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                  editor.isActive('bold')
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${editor.isActive('bold')
                     ? 'bg-purple-600 border-purple-500 text-white'
                     : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-                }`}
+                  }`}
               >
                 <strong>B</strong>
               </button>
 
               <button
                 onClick={() => editor.chain().focus().toggleItalic().run()}
-                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                  editor.isActive('italic')
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${editor.isActive('italic')
                     ? 'bg-purple-600 border-purple-500 text-white'
                     : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-                }`}
+                  }`}
               >
                 <em>I</em>
               </button>
 
               <button
                 onClick={() => editor.chain().focus().toggleUnderline().run()}
-                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                  editor.isActive('underline')
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${editor.isActive('underline')
                     ? 'bg-purple-600 border-purple-500 text-white'
                     : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-                }`}
+                  }`}
               >
                 <u className="underline">U</u>
               </button>
 
               <button
                 onClick={() => editor.chain().focus().toggleStrike().run()}
-                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${
-                  editor.isActive('strike')
+                className={`size-9 flex items-center justify-center rounded-full border transition-colors ${editor.isActive('strike')
                     ? 'bg-purple-600 border-purple-500 text-white'
                     : 'bg-black/60 border-purple-900/40 text-gray-300 hover:border-purple-500 hover:text-white'
-                }`}
+                  }`}
               >
                 <s className="line-through">S</s>
               </button>
@@ -371,7 +385,7 @@ export default function Script() {
                 className="size-9 flex items-center justify-center rounded-full border border-purple-900/40 bg-black/60 text-gray-300 hover:border-red-500 hover:text-white transition-colors"
                 title="Limpar formatação"
               >
-                <FaRemoveFormat size={20}/>
+                <FaRemoveFormat size={20} />
               </button>
 
               <div className="ml-auto text-xs uppercase tracking-widest text-purple-300/70 font-semibold pr-1">

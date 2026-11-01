@@ -60,9 +60,10 @@ export default function GlobalPlayer() {
 
       <div className="relative aspect-video w-full bg-black">
         <iframe
+          id="youtube-player"
           width="100%"
           height="100%"
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&rel=0&playsinline=0&modestbranding=1`}
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&rel=0&playsinline=1&modestbranding=1&enablejsapi=1`}
           allow="autoplay; encrypted-media"
           referrerPolicy="strict-origin-when-cross-origin"
           title="player"
